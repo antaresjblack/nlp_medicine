@@ -1,0 +1,58 @@
+{
+  "passed": true,
+  "records_before": 15000,
+  "records_after": 14990,
+  "entities_before": 61796,
+  "entities_after": 61771,
+  "labels_before": {
+    "pro": 6332,
+    "dis": 15843,
+    "sym": 12269,
+    "ite": 2581,
+    "bod": 17697,
+    "dru": 3930,
+    "mic": 1908,
+    "equ": 888,
+    "dep": 348
+  },
+  "labels_after": {
+    "pro": 6323,
+    "dis": 15830,
+    "sym": 12264,
+    "ite": 2581,
+    "bod": 17699,
+    "dru": 3930,
+    "mic": 1907,
+    "equ": 888,
+    "dep": 349
+  },
+  "modified_records": 19,
+  "excluded_records": 10,
+  "remaining_groups": 8,
+  "counters": {
+    "consistent_groups_preserved": 25,
+    "excluded_groups": 5,
+    "removed_review_entities": 10,
+    "added_review_entities": 18,
+    "unified_groups": 10,
+    "invalid_entities_removed": 2
+  },
+  "protected_sha256_before": {
+    "C:\\Users\\home\\Desktop\\MedicalNER_Project\\data_raw\\CMeEE_dev.json": "bbe6be016bdb1a418362507024902b70587b951a884cf4a96a6d1246822cd07c",
+    "C:\\Users\\home\\Desktop\\MedicalNER_Project\\data_raw\\CMeEE_train.json": "984f0bea3932c8c5afd96d9cccac4895b87ec77f57bd3e825d832a17943cd5d3",
+    "C:\\Users\\home\\Desktop\\MedicalNER_Project\\data_cleaned\\cleaning_plan.json": "2f3196e41a013cce085985a5143d1422ece6e928c517f55c3f710d88166ba5c0",
+    "C:\\Users\\home\\Desktop\\MedicalNER_Project\\docs\\duplicate_annotation_review_checked.csv.xlsx": "6903ec4e6bfc76ae3dc61d019a78c0238f01cd2e159b831fdb2392dd4c597478",
+    "C:\\Users\\home\\Desktop\\MedicalNER_Project\\data_raw\\CMeEE_test.json": "dca7d9b7cf820947bba68e14557908fdc63e9286add1b4bc34f78f245e0c7ecf"
+  },
+  "protected_sha256_after": {
+    "C:\\Users\\home\\Desktop\\MedicalNER_Project\\data_raw\\CMeEE_dev.json": "bbe6be016bdb1a418362507024902b70587b951a884cf4a96a6d1246822cd07c",
+    "C:\\Users\\home\\Desktop\\MedicalNER_Project\\data_raw\\CMeEE_train.json": "984f0bea3932c8c5afd96d9cccac4895b87ec77f57bd3e825d832a17943cd5d3",
+    "C:\\Users\\home\\Desktop\\MedicalNER_Project\\data_cleaned\\cleaning_plan.json": "2f3196e41a013cce085985a5143d1422ece6e928c517f55c3f710d88166ba5c0",
+    "C:\\Users\\home\\Desktop\\MedicalNER_Project\\docs\\duplicate_annotation_review_checked.csv.xlsx": "6903ec4e6bfc76ae3dc61d019a78c0238f01cd2e159b831fdb2392dd4c597478",
+    "C:\\Users\\home\\Desktop\\MedicalNER_Project\\data_raw\\CMeEE_test.json": "dca7d9b7cf820947bba68e14557908fdc63e9286add1b4bc34f78f245e0c7ecf"
+  },
+  "group_validation_errors": [],
+  "all_changes_logged": true,
+  "note": "结构和追溯校验通过不代表所有语义争议已解决；部分 reviewed 组仍有未裁定实体差异。",
+  "cleaned_sha256": "bf3e16e78a7f1f42f4f1ae6722cd0794b5e1acb9b822f3321937bae71411af22"
+}

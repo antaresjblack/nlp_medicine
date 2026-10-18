@@ -1,0 +1,94 @@
+Source: C:\Users\home\Desktop\MedicalNER_Project\data_raw\CMeEE_train.json
+Scope: first 3 training records only; no dataset-wide conclusion.
+Indices below use Python Unicode character positions, starting at zero.
+======================================================================
+Record index: 0
+Text: '（5）房室结消融和起搏器植入作为反复发作或难治性心房内折返性心动过速的替代疗法。'
+Entity count: 3
+
+Entity #0: {'start_idx': 3, 'end_idx': 7, 'type': 'pro', 'entity': '房室结消融'}
+  start=3 (start_idx), end=7 (end_idx)
+  annotated entity text: '房室结消融'
+  inclusive-end bounds valid: True
+  exclusive-end bounds valid: True
+  inclusive-end slice: '房室结消融'
+  exclusive-end slice: '房室结消'
+  inclusive matches annotation: True
+  exclusive matches annotation: False
+
+Entity #1: {'start_idx': 9, 'end_idx': 13, 'type': 'pro', 'entity': '起搏器植入'}
+  start=9 (start_idx), end=13 (end_idx)
+  annotated entity text: '起搏器植入'
+  inclusive-end bounds valid: True
+  exclusive-end bounds valid: True
+  inclusive-end slice: '起搏器植入'
+  exclusive-end slice: '起搏器植'
+  inclusive matches annotation: True
+  exclusive matches annotation: False
+
+Entity #2: {'start_idx': 16, 'end_idx': 33, 'type': 'dis', 'entity': '反复发作或难治性心房内折返性心动过速'}
+  start=16 (start_idx), end=33 (end_idx)
+  annotated entity text: '反复发作或难治性心房内折返性心动过速'
+  inclusive-end bounds valid: True
+  exclusive-end bounds valid: True
+  inclusive-end slice: '反复发作或难治性心房内折返性心动过速'
+  exclusive-end slice: '反复发作或难治性心房内折返性心动过'
+  inclusive matches annotation: True
+  exclusive matches annotation: False
+
+Overlapping entity pairs assuming inclusive-end: []
+Overlapping entity pairs assuming exclusive-end: []
+======================================================================
+Record index: 1
+Text: '（6）发作一次伴血流动力学损害的室性心动过速（ventriculartachycardia），可接受导管消融者。'
+Entity count: 3
+
+Entity #0: {'start_idx': 8, 'end_idx': 21, 'type': 'dis', 'entity': '血流动力学损害的室性心动过速'}
+  start=8 (start_idx), end=21 (end_idx)
+  annotated entity text: '血流动力学损害的室性心动过速'
+  inclusive-end bounds valid: True
+  exclusive-end bounds valid: True
+  inclusive-end slice: '血流动力学损害的室性心动过速'
+  exclusive-end slice: '血流动力学损害的室性心动过'
+  inclusive matches annotation: True
+  exclusive matches annotation: False
+
+Entity #1: {'start_idx': 23, 'end_idx': 44, 'type': 'dis', 'entity': 'ventriculartachycardia'}
+  start=23 (start_idx), end=44 (end_idx)
+  annotated entity text: 'ventriculartachycardia'
+  inclusive-end bounds valid: True
+  exclusive-end bounds valid: True
+  inclusive-end slice: 'ventriculartachycardia'
+  exclusive-end slice: 'ventriculartachycardi'
+  inclusive matches annotation: True
+  exclusive matches annotation: False
+
+Entity #2: {'start_idx': 50, 'end_idx': 53, 'type': 'pro', 'entity': '导管消融'}
+  start=50 (start_idx), end=53 (end_idx)
+  annotated entity text: '导管消融'
+  inclusive-end bounds valid: True
+  exclusive-end bounds valid: True
+  inclusive-end slice: '导管消融'
+  exclusive-end slice: '导管消'
+  inclusive matches annotation: True
+  exclusive matches annotation: False
+
+Overlapping entity pairs assuming inclusive-end: []
+Overlapping entity pairs assuming exclusive-end: []
+======================================================================
+Record index: 2
+Text: '4.第三类（1）无症状性WPW综合征患者，年龄小于5岁。'
+Entity count: 1
+
+Entity #0: {'start_idx': 8, 'end_idx': 17, 'type': 'dis', 'entity': '无症状性WPW综合征'}
+  start=8 (start_idx), end=17 (end_idx)
+  annotated entity text: '无症状性WPW综合征'
+  inclusive-end bounds valid: True
+  exclusive-end bounds valid: True
+  inclusive-end slice: '无症状性WPW综合征'
+  exclusive-end slice: '无症状性WPW综合'
+  inclusive matches annotation: True
+  exclusive matches annotation: False
+
+Overlapping entity pairs assuming inclusive-end: []
+Overlapping entity pairs assuming exclusive-end: []

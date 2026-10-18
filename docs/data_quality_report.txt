@@ -1,0 +1,178 @@
+CMeEE second-stage data quality report
+Indices: zero-based Python Unicode characters; end_idx is inclusive.
+Counts are observations, not automatic error judgments. Source data is never modified.
+Label denominator: ALL entity entries in the split, including anomalous entries.
+invalid_offsets and inclusive_out_of_bounds follow validate_entity_offsets.py.
+Text mismatch checks require valid inclusive bounds and nonempty string entity text.
+Overlaps: each unordered entity pair counted once within a record; inclusive spans intersect.
+Only valid in-bounds spans enter overlap checks; labels/text matches do not filter spans.
+Equal spans, proper containment and crossing overlaps are mutually exclusive categories.
+Overlap is a data feature, not by itself an annotation error.
+Duplicates use exact text equality without trimming or normalization; extra records = sum(n-1).
+Examples: first 10 per category; offset anomaly events: first 20 per file.
+
+======================================================================
+File: CMeEE_train.json
+SHA256: 984f0bea3932c8c5afd96d9cccac4895b87ec77f57bd3e825d832a17943cd5d3
+records: 15000
+invalid_record: 0
+invalid_text: 0
+invalid_entities_field: 0
+empty_entities: 0
+entities: 61796
+invalid_entity: 0
+invalid_entity_text: 2
+invalid_label: 0
+invalid_offsets: 2
+inclusive_out_of_bounds: 0
+exclusive_out_of_bounds: 1610
+inclusive_match: 61794
+inclusive_mismatch: 0
+exclusive_match: 0
+exclusive_mismatch: 60184
+empty_entity_text: 2
+unknown_labels: 0
+overlap_pairs: 3681
+equal_span_pairs: 33
+containment_pairs: 3645
+crossing_pairs: 3
+records_with_overlap: 1666
+excluded_overlap_entities: 2
+duplicate_text_groups: 43
+duplicate_text_extra_records: 43
+Label counts and percentages (all entities denominator):
+  dis: 15843 (25.637582%)
+  sym: 12269 (19.854036%)
+  dru: 3930 (6.359635%)
+  equ: 888 (1.436986%)
+  pro: 6332 (10.246618%)
+  bod: 17697 (28.637776%)
+  ite: 2581 (4.176646%)
+  mic: 1908 (3.087578%)
+  dep: 348 (0.563143%)
+Offset anomaly events: 4 (one entity may trigger multiple events)
+{"record_index": 6051, "entity_index": 1, "reason": "missing, empty or non-string entity text"}
+{"record_index": 6051, "entity_index": 1, "reason": "invalid offsets", "annotation": {"start_idx": 16, "end_idx": 15, "type": "pro", "entity": ""}}
+{"record_index": 6421, "entity_index": 3, "reason": "missing, empty or non-string entity text"}
+{"record_index": 6421, "entity_index": 3, "reason": "invalid offsets", "annotation": {"start_idx": 15, "end_idx": 14, "type": "mic", "entity": ""}}
+Examples: containment_pairs
+{"record_index": 17, "entity_indices": [2, 3], "entities": [{"start_idx": 10, "end_idx": 11, "type": "bod", "entity": "咽肌"}, {"start_idx": 10, "end_idx": 13, "type": "sym", "entity": "咽肌痉挛"}], "text": "临床上以恐水、怕风、咽肌痉挛、进行性瘫痪为特征，病死率极高。"}
+{"record_index": 17, "entity_indices": [4, 5], "entities": [{"start_idx": 18, "end_idx": 19, "type": "dis", "entity": "瘫痪"}, {"start_idx": 15, "end_idx": 19, "type": "sym", "entity": "进行性瘫痪"}], "text": "临床上以恐水、怕风、咽肌痉挛、进行性瘫痪为特征，病死率极高。"}
+{"record_index": 30, "entity_indices": [3, 5], "entities": [{"start_idx": 25, "end_idx": 27, "type": "bod", "entity": "呼吸肌"}, {"start_idx": 25, "end_idx": 33, "type": "sym", "entity": "呼吸肌及吞咽肌痉挛"}], "text": "由于迷走神经、舌咽神经核及舌下神经核受损伤，可发生呼吸肌及吞咽肌痉挛。"}
+{"record_index": 30, "entity_indices": [4, 5], "entities": [{"start_idx": 29, "end_idx": 31, "type": "bod", "entity": "吞咽肌"}, {"start_idx": 25, "end_idx": 33, "type": "sym", "entity": "呼吸肌及吞咽肌痉挛"}], "text": "由于迷走神经、舌咽神经核及舌下神经核受损伤，可发生呼吸肌及吞咽肌痉挛。"}
+{"record_index": 31, "entity_indices": [0, 1], "entities": [{"start_idx": 0, "end_idx": 3, "type": "bod", "entity": "交感神经"}, {"start_idx": 0, "end_idx": 5, "type": "sym", "entity": "交感神经受累"}], "text": "交感神经受累时，可致唾液分泌和出汗增多。"}
+{"record_index": 31, "entity_indices": [2, 4], "entities": [{"start_idx": 10, "end_idx": 11, "type": "bod", "entity": "唾液"}, {"start_idx": 10, "end_idx": 18, "type": "sym", "entity": "唾液分泌和出汗增多"}], "text": "交感神经受累时，可致唾液分泌和出汗增多。"}
+{"record_index": 31, "entity_indices": [3, 4], "entities": [{"start_idx": 16, "end_idx": 16, "type": "bod", "entity": "汗"}, {"start_idx": 10, "end_idx": 18, "type": "sym", "entity": "唾液分泌和出汗增多"}], "text": "交感神经受累时，可致唾液分泌和出汗增多。"}
+{"record_index": 32, "entity_indices": [0, 2], "entities": [{"start_idx": 0, "end_idx": 1, "type": "bod", "entity": "延髓"}, {"start_idx": 0, "end_idx": 6, "type": "sym", "entity": "延髓和脊髓受损"}], "text": "延髓和脊髓受损，则可引起各种类型的瘫痪。"}
+{"record_index": 32, "entity_indices": [1, 2], "entities": [{"start_idx": 3, "end_idx": 4, "type": "bod", "entity": "脊髓"}, {"start_idx": 0, "end_idx": 6, "type": "sym", "entity": "延髓和脊髓受损"}], "text": "延髓和脊髓受损，则可引起各种类型的瘫痪。"}
+{"record_index": 36, "entity_indices": [0, 2], "entities": [{"start_idx": 7, "end_idx": 9, "type": "bod", "entity": "脑实质"}, {"start_idx": 7, "end_idx": 17, "type": "sym", "entity": "脑实质和脑膜水肿、充血"}], "text": "主要病理改变为脑实质和脑膜水肿、充血，微小血管出血，尤以大脑海马、延髓、脑桥、小脑和咬伤部位相应的背根节及脊髓段最为严重。"}
+Examples: crossing_pairs
+{"record_index": 7146, "entity_indices": [7, 9], "entities": [{"start_idx": 86, "end_idx": 92, "type": "dis", "entity": "肺血管流出道梗"}, {"start_idx": 91, "end_idx": 93, "type": "bod", "entity": "道梗阻"}], "text": "但超声心动图诊断三尖瓣闭锁效果良好，一般很少行选择性右心房造影；左心室造影可见发育程度不同的右心室，像附着于前侧壁居中的一个憩室，还可清楚描绘出室间隔缺损、大动脉位置关系、肺血管流出道梗阻及肺动脉解剖结构（图9-9），左室舒张末期容积增加。"}
+{"record_index": 7146, "entity_indices": [8, 9], "entities": [{"start_idx": 86, "end_idx": 92, "type": "pro", "entity": "肺血管流出道梗"}, {"start_idx": 91, "end_idx": 93, "type": "bod", "entity": "道梗阻"}], "text": "但超声心动图诊断三尖瓣闭锁效果良好，一般很少行选择性右心房造影；左心室造影可见发育程度不同的右心室，像附着于前侧壁居中的一个憩室，还可清楚描绘出室间隔缺损、大动脉位置关系、肺血管流出道梗阻及肺动脉解剖结构（图9-9），左室舒张末期容积增加。"}
+{"record_index": 9348, "entity_indices": [1, 4], "entities": [{"start_idx": 12, "end_idx": 14, "type": "dis", "entity": "三凹征"}, {"start_idx": 14, "end_idx": 17, "type": "sym", "entity": "征，腹部"}], "text": "未用呼吸机的患儿可表现为三凹征，腹部肝脏肿大。"}
+Examples: duplicate_text
+{"record_indices": [1899, 1911], "text": "可以用体描仪和氦气稀释法或氮气洗出法测定。"}
+{"record_indices": [4622, 8760], "text": "由于我国发病率较欧美国家为少，另外PBAV在技术上有别于PBPV，且有严重并发症发生，因此国内除上海新华医院一组报告外，尚无系统开展该技术的报道。"}
+{"record_indices": [4623, 8761], "text": "根据1982～1986年204例小儿经皮球囊主动脉瓣形成术总结，95.1%获得即期成功。"}
+{"record_indices": [4624, 8762], "text": "随后对PBAV方法学上进行较多的研究，包括单球囊与双球囊扩张术及采用长的球囊进行扩张术，以后把球囊瓣膜成形术应用到新生儿病例，甚至进行胎儿主动脉瓣球囊成形术。"}
+{"record_indices": [4625, 8763], "text": "目前，正在对PBAV病人进行中、长期随访，以观察其疗效与心功能的改变。"}
+{"record_indices": [5368, 5386], "text": "5）抽动障碍症状不是直接由某些药物（如兴奋剂）或内科疾病（如亨廷顿舞蹈病或病毒感染后脑炎）所致。"}
+{"record_indices": [5370, 5376], "text": "4）不是由于TS、小舞蹈病、药物或神经系统其他疾病所致。"}
+{"record_indices": [5684, 5696], "text": "随之，睾丸从腹股沟管内环经腹股沟管出外环而进入阴囊，是谓睾丸下降过程。"}
+{"record_indices": [5685, 5697], "text": "1.睾丸引带的牵拉睾丸引带的近端附着于睾丸和附睾，末端主要附着于阴囊底部，另有部分分别附着于耻骨结节、会阴部或股内侧部。"}
+{"record_indices": [5690, 5702], "text": "3.内分泌调节内分泌因素在促进睾丸降入阴囊过程中肯定起了重要作用，但其具体的机制尚不明了。"}
+Examples: empty_entity_text
+{"record_index": 6051, "entity_index": 1, "annotation": {"start_idx": 16, "end_idx": 15, "type": "pro", "entity": ""}}
+{"record_index": 6421, "entity_index": 3, "annotation": {"start_idx": 15, "end_idx": 14, "type": "mic", "entity": ""}}
+Examples: equal_span_pairs
+{"record_index": 184, "entity_indices": [2, 3], "entities": [{"start_idx": 18, "end_idx": 18, "type": "ite", "entity": "指"}, {"start_idx": 18, "end_idx": 18, "type": "bod", "entity": "指"}], "text": "2.同性别异基因移植者可以通过DNA指纹证据。"}
+{"record_index": 662, "entity_indices": [6, 7], "entities": [{"start_idx": 42, "end_idx": 46, "type": "ite", "entity": "高滴度TG"}, {"start_idx": 42, "end_idx": 46, "type": "bod", "entity": "高滴度TG"}], "text": "（3）抗甲状腺球蛋白及抗甲状腺微粒体抗体（TGA与TPO）：在桥本甲状腺炎患者血清中高滴度TGA90%～95%，TPO检测也有相应诊断价值。"}
+{"record_index": 673, "entity_indices": [0, 1], "entities": [{"start_idx": 7, "end_idx": 9, "type": "ite", "entity": "自身抗"}, {"start_idx": 7, "end_idx": 9, "type": "bod", "entity": "自身抗"}], "text": "遗憾的是，以上自身抗体能提示某种器官损害，其特异性及阳性率报告差异极大，以器官疾病命名的自身抗体不一定具有诊断该病的高度特异性，临床医师绝不能僵化地看待自身抗体的报告。"}
+{"record_index": 674, "entity_indices": [4, 5], "entities": [{"start_idx": 79, "end_idx": 81, "type": "ite", "entity": "自身抗"}, {"start_idx": 79, "end_idx": 81, "type": "bod", "entity": "自身抗"}], "text": "临床检测自身抗体要注意3点：①自身抗体有生理性与病理性之分，生理性自身抗体不但效价低，产生机制也可能不同；②多数自身抗体特异性欠佳，要特别强调临床综合分析；③自身抗体仅用于风湿性疾病诊断，在一些非风湿性疾病中也通过自身抗体检测获取临床信息，如肺癌诊断，淋巴细胞白血病分型等。"}
+{"record_index": 975, "entity_indices": [13, 14], "entities": [{"start_idx": 100, "end_idx": 103, "type": "dis", "entity": "肾功能受"}, {"start_idx": 100, "end_idx": 103, "type": "pro", "entity": "肾功能受"}], "text": "（四）其他肾性血尿相关化验血尿伴蛋白尿要进一步测定24小时尿蛋白定量，当尿蛋白＞1g/24h多明确有肾实质病变；ASO、血补体C3及乙型肝炎相关抗原测定可鉴别肾炎性质；BUN、Cr及Ccr等指标可判断肾功能受损。"}
+{"record_index": 1522, "entity_indices": [0, 1], "entities": [{"start_idx": 1, "end_idx": 1, "type": "dis", "entity": "脱"}, {"start_idx": 1, "end_idx": 1, "type": "pro", "entity": "脱"}], "text": "按脱水分为轻度、中度及重度。"}
+{"record_index": 2262, "entity_indices": [1, 2], "entities": [{"start_idx": 16, "end_idx": 24, "type": "ite", "entity": "HLA-DQA1基"}, {"start_idx": 16, "end_idx": 24, "type": "bod", "entity": "HLA-DQA1基"}], "text": "上海市瑞金医院对十二指肠溃疡患儿HLA-DQA1基因，DU患儿*</sup>03等位基因频率明显低于健康正常儿童，提示*</sup>03基因对DU有重要的抵抗作用。"}
+{"record_index": 3593, "entity_indices": [3, 4], "entities": [{"start_idx": 44, "end_idx": 44, "type": "ite", "entity": "肺"}, {"start_idx": 44, "end_idx": 44, "type": "bod", "entity": "肺"}], "text": "目前CT已发展到多排CT（16排、32排等），这有利于多层面及三维的重建，现在CT应用到肺部来越普遍。"}
+{"record_index": 3954, "entity_indices": [5, 6], "entities": [{"start_idx": 28, "end_idx": 29, "type": "dis", "entity": "肌无"}, {"start_idx": 28, "end_idx": 29, "type": "pro", "entity": "肌无"}], "text": "1.疲劳实验阳性受累肌群连续运动后症状明显加重肌疲劳现象肌无力较轻、检查配合的年长儿童可选择疲劳试验。"}
+{"record_index": 3958, "entity_indices": [1, 2], "entities": [{"start_idx": 12, "end_idx": 13, "type": "dis", "entity": "肌无"}, {"start_idx": 12, "end_idx": 13, "type": "pro", "entity": "肌无"}], "text": "对疲劳实验改善不明显者、肌无力较重病例以及疲劳实验不合作的年幼儿童选择药物试验。"}
+
+======================================================================
+File: CMeEE_dev.json
+SHA256: bbe6be016bdb1a418362507024902b70587b951a884cf4a96a6d1246822cd07c
+records: 5000
+invalid_record: 0
+invalid_text: 0
+invalid_entities_field: 0
+empty_entities: 0
+entities: 20300
+invalid_entity: 0
+invalid_entity_text: 0
+invalid_label: 0
+invalid_offsets: 0
+inclusive_out_of_bounds: 0
+exclusive_out_of_bounds: 431
+inclusive_match: 20300
+inclusive_mismatch: 0
+exclusive_match: 0
+exclusive_mismatch: 19869
+empty_entity_text: 0
+unknown_labels: 0
+overlap_pairs: 1225
+equal_span_pairs: 16
+containment_pairs: 1209
+crossing_pairs: 0
+records_with_overlap: 524
+excluded_overlap_entities: 0
+duplicate_text_groups: 0
+duplicate_text_extra_records: 0
+Label counts and percentages (all entities denominator):
+  dis: 4935 (24.310345%)
+  sym: 4130 (20.344828%)
+  dru: 1440 (7.093596%)
+  equ: 238 (1.172414%)
+  pro: 2057 (10.133005%)
+  bod: 5883 (28.980296%)
+  ite: 923 (4.546798%)
+  mic: 584 (2.876847%)
+  dep: 110 (0.541872%)
+Offset anomaly events: 0 (one entity may trigger multiple events)
+Examples: containment_pairs
+{"record_index": 1, "entity_indices": [0, 1], "entities": [{"start_idx": 10, "end_idx": 10, "type": "bod", "entity": "肺"}, {"start_idx": 10, "end_idx": 13, "type": "sym", "entity": "肺内病变"}], "text": "研究证实，细胞减少与肺内病变程度及肺内炎性病变吸收程度密切相关。"}
+{"record_index": 1, "entity_indices": [2, 3], "entities": [{"start_idx": 17, "end_idx": 17, "type": "bod", "entity": "肺"}, {"start_idx": 17, "end_idx": 22, "type": "sym", "entity": "肺内炎性病变"}], "text": "研究证实，细胞减少与肺内病变程度及肺内炎性病变吸收程度密切相关。"}
+{"record_index": 2, "entity_indices": [0, 1], "entities": [{"start_idx": 4, "end_idx": 5, "type": "bod", "entity": "肺部"}, {"start_idx": 4, "end_idx": 7, "type": "sym", "entity": "肺部病变"}], "text": "因而儿童肺部病变较轻，肺内炎性病变吸收较快。"}
+{"record_index": 2, "entity_indices": [2, 3], "entities": [{"start_idx": 11, "end_idx": 11, "type": "bod", "entity": "肺"}, {"start_idx": 11, "end_idx": 16, "type": "sym", "entity": "肺内炎性病变"}], "text": "因而儿童肺部病变较轻，肺内炎性病变吸收较快。"}
+{"record_index": 8, "entity_indices": [3, 4], "entities": [{"start_idx": 17, "end_idx": 22, "type": "mic", "entity": "上呼吸道病毒"}, {"start_idx": 17, "end_idx": 24, "type": "sym", "entity": "上呼吸道病毒感染"}], "text": "大多数患儿无咽痛、鼻塞或流涕等典型上呼吸道病毒感染症状。"}
+{"record_index": 10, "entity_indices": [1, 2], "entities": [{"start_idx": 18, "end_idx": 19, "type": "bod", "entity": "肺部"}, {"start_idx": 18, "end_idx": 24, "type": "sym", "entity": "肺部可闻及啰音"}], "text": "阳性体征主要表现在呼吸系统，多数患儿肺部可闻及啰音，啰音可出现在疾病早期或中期，多为细湿啰音，啰音出现部位多与胸部X线片显示的肺实变部位一致，可以双侧或单侧，随着疾病好转而消失，少数患儿始终无啰音、呼吸音减弱或管状呼吸音等病理性呼吸音出现。"}
+{"record_index": 10, "entity_indices": [7, 8], "entities": [{"start_idx": 63, "end_idx": 63, "type": "bod", "entity": "肺"}, {"start_idx": 63, "end_idx": 65, "type": "sym", "entity": "肺实变"}], "text": "阳性体征主要表现在呼吸系统，多数患儿肺部可闻及啰音，啰音可出现在疾病早期或中期，多为细湿啰音，啰音出现部位多与胸部X线片显示的肺实变部位一致，可以双侧或单侧，随着疾病好转而消失，少数患儿始终无啰音、呼吸音减弱或管状呼吸音等病理性呼吸音出现。"}
+{"record_index": 22, "entity_indices": [1, 2], "entities": [{"start_idx": 11, "end_idx": 12, "type": "bod", "entity": "心脏"}, {"start_idx": 11, "end_idx": 14, "type": "sym", "entity": "心脏损害"}], "text": "SARS患儿有部分出现心脏损害，对有心脏损害者应进行床边动态心电监护。"}
+{"record_index": 22, "entity_indices": [3, 4], "entities": [{"start_idx": 18, "end_idx": 19, "type": "bod", "entity": "心脏"}, {"start_idx": 18, "end_idx": 21, "type": "sym", "entity": "心脏损害"}], "text": "SARS患儿有部分出现心脏损害，对有心脏损害者应进行床边动态心电监护。"}
+{"record_index": 36, "entity_indices": [3, 4], "entities": [{"start_idx": 39, "end_idx": 42, "type": "bod", "entity": "上呼吸道"}, {"start_idx": 38, "end_idx": 46, "type": "sym", "entity": "无上呼吸道卡他症状"}], "text": "2.症状与体征起病急，以发热为首发症状，体温一般高于38.5℃，偶有畏寒；常无上呼吸道卡他症状；有咳嗽，多为干咳、少痰；可有胸闷气促，肺部听诊可闻干湿性啰音。"}
+Examples: equal_span_pairs
+{"record_index": 229, "entity_indices": [0, 1], "entities": [{"start_idx": 3, "end_idx": 9, "type": "bod", "entity": "FMR-1基因"}, {"start_idx": 3, "end_idx": 9, "type": "sym", "entity": "FMR-1基因"}], "text": "（五）FMR-1基因FMR-1基因除了动态突变外，少数病人碱基置换和缺失等非动态突变，目前已发现一种错义突变和8种缺失型突变。"}
+{"record_index": 434, "entity_indices": [1, 2], "entities": [{"start_idx": 13, "end_idx": 13, "type": "dis", "entity": "烧"}, {"start_idx": 13, "end_idx": 13, "type": "pro", "entity": "烧"}], "text": "电击伤造成的组织损伤较一般烧伤重，虽然局部温度不高，但强烈的电流产生的电离作用通常会使局部深部肌肉等组织细胞坏死和血管内血液凝固，累及心脑等脏器者很难存活。"}
+{"record_index": 511, "entity_indices": [0, 1], "entities": [{"start_idx": 0, "end_idx": 1, "type": "ite", "entity": "影像"}, {"start_idx": 0, "end_idx": 1, "type": "dep", "entity": "影像"}], "text": "影像学定患者的实际反应时并不完全可靠，ISRⅢ中，75%影像学上对治疗部分或没有反应的Ⅲ级患儿，其病理上可呈现为完全反应或可通过切除残余肿瘤而达到完全反应。"}
+{"record_index": 512, "entity_indices": [0, 1], "entities": [{"start_idx": 3, "end_idx": 4, "type": "ite", "entity": "影像"}, {"start_idx": 3, "end_idx": 4, "type": "dep", "entity": "影像"}], "text": "当然，影像学为完全反应的大多数（不是所有）病人都被第二次手术证实。"}
+{"record_index": 801, "entity_indices": [6, 7], "entities": [{"start_idx": 66, "end_idx": 67, "type": "ite", "entity": "实验"}, {"start_idx": 66, "end_idx": 67, "type": "dep", "entity": "实验"}], "text": "外周性性早熟临床表现有第二性征出现，但非青春期发动，一般无性腺增大下丘脑-垂体-性腺轴的活动无关，而与内源性或者外源性性激素水平升高实验室.内分泌激素检查包括测定FSH、LH、雌二醇、睾酮及17-羟孕酮基础值。"}
+{"record_index": 1458, "entity_indices": [6, 7], "entities": [{"start_idx": 90, "end_idx": 95, "type": "dis", "entity": "缺氧缺血脑损"}, {"start_idx": 90, "end_idx": 95, "type": "pro", "entity": "缺氧缺血脑损"}], "text": "（三）脑代谢监测1.磁共振频谱（MRS）MRS是一种无创伤性检测体内化学成分（如脑组织的ATP、磷酸肌酸、乳酸等）的方法，能在活体上测得脑组织的代谢情况，比MRI能更早期敏感地反映缺氧缺血脑损伤。"}
+{"record_index": 1460, "entity_indices": [9, 10], "entities": [{"start_idx": 89, "end_idx": 90, "type": "dis", "entity": "脑损"}, {"start_idx": 89, "end_idx": 90, "type": "pro", "entity": "脑损"}], "text": "（四）生化指标测定神经烯醇化酶（NSE）、S-100蛋白（S-100）和脑型肌酸磷酸激酶（CK-BB）存在于神经组织的不同部位，HIE后6～72小时外周血和脑脊液中的水平升高，与脑损害呈正相关，可作为HIE早期诊断的标志物。"}
+{"record_index": 1472, "entity_indices": [4, 5], "entities": [{"start_idx": 35, "end_idx": 36, "type": "dis", "entity": "脑损"}, {"start_idx": 35, "end_idx": 36, "type": "pro", "entity": "脑损"}], "text": "（五）维持适当的血糖水平动物实验证实低血糖会加重HIE，而高血糖能降低脑损伤。"}
+{"record_index": 1856, "entity_indices": [0, 1], "entities": [{"start_idx": 1, "end_idx": 2, "type": "ite", "entity": "实验"}, {"start_idx": 1, "end_idx": 2, "type": "dep", "entity": "实验"}], "text": "【实验室.血糖增高，空腹血糖＞7.0mmol/L，随机血糖≥11.1mmol/L。"}
+{"record_index": 2007, "entity_indices": [6, 7], "entities": [{"start_idx": 51, "end_idx": 52, "type": "dis", "entity": "酸中"}, {"start_idx": 51, "end_idx": 52, "type": "pro", "entity": "酸中"}], "text": "肾小球滤过率降低但通常GFR＞20min/（min•1.73m2</sup>），而且GFR下降难以解释酸中毒。"}
+
+Train/dev exact-text intersection:
+shared_unique_texts: 0
+cross_split_record_pairs: 0
+
+======================================================================
+File: CMeEE_test.json
+SHA256: dca7d9b7cf820947bba68e14557908fdc63e9286add1b4bc34f78f245e0c7ecf
+top_level: list
+records: 3000
+empty_entities: 3000
+Field structures: [{"keys": ["entities", "text"], "records": 3000}]
+Field value types: {"text": {"str": 3000}, "entities": {"list": 3000}}
+Test empty lists are NOT gold negative labels. No test entity evaluation or label statistics performed.
+
+Source SHA256 unchanged before/after this run: all three files.
+Pending: human review of anomalies, source/version/license confirmation, model format agreement.
+Exact text comparison does not detect near-duplicates. No cleaning or BIO conversion performed.

@@ -1,0 +1,99 @@
+{
+  "offset_convention": "Unicode code points; source end_idx inclusive",
+  "files": {
+    "train": {
+      "file": "CMeEE_train.json",
+      "sha256": "984f0bea3932c8c5afd96d9cccac4895b87ec77f57bd3e825d832a17943cd5d3",
+      "records": 15000,
+      "empty_text": 0,
+      "missing_entities": 0,
+      "empty_entities": 0,
+      "entities": 61796,
+      "types": {
+        "pro": 6332,
+        "dis": 15843,
+        "sym": 12269,
+        "ite": 2581,
+        "bod": 17697,
+        "dru": 3930,
+        "mic": 1908,
+        "equ": 888,
+        "dep": 348
+      },
+      "invalid_spans": [
+        {
+          "row": 6051,
+          "entity": 1
+        },
+        {
+          "row": 6421,
+          "entity": 3
+        }
+      ],
+      "text_mismatches": [],
+      "duplicate_entities": 0,
+      "overlapping_entity_pairs": 3681,
+      "nested_entity_pairs": 3678,
+      "min_length": 4,
+      "max_length": 4870,
+      "total_characters": 812295,
+      "duplicate_text_extra_records": 43,
+      "mean_length": 54.153
+    },
+    "dev": {
+      "file": "CMeEE_dev.json",
+      "sha256": "bbe6be016bdb1a418362507024902b70587b951a884cf4a96a6d1246822cd07c",
+      "records": 5000,
+      "empty_text": 0,
+      "missing_entities": 0,
+      "empty_entities": 0,
+      "entities": 20300,
+      "types": {
+        "bod": 5883,
+        "dis": 4935,
+        "sym": 4130,
+        "mic": 584,
+        "pro": 2057,
+        "ite": 923,
+        "dep": 110,
+        "dru": 1440,
+        "equ": 238
+      },
+      "invalid_spans": [],
+      "text_mismatches": [],
+      "duplicate_entities": 0,
+      "overlapping_entity_pairs": 1225,
+      "nested_entity_pairs": 1225,
+      "min_length": 6,
+      "max_length": 2078,
+      "total_characters": 270417,
+      "duplicate_text_extra_records": 0,
+      "mean_length": 54.0834
+    },
+    "test": {
+      "file": "CMeEE_test.json",
+      "sha256": "dca7d9b7cf820947bba68e14557908fdc63e9286add1b4bc34f78f245e0c7ecf",
+      "records": 3000,
+      "empty_text": 0,
+      "missing_entities": 0,
+      "empty_entities": 3000,
+      "entities": 0,
+      "types": {},
+      "invalid_spans": [],
+      "text_mismatches": [],
+      "duplicate_entities": 0,
+      "overlapping_entity_pairs": 0,
+      "nested_entity_pairs": 0,
+      "min_length": 5,
+      "max_length": 1961,
+      "total_characters": 165673,
+      "duplicate_text_extra_records": 2,
+      "mean_length": 55.224333333333334
+    }
+  },
+  "cross_split_exact_text_overlap": {
+    "train_dev": 0,
+    "train_test": 1,
+    "dev_test": 0
+  }
+}

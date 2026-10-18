@@ -1,0 +1,11 @@
+Duplicate annotation summary run
+Source: C:\Users\home\Desktop\MedicalNER_Project\docs\duplicate_annotation_review.txt
+Source SHA256: 21d7dc67c6f186ed88efea9c6802d5c4ab6ff80ab3f1bcc6446d3653bce63de8
+groups: 43
+consistent_groups: 25
+inconsistent_groups: 18
+Issue categories: {"boundary_conflict": 1, "consistent_duplicate": 25, "multiple_conflicts": 8, "possible_missing_entity": 7, "type_conflict": 2}
+parse_failures: 0
+CSV read-back: PASS (43 rows, 18 inconsistent, all pending)
+Source report SHA256 unchanged: True
+Saved CSV: C:\Users\home\Desktop\MedicalNER_Project\docs\duplicate_annotation_review.csv

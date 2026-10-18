@@ -1,0 +1,117 @@
+Entity offset validation (read-only)
+Index unit: Python Unicode characters; record/entity indices are zero-based.
+invalid_offsets: missing/non-integer (including bool), negative or reversed indices.
+inclusive_out_of_bounds: integer nonnegative ordered offsets outside text.
+exclusive_out_of_bounds: integer nonnegative ordered offsets failing 0 <= start < end <= len(text).
+Matches/mismatches count only entities with valid bounds and nonempty string annotations.
+Out-of-bounds entities are excluded from match/mismatch counts.
+Empty entity lists provide no evidence about index conventions or gold-label availability.
+Scope excludes duplicate, overlap/nesting and cross-split leakage checks.
+
+======================================================================
+File: CMeEE_train.json
+SHA256: 984f0bea3932c8c5afd96d9cccac4895b87ec77f57bd3e825d832a17943cd5d3
+records: 15000
+invalid_record: 0
+invalid_text: 0
+invalid_entities_field: 0
+empty_entities: 0
+entities: 61796
+invalid_entity: 0
+invalid_entity_text: 2
+invalid_label: 0
+invalid_offsets: 2
+inclusive_out_of_bounds: 0
+exclusive_out_of_bounds: 1610
+inclusive_match: 61794
+inclusive_mismatch: 0
+exclusive_match: 0
+exclusive_mismatch: 60184
+Entity label counts:
+  bod: 17697
+  dep: 348
+  dis: 15843
+  dru: 3930
+  equ: 888
+  ite: 2581
+  mic: 1908
+  pro: 6332
+  sym: 12269
+Anomaly events: 4; showing first 4
+{"record_index": 6051, "entity_index": 1, "reason": "missing, empty or non-string entity text"}
+{"record_index": 6051, "entity_index": 1, "reason": "invalid offsets", "annotation": {"start_idx": 16, "end_idx": 15, "type": "pro", "entity": ""}}
+{"record_index": 6421, "entity_index": 3, "reason": "missing, empty or non-string entity text"}
+{"record_index": 6421, "entity_index": 3, "reason": "invalid offsets", "annotation": {"start_idx": 15, "end_idx": 14, "type": "mic", "entity": ""}}
+
+======================================================================
+File: CMeEE_dev.json
+SHA256: bbe6be016bdb1a418362507024902b70587b951a884cf4a96a6d1246822cd07c
+records: 5000
+invalid_record: 0
+invalid_text: 0
+invalid_entities_field: 0
+empty_entities: 0
+entities: 20300
+invalid_entity: 0
+invalid_entity_text: 0
+invalid_label: 0
+invalid_offsets: 0
+inclusive_out_of_bounds: 0
+exclusive_out_of_bounds: 431
+inclusive_match: 20300
+inclusive_mismatch: 0
+exclusive_match: 0
+exclusive_mismatch: 19869
+Entity label counts:
+  bod: 5883
+  dep: 110
+  dis: 4935
+  dru: 1440
+  equ: 238
+  ite: 923
+  mic: 584
+  pro: 2057
+  sym: 4130
+Anomaly events: 0; showing first 0
+
+======================================================================
+File: CMeEE_test.json
+SHA256: dca7d9b7cf820947bba68e14557908fdc63e9286add1b4bc34f78f245e0c7ecf
+records: 3000
+invalid_record: 0
+invalid_text: 0
+invalid_entities_field: 0
+empty_entities: 3000
+entities: 0
+invalid_entity: 0
+invalid_entity_text: 0
+invalid_label: 0
+invalid_offsets: 0
+inclusive_out_of_bounds: 0
+exclusive_out_of_bounds: 0
+inclusive_match: 0
+inclusive_mismatch: 0
+exclusive_match: 0
+exclusive_mismatch: 0
+Entity label counts:
+  (none)
+Anomaly events: 0; showing first 0
+
+======================================================================
+Totals:
+records: 23000
+invalid_record: 0
+invalid_text: 0
+invalid_entities_field: 0
+empty_entities: 3000
+entities: 82096
+invalid_entity: 0
+invalid_entity_text: 2
+invalid_label: 0
+invalid_offsets: 2
+inclusive_out_of_bounds: 0
+exclusive_out_of_bounds: 2041
+inclusive_match: 82094
+inclusive_mismatch: 0
+exclusive_match: 0
+exclusive_mismatch: 80053

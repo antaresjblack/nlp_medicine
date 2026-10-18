@@ -1,0 +1,527 @@
+{
+  "description": "依据本次人工工作簿逐组编译的显式操作；仅提取原标注中已有的精确四元组，不自动推断自然语言。原始文件保持不变。",
+  "source_sha256": "984f0bea3932c8c5afd96d9cccac4895b87ec77f57bd3e825d832a17943cd5d3",
+  "review_sha256": "6903ec4e6bfc76ae3dc61d019a78c0238f01cd2e159b831fdb2392dd4c597478",
+  "review_source": "docs\\duplicate_annotation_review_checked.csv.xlsx",
+  "groups": {
+    "1": {
+      "action": "preserve",
+      "remove": [],
+      "ensure": [],
+      "review_notes": "Source report omits entity details for consistent groups; blank entity cells mean unavailable, not empty lists.",
+      "cleaning_recommendation": "标注一致：无需因重复标注差异而清洗；如需去重，应另行评估训练集去重策略。"
+    },
+    "2": {
+      "action": "preserve",
+      "remove": [],
+      "ensure": [],
+      "review_notes": "Source report omits entity details for consistent groups; blank entity cells mean unavailable, not empty lists.",
+      "cleaning_recommendation": "标注一致：无需因重复标注差异而清洗；如需去重，应另行评估训练集去重策略。"
+    },
+    "3": {
+      "action": "preserve",
+      "remove": [],
+      "ensure": [],
+      "review_notes": "Source report omits entity details for consistent groups; blank entity cells mean unavailable, not empty lists.",
+      "cleaning_recommendation": "标注一致：无需因重复标注差异而清洗；如需去重，应另行评估训练集去重策略。"
+    },
+    "4": {
+      "action": "exclude",
+      "remove": [],
+      "ensure": [],
+      "review_notes": "人工复核结论：倾向采用 `pro`（医疗程序）。\n\n理由：结合上下文，“单球囊与双球囊扩张术”“采用长的球囊进行扩张术”“球囊瓣膜成形术”和“胎儿主动脉瓣球囊成形术”均描述具体医疗操作，符合医疗程序的语义特征。原始记录中相应实体被标注为 `dis`，与上述语义判断不一致，故人工复核后建议统一标为 `pro`。\n\n边界问题：“采用长的球囊进行扩张术”与“长的球囊进行扩张术”存在边界差异。建议结合项目的实体边界标注约定进一步确定；暂不因类别裁决而自动修改边界。 当前仍有未裁定事项，整组状态暂记为 pending；如需训练，可在清洗副本中暂时排除该重复文本组，原始数据不删除。",
+      "cleaning_recommendation": "尚有争议：不要直接删除整条样本。优先保留原始文件；在清洗副本中将争议实体列入待处理清单，若项目必须产出无争议训练集，可暂时排除该重复文本组或仅移除明确未裁定的实体标注，并记录原因。",
+      "reason": "医疗操作类别已有倾向，但边界未最终裁定；排除不代表全部实体错误。"
+    },
+    "5": {
+      "action": "exclude",
+      "remove": [],
+      "ensure": [],
+      "review_notes": "记录 4625 与记录 8763 的实体标注存在差异。两条记录均将“PBAV”标为 pro；记录 8763 额外将“心”标为 bod，位于“心功能”一词中。当前尚不能确定该语境下是否应将“心”单独标注为身体部位，暂不裁定该实体是否保留，待参考相似标注案例及项目统一的实体边界规则后再复核。原始数据暂不修改。",
+      "cleaning_recommendation": "尚有争议：不要直接删除整条样本。优先保留原始文件；在清洗副本中将争议实体列入待处理清单，若项目必须产出无争议训练集，可暂时排除该重复文本组或仅移除明确未裁定的实体标注，并记录原因。",
+      "reason": "心功能中的“心”是否单列 bod 尚未裁定。"
+    },
+    "6": {
+      "action": "edit",
+      "remove": [
+        [
+          2,
+          5,
+          "sym",
+          "抽动障碍"
+        ]
+      ],
+      "ensure": [
+        [
+          2,
+          5,
+          "dis",
+          "抽动障碍"
+        ],
+        [
+          24,
+          25,
+          "dep",
+          "内科"
+        ]
+      ],
+      "review_notes": "记录 5368 与记录 5386 的重复文本存在两处实体标注差异。第一处，“抽动障碍”在记录 5368 中标注为 dis，在记录 5386 中标注为 sym。经人工复核，统一判定为 dis（疾病）。第二处，记录 5386 将“内科”标注为 dep，记录 5368 未标注该实体。经人工复核，决定保留“内科”的 dep（科室）标注。补充理由未填写。本次仅记录人工复核结论，原始数据暂未修改。",
+      "cleaning_recommendation": "已有人工作出阶段性决定：按 review_notes 在清洗副本中落实；保留原始文件并记录变更前后差异。"
+    },
+    "7": {
+      "action": "preserve",
+      "remove": [],
+      "ensure": [],
+      "review_notes": "Source report omits entity details for consistent groups; blank entity cells mean unavailable, not empty lists.",
+      "cleaning_recommendation": "标注一致：无需因重复标注差异而清洗；如需去重，应另行评估训练集去重策略。"
+    },
+    "8": {
+      "action": "edit",
+      "remove": [
+        [
+          28,
+          31,
+          "dis",
+          "睾丸下降"
+        ]
+      ],
+      "ensure": [
+        [
+          6,
+          11,
+          "bod",
+          "腹股沟管内环"
+        ],
+        [
+          23,
+          24,
+          "bod",
+          "阴囊"
+        ]
+      ],
+      "review_notes": "记录 5684 与记录 5696 的重复文本存在实体标注差异。记录 5684 将“腹股沟管内环”和“阴囊”均标注为 bod，人工复核后决定保留这两处身体部位标注。记录 5684 还将“睾丸下降”标注为 dis；经人工复核，认为该语境中的睾丸下降是正常生理过程，不属于疾病实体，因此决定不保留该实体标注。本次仅记录人工复核结论，原始数据暂未修改。",
+      "cleaning_recommendation": "已有人工作出阶段性决定：按 review_notes 在清洗副本中落实；保留原始文件并记录变更前后差异。"
+    },
+    "9": {
+      "action": "edit",
+      "remove": [
+        [
+          9,
+          10,
+          "bod",
+          "睾丸"
+        ]
+      ],
+      "ensure": [
+        [
+          9,
+          12,
+          "bod",
+          "睾丸引带"
+        ],
+        [
+          55,
+          58,
+          "bod",
+          "股内侧部"
+        ]
+      ],
+      "review_notes": "记录 5685 与记录 5697 的重复文本存在两处实体标注差异。第一处，记录 5685 将第二次出现的“睾丸引带”完整标注为 bod，而记录 5697 仅将其中的“睾丸”标注为 bod。经人工复核，决定保留完整实体“睾丸引带”，标注为 bod。第二处，记录 5685 将“股内侧部”标注为 bod，记录 5697 未标注该实体。经人工复核，决定保留“股内侧部”的 bod 标注。补充理由未填写。本次仅记录人工复核结论，原始数据暂未修改。",
+      "cleaning_recommendation": "已有人工作出阶段性决定：按 review_notes 在清洗副本中落实；保留原始文件并记录变更前后差异。",
+      "remaining_reason": "备注未裁定记录5685独有的“会阴部”(51,53,bod)是否应补入记录5697；保持各自原标注，等待明确决定。"
+    },
+    "10": {
+      "action": "preserve",
+      "remove": [],
+      "ensure": [],
+      "review_notes": "Source report omits entity details for consistent groups; blank entity cells mean unavailable, not empty lists.",
+      "cleaning_recommendation": "标注一致：无需因重复标注差异而清洗；如需去重，应另行评估训练集去重策略。"
+    },
+    "11": {
+      "action": "edit",
+      "remove": [
+        [
+          4,
+          7,
+          "dis",
+          "睾丸下降"
+        ]
+      ],
+      "ensure": [
+        [
+          4,
+          5,
+          "bod",
+          "睾丸"
+        ]
+      ],
+      "review_notes": "记录 5691 与记录 5703 的重复文本存在实体标注差异。记录 5691 将“睾丸下降”整体标注为 dis，记录 5703 未标注该实体，而是将“睾丸”单独标注为 bod。经人工复核，决定不保留“睾丸下降”的 dis 标注，并保留记录 5703 中“睾丸”的 bod 标注。补充理由未填写。本次仅记录人工复核结论，原始数据暂未修改。",
+      "cleaning_recommendation": "已有人工作出阶段性决定：按 review_notes 在清洗副本中落实；保留原始文件并记录变更前后差异。",
+      "remaining_reason": "备注未裁定记录5703独有的“隐睾”(17,18,dis)是否补入记录5691；不能仅凭保留“睾丸”的结论推断。"
+    },
+    "12": {
+      "action": "edit",
+      "remove": [
+        [
+          0,
+          7,
+          "dis",
+          "输尿管膀胱连接部"
+        ]
+      ],
+      "ensure": [
+        [
+          0,
+          7,
+          "bod",
+          "输尿管膀胱连接部"
+        ]
+      ],
+      "review_notes": "记录 6471 与记录 6505 的重复文本存在一处实体类别冲突。两条记录均将“膀胱输尿管反流”标注为 sym；对于“输尿管膀胱连接部”，记录 6471 标注为 dis，记录 6505 标注为 bod。经人工复核，统一决定将“输尿管膀胱连接部”标注为 bod（身体部位），理由是该词指输尿管与膀胱相连接的解剖结构。本次仅记录人工复核结论，原始数据暂未修改。",
+      "cleaning_recommendation": "已有人工作出阶段性决定：按 review_notes 在清洗副本中落实；保留原始文件并记录变更前后差异。"
+    },
+    "13": {
+      "action": "exclude",
+      "remove": [],
+      "ensure": [],
+      "review_notes": "记录 6472 与记录 6506 的重复文本存在两处实体标注差异。第一处，记录 6472 将“膀胱颈部”标注为 bod，记录 6506 未标注该实体。经人工复核，决定保留“膀胱颈部”的 bod（身体部位）标注。第二处，记录 6506 将“膀胱颈部成形去解除”整体标注为 pro。经人工复核，倾向于仅保留“膀胱颈部成形”作为 pro（医疗操作）实体，不将后续的“去解除”纳入实体边界；该项边界判断仍需结合小组统一标注规范确认。补充理由未填写。本次仅记录人工复核结论，原始数据暂未修改。 当前仍有未裁定事项，整组状态暂记为 pending；如需训练，可在清洗副本中暂时排除该重复文本组，原始数据不删除。",
+      "cleaning_recommendation": "尚有争议：不要直接删除整条样本。优先保留原始文件；在清洗副本中将争议实体列入待处理清单，若项目必须产出无争议训练集，可暂时排除该重复文本组或仅移除明确未裁定的实体标注，并记录原因。",
+      "reason": "膀胱颈部 bod 已有结论，但医疗操作 pro 边界仍待确认；排除不代表全部实体错误。"
+    },
+    "14": {
+      "action": "preserve",
+      "remove": [],
+      "ensure": [],
+      "review_notes": "Source report omits entity details for consistent groups; blank entity cells mean unavailable, not empty lists.",
+      "cleaning_recommendation": "标注一致：无需因重复标注差异而清洗；如需去重，应另行评估训练集去重策略。"
+    },
+    "15": {
+      "action": "preserve",
+      "remove": [],
+      "ensure": [],
+      "review_notes": "Source report omits entity details for consistent groups; blank entity cells mean unavailable, not empty lists.",
+      "cleaning_recommendation": "标注一致：无需因重复标注差异而清洗；如需去重，应另行评估训练集去重策略。"
+    },
+    "16": {
+      "action": "preserve",
+      "remove": [],
+      "ensure": [],
+      "review_notes": "Source report omits entity details for consistent groups; blank entity cells mean unavailable, not empty lists.",
+      "cleaning_recommendation": "标注一致：无需因重复标注差异而清洗；如需去重，应另行评估训练集去重策略。"
+    },
+    "17": {
+      "action": "preserve",
+      "remove": [],
+      "ensure": [],
+      "review_notes": "Source report omits entity details for consistent groups; blank entity cells mean unavailable, not empty lists.",
+      "cleaning_recommendation": "标注一致：无需因重复标注差异而清洗；如需去重，应另行评估训练集去重策略。"
+    },
+    "18": {
+      "action": "exclude",
+      "remove": [],
+      "ensure": [],
+      "review_notes": "记录 6490 与记录 6511 的重复文本存在两处实体标注差异。第一处，记录 6490 将“膀胱输尿管”标注为 bod，记录 6511 未标注该实体。经人工复核，目前暂不裁定是否保留该实体标注，待进一步核对实体边界规则后再决定。第二处，记录 6490 将“尿路不完全性梗阻”标注为 dis，记录 6511 未标注该实体。经人工复核，决定保留“尿路不完全性梗阻”的 dis（疾病）标注。补充理由未填写。本次仅记录人工复核结论，原始数据暂未修改。 当前仍有未裁定事项，整组状态暂记为 pending；如需训练，可在清洗副本中暂时排除该重复文本组，原始数据不删除。",
+      "cleaning_recommendation": "尚有争议：不要直接删除整条样本。优先保留原始文件；在清洗副本中将争议实体列入待处理清单，若项目必须产出无争议训练集，可暂时排除该重复文本组或仅移除明确未裁定的实体标注，并记录原因。",
+      "reason": "尿路不完全性梗阻 dis 已有结论，但膀胱输尿管 bod 是否保留未裁定。"
+    },
+    "19": {
+      "action": "edit",
+      "remove": [
+        [
+          0,
+          19,
+          "sym",
+          "反流时上尿路内压增加，远端肾单位首受其害"
+        ],
+        [
+          23,
+          34,
+          "sym",
+          "肾小管功能受损早于肾小球"
+        ]
+      ],
+      "ensure": [
+        [
+          32,
+          34,
+          "bod",
+          "肾小球"
+        ]
+      ],
+      "review_notes": "记录 6491 与记录 6512 的重复文本存在三处实体标注差异。记录 6491 将“反流时上尿路内压增加，远端肾单位首受其害”和“肾小管功能受损早于肾小球”两段文本分别整体标注为 sym。经人工复核，决定不保留这两处整体 sym 标注。记录 6512 将“肾小球”标注为 bod，记录 6491 未单独标注该实体。经人工复核，决定保留“肾小球”的 bod（身体部位）标注。补充理由未填写。本次仅记录人工复核结论，原始数据暂未修改。",
+      "cleaning_recommendation": "已有人工作出阶段性决定：按 review_notes 在清洗副本中落实；保留原始文件并记录变更前后差异。"
+    },
+    "20": {
+      "action": "preserve",
+      "remove": [],
+      "ensure": [],
+      "review_notes": "Source report omits entity details for consistent groups; blank entity cells mean unavailable, not empty lists.",
+      "cleaning_recommendation": "标注一致：无需因重复标注差异而清洗；如需去重，应另行评估训练集去重策略。"
+    },
+    "21": {
+      "action": "preserve",
+      "remove": [],
+      "ensure": [],
+      "review_notes": "Source report omits entity details for consistent groups; blank entity cells mean unavailable, not empty lists.",
+      "cleaning_recommendation": "标注一致：无需因重复标注差异而清洗；如需去重，应另行评估训练集去重策略。"
+    },
+    "22": {
+      "action": "edit",
+      "remove": [
+        [
+          0,
+          13,
+          "sym",
+          "反流病人发生高血压的机会较高"
+        ]
+      ],
+      "ensure": [
+        [
+          6,
+          8,
+          "dis",
+          "高血压"
+        ]
+      ],
+      "review_notes": "记录 6495 与记录 6516 的重复文本存在实体标注差异。记录 6495 将整句“反流病人发生高血压的机会较高”整体标注为 sym，记录 6516 则将“高血压”标注为 dis。经人工复核，决定不保留整句的 sym 标注，并保留“高血压”的 dis（疾病）标注。补充理由未填写。本次仅记录人工复核结论，原始数据暂未修改。",
+      "cleaning_recommendation": "已有人工作出阶段性决定：按 review_notes 在清洗副本中落实；保留原始文件并记录变更前后差异。"
+    },
+    "23": {
+      "action": "edit",
+      "remove": [],
+      "ensure": [
+        [
+          21,
+          23,
+          "dis",
+          "肾衰竭"
+        ]
+      ],
+      "review_notes": "记录 6496 与记录 6517 的重复文本存在一处实体标注差异。两条记录均将“肾瘢痕”标注为 dis；记录 6496 还将“肾衰竭”标注为 dis，而记录 6517 未标注该实体。经人工复核，决定保留“肾衰竭”的 dis（疾病）标注。补充理由未填写。本次仅记录人工复核结论，原始数据暂未修改。",
+      "cleaning_recommendation": "已有人工作出阶段性决定：按 review_notes 在清洗副本中落实；保留原始文件并记录变更前后差异。"
+    },
+    "24": {
+      "action": "preserve",
+      "remove": [],
+      "ensure": [],
+      "review_notes": "Source report omits entity details for consistent groups; blank entity cells mean unavailable, not empty lists.",
+      "cleaning_recommendation": "标注一致：无需因重复标注差异而清洗；如需去重，应另行评估训练集去重策略。"
+    },
+    "25": {
+      "action": "edit",
+      "remove": [],
+      "ensure": [
+        [
+          9,
+          11,
+          "bod",
+          "输尿管"
+        ]
+      ],
+      "review_notes": "记录 6498 与记录 6519 的重复文本存在一处实体标注差异。两条记录均将“静脉尿路造影”标注为 pro；记录 6498 额外将“输尿管”标注为 bod，记录 6519 未标注该实体。人工复核后，决定保留“输尿管”的 bod（身体部位）标注，因为“输尿管口径正常”中的“输尿管”指明确的解剖结构。本次仅记录人工复核结论，原始数据暂未修改。",
+      "cleaning_recommendation": "已裁定：保留记录 6498 中“输尿管”的 bod 标注；在单独清洗副本中统一两条重复记录，保留一份一致标注即可。"
+    },
+    "26": {
+      "action": "edit",
+      "remove": [],
+      "ensure": [
+        [
+          40,
+          42,
+          "bod",
+          "输尿管"
+        ]
+      ],
+      "review_notes": "记录 6499 与记录 6520 的重复文本存在一处实体标注差异。两条记录均将第二次出现的“输尿管”标注为 bod；记录 6499 还将第一次出现的“输尿管”（位于“输尿管无扩张者”中）标注为 bod，而记录 6520 未标注该处。经人工复核，决定保留第一次出现的“输尿管”的 bod（身体部位）标注。补充理由未填写。本次仅记录人工复核结论，原始数据暂未修改。",
+      "cleaning_recommendation": "已有人工作出阶段性决定：按 review_notes 在清洗副本中落实；保留原始文件并记录变更前后差异。"
+    },
+    "27": {
+      "action": "preserve",
+      "remove": [],
+      "ensure": [],
+      "review_notes": "Source report omits entity details for consistent groups; blank entity cells mean unavailable, not empty lists.",
+      "cleaning_recommendation": "标注一致：无需因重复标注差异而清洗；如需去重，应另行评估训练集去重策略。"
+    },
+    "28": {
+      "action": "preserve",
+      "remove": [],
+      "ensure": [],
+      "review_notes": "Source report omits entity details for consistent groups; blank entity cells mean unavailable, not empty lists.",
+      "cleaning_recommendation": "标注一致：无需因重复标注差异而清洗；如需去重，应另行评估训练集去重策略。"
+    },
+    "29": {
+      "action": "preserve",
+      "remove": [],
+      "ensure": [],
+      "review_notes": "Source report omits entity details for consistent groups; blank entity cells mean unavailable, not empty lists.",
+      "cleaning_recommendation": "标注一致：无需因重复标注差异而清洗；如需去重，应另行评估训练集去重策略。"
+    },
+    "30": {
+      "action": "exclude",
+      "remove": [],
+      "ensure": [],
+      "review_notes": "记录 12306 与记录 13862 的重复文本存在一处实体类别标注差异。两条记录均将“JIA”标注为 dis；“APF”在记录 12306 中标注为 pro，在记录 13862 中标注为 bod。经人工复核，目前暂不裁定“APF”的实体类别，待进一步确认其在该语境中的医学含义及小组统一标注规范后再决定。本次仅记录复核情况，原始数据暂未修改。 当前仍有未裁定事项，整组状态暂记为 pending；如需训练，可在清洗副本中暂时排除该重复文本组，原始数据不删除。",
+      "cleaning_recommendation": "尚有争议：不要直接删除整条样本。优先保留原始文件；在清洗副本中将争议实体列入待处理清单，若项目必须产出无争议训练集，可暂时排除该重复文本组或仅移除明确未裁定的实体标注，并记录原因。",
+      "reason": "APF 的实体类别未裁定。"
+    },
+    "31": {
+      "action": "preserve",
+      "remove": [],
+      "ensure": [],
+      "review_notes": "Source report omits entity details for consistent groups; blank entity cells mean unavailable, not empty lists.",
+      "cleaning_recommendation": "标注一致：无需因重复标注差异而清洗；如需去重，应另行评估训练集去重策略。"
+    },
+    "32": {
+      "action": "preserve",
+      "remove": [],
+      "ensure": [],
+      "review_notes": "Source report omits entity details for consistent groups; blank entity cells mean unavailable, not empty lists.",
+      "cleaning_recommendation": "标注一致：无需因重复标注差异而清洗；如需去重，应另行评估训练集去重策略。"
+    },
+    "33": {
+      "action": "preserve",
+      "remove": [],
+      "ensure": [],
+      "review_notes": "Source report omits entity details for consistent groups; blank entity cells mean unavailable, not empty lists.",
+      "cleaning_recommendation": "标注一致：无需因重复标注差异而清洗；如需去重，应另行评估训练集去重策略。"
+    },
+    "34": {
+      "action": "preserve",
+      "remove": [],
+      "ensure": [],
+      "review_notes": "Source report omits entity details for consistent groups; blank entity cells mean unavailable, not empty lists.",
+      "cleaning_recommendation": "标注一致：无需因重复标注差异而清洗；如需去重，应另行评估训练集去重策略。"
+    },
+    "35": {
+      "action": "edit",
+      "remove": [
+        [
+          28,
+          31,
+          "dis",
+          "尿道瓣膜"
+        ]
+      ],
+      "ensure": [
+        [
+          27,
+          31,
+          "dis",
+          "后尿道瓣膜"
+        ]
+      ],
+      "review_notes": "记录 14487 与记录 14500 的重复文本存在一处实体边界差异。记录 14487 将“后尿道瓣膜”整体标注为 dis，记录 14500 仅将“尿道瓣膜”标注为 dis。经人工复核，决定保留完整实体“后尿道瓣膜”，标注为 dis（疾病）。补充理由未填写。本次仅记录人工复核结论，原始数据暂未修改。",
+      "cleaning_recommendation": "已有人工作出阶段性决定：按 review_notes 在清洗副本中落实；保留原始文件并记录变更前后差异。"
+    },
+    "36": {
+      "action": "preserve",
+      "remove": [],
+      "ensure": [],
+      "review_notes": "Source report omits entity details for consistent groups; blank entity cells mean unavailable, not empty lists.",
+      "cleaning_recommendation": "标注一致：无需因重复标注差异而清洗；如需去重，应另行评估训练集去重策略。"
+    },
+    "37": {
+      "action": "preserve",
+      "remove": [],
+      "ensure": [],
+      "review_notes": "Source report omits entity details for consistent groups; blank entity cells mean unavailable, not empty lists.",
+      "cleaning_recommendation": "标注一致：无需因重复标注差异而清洗；如需去重，应另行评估训练集去重策略。"
+    },
+    "38": {
+      "action": "preserve",
+      "remove": [],
+      "ensure": [],
+      "review_notes": "Source report omits entity details for consistent groups; blank entity cells mean unavailable, not empty lists.",
+      "cleaning_recommendation": "标注一致：无需因重复标注差异而清洗；如需去重，应另行评估训练集去重策略。"
+    },
+    "39": {
+      "action": "preserve",
+      "remove": [],
+      "ensure": [],
+      "review_notes": "Source report omits entity details for consistent groups; blank entity cells mean unavailable, not empty lists.",
+      "cleaning_recommendation": "标注一致：无需因重复标注差异而清洗；如需去重，应另行评估训练集去重策略。"
+    },
+    "40": {
+      "action": "preserve",
+      "remove": [],
+      "ensure": [],
+      "review_notes": "Source report omits entity details for consistent groups; blank entity cells mean unavailable, not empty lists.",
+      "cleaning_recommendation": "标注一致：无需因重复标注差异而清洗；如需去重，应另行评估训练集去重策略。"
+    },
+    "41": {
+      "action": "edit",
+      "remove": [
+        [
+          13,
+          28,
+          "sym",
+          "肾瘢痕越多，发生高血压的危险越高"
+        ]
+      ],
+      "ensure": [
+        [
+          7,
+          9,
+          "dis",
+          "肾瘢痕"
+        ]
+      ],
+      "review_notes": "记录 14495 与记录 14506 的重复文本存在两处实体标注差异。第一处，记录 14495 将“肾瘢痕越多，发生高血压的危险越高”整体标注为 sym；经人工复核，决定不保留该整段 sym 标注。第二处，记录 14495 将第一次出现的“肾瘢痕”标注为 dis，记录 14506 未标注该处；经人工复核，决定保留该处“肾瘢痕”的 dis（疾病）标注。补充理由未填写。本次仅记录人工复核结论，原始数据暂未修改。",
+      "cleaning_recommendation": "已有人工作出阶段性决定：按 review_notes 在清洗副本中落实；保留原始文件并记录变更前后差异。",
+      "remaining_reason": "备注只裁定整段sym移除及首次肾瘢痕保留，未裁定记录14506独有的“肾瘢痕”(13,15,dis)与“高血压”(21,23,dis)是否补入14495；保持原标注，不自动补标。"
+    },
+    "42": {
+      "action": "edit",
+      "remove": [],
+      "ensure": [
+        [
+          3,
+          4,
+          "pro",
+          "超声"
+        ],
+        [
+          14,
+          17,
+          "pro",
+          "VCUG"
+        ],
+        [
+          8,
+          10,
+          "dis",
+          "肾积水"
+        ]
+      ],
+      "review_notes": "记录 14496 与记录 14507 的重复文本存在三处实体标注差异。记录 14496 将“超声”和“VCUG”均标注为 pro，记录 14507 未标注这两处实体；经人工复核，决定保留“超声”和“VCUG”的 pro（医疗操作）标注。记录 14507 将“肾积水”标注为 dis，记录 14496 未标注该实体；经人工复核，决定保留“肾积水”的 dis（疾病）标注。补充理由未填写。本次仅记录人工复核结论，原始数据暂未修改。",
+      "cleaning_recommendation": "已有人工作出阶段性决定：按 review_notes 在清洗副本中落实；保留原始文件并记录变更前后差异。"
+    },
+    "43": {
+      "action": "preserve",
+      "remove": [],
+      "ensure": [],
+      "review_notes": "Source report omits entity details for consistent groups; blank entity cells mean unavailable, not empty lists.",
+      "cleaning_recommendation": "标注一致：无需因重复标注差异而清洗；如需去重，应另行评估训练集去重策略。"
+    }
+  },
+  "remove_invalid_entities": [
+    {
+      "record_index": 6051,
+      "entity": [
+        16,
+        15,
+        "pro",
+        ""
+      ]
+    },
+    {
+      "record_index": 6421,
+      "entity": [
+        15,
+        14,
+        "mic",
+        ""
+      ]
+    }
+  ]
+}

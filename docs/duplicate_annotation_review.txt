@@ -1,0 +1,455 @@
+CMeEE training exact-text duplicate annotation review
+Source: C:\Users\home\Desktop\MedicalNER_Project\data_raw\CMeEE_train.json
+records: 15000
+Record indices are zero-based. Grouping uses exact text, without normalization.
+Comparison: sorted (start_idx, end_idx, type, entity) tuples; duplicate entities retained.
+Only entity ordering is ignored. Offsets and annotations are not changed.
+Inconsistent annotations require human review; no automatic error judgment.
+
+======================================================================
+Group: 1
+Text: "可以用体描仪和氦气稀释法或氮气洗出法测定。"
+record_indices: [1899, 1911]
+entity_counts: {"1899": 3, "1911": 3}
+annotations_consistent: True
+
+======================================================================
+Group: 2
+Text: "由于我国发病率较欧美国家为少，另外PBAV在技术上有别于PBPV，且有严重并发症发生，因此国内除上海新华医院一组报告外，尚无系统开展该技术的报道。"
+record_indices: [4622, 8760]
+entity_counts: {"4622": 2, "8760": 2}
+annotations_consistent: True
+
+======================================================================
+Group: 3
+Text: "根据1982～1986年204例小儿经皮球囊主动脉瓣形成术总结，95.1%获得即期成功。"
+record_indices: [4623, 8761]
+entity_counts: {"4623": 1, "8761": 1}
+annotations_consistent: True
+
+======================================================================
+Group: 4
+Text: "随后对PBAV方法学上进行较多的研究，包括单球囊与双球囊扩张术及采用长的球囊进行扩张术，以后把球囊瓣膜成形术应用到新生儿病例，甚至进行胎儿主动脉瓣球囊成形术。"
+record_indices: [4624, 8762]
+entity_counts: {"4624": 5, "8762": 5}
+annotations_consistent: False
+Record 4624 sorted entity tuples:
+[3, 6, "pro", "PBAV"]
+[21, 30, "dis", "单球囊与双球囊扩张术"]
+[32, 42, "dis", "采用长的球囊进行扩张术"]
+[47, 53, "dis", "球囊瓣膜成形术"]
+[67, 77, "dis", "胎儿主动脉瓣球囊成形术"]
+Record 8762 sorted entity tuples:
+[3, 6, "pro", "PBAV"]
+[21, 30, "pro", "单球囊与双球囊扩张术"]
+[34, 42, "pro", "长的球囊进行扩张术"]
+[47, 53, "pro", "球囊瓣膜成形术"]
+[67, 77, "pro", "胎儿主动脉瓣球囊成形术"]
+
+======================================================================
+Group: 5
+Text: "目前，正在对PBAV病人进行中、长期随访，以观察其疗效与心功能的改变。"
+record_indices: [4625, 8763]
+entity_counts: {"4625": 1, "8763": 2}
+annotations_consistent: False
+Record 4625 sorted entity tuples:
+[6, 9, "pro", "PBAV"]
+Record 8763 sorted entity tuples:
+[6, 9, "pro", "PBAV"]
+[28, 28, "bod", "心"]
+
+======================================================================
+Group: 6
+Text: "5）抽动障碍症状不是直接由某些药物（如兴奋剂）或内科疾病（如亨廷顿舞蹈病或病毒感染后脑炎）所致。"
+record_indices: [5368, 5386]
+entity_counts: {"5368": 4, "5386": 5}
+annotations_consistent: False
+Record 5368 sorted entity tuples:
+[2, 5, "dis", "抽动障碍"]
+[19, 21, "dru", "兴奋剂"]
+[30, 35, "dis", "亨廷顿舞蹈病"]
+[37, 43, "dis", "病毒感染后脑炎"]
+Record 5386 sorted entity tuples:
+[2, 5, "sym", "抽动障碍"]
+[19, 21, "dru", "兴奋剂"]
+[24, 25, "dep", "内科"]
+[30, 35, "dis", "亨廷顿舞蹈病"]
+[37, 43, "dis", "病毒感染后脑炎"]
+
+======================================================================
+Group: 7
+Text: "4）不是由于TS、小舞蹈病、药物或神经系统其他疾病所致。"
+record_indices: [5370, 5376]
+entity_counts: {"5370": 2, "5376": 2}
+annotations_consistent: True
+
+======================================================================
+Group: 8
+Text: "随之，睾丸从腹股沟管内环经腹股沟管出外环而进入阴囊，是谓睾丸下降过程。"
+record_indices: [5684, 5696]
+entity_counts: {"5684": 4, "5696": 1}
+annotations_consistent: False
+Record 5684 sorted entity tuples:
+[3, 4, "bod", "睾丸"]
+[6, 11, "bod", "腹股沟管内环"]
+[23, 24, "bod", "阴囊"]
+[28, 31, "dis", "睾丸下降"]
+Record 5696 sorted entity tuples:
+[3, 4, "bod", "睾丸"]
+
+======================================================================
+Group: 9
+Text: "1.睾丸引带的牵拉睾丸引带的近端附着于睾丸和附睾，末端主要附着于阴囊底部，另有部分分别附着于耻骨结节、会阴部或股内侧部。"
+record_indices: [5685, 5697]
+entity_counts: {"5685": 8, "5697": 6}
+annotations_consistent: False
+Record 5685 sorted entity tuples:
+[2, 3, "bod", "睾丸"]
+[9, 12, "bod", "睾丸引带"]
+[19, 20, "bod", "睾丸"]
+[22, 23, "bod", "附睾"]
+[32, 33, "bod", "阴囊"]
+[46, 49, "bod", "耻骨结节"]
+[51, 53, "bod", "会阴部"]
+[55, 58, "bod", "股内侧部"]
+Record 5697 sorted entity tuples:
+[2, 3, "bod", "睾丸"]
+[9, 10, "bod", "睾丸"]
+[19, 20, "bod", "睾丸"]
+[22, 23, "bod", "附睾"]
+[32, 33, "bod", "阴囊"]
+[46, 49, "bod", "耻骨结节"]
+
+======================================================================
+Group: 10
+Text: "3.内分泌调节内分泌因素在促进睾丸降入阴囊过程中肯定起了重要作用，但其具体的机制尚不明了。"
+record_indices: [5690, 5702]
+entity_counts: {"5690": 2, "5702": 2}
+annotations_consistent: True
+
+======================================================================
+Group: 11
+Text: "【病因】睾丸下降的机制尚未阐明，对隐睾的病因也不太清楚。"
+record_indices: [5691, 5703]
+entity_counts: {"5691": 1, "5703": 2}
+annotations_consistent: False
+Record 5691 sorted entity tuples:
+[4, 7, "dis", "睾丸下降"]
+Record 5703 sorted entity tuples:
+[4, 5, "bod", "睾丸"]
+[17, 18, "dis", "隐睾"]
+
+======================================================================
+Group: 12
+Text: "输尿管膀胱连接部抗反流机制在公元150年已被认识到，1883年Pozzi在动物实验和人体中观察到膀胱输尿管反流，但尚不能确定是否为异常现象。"
+record_indices: [6471, 6505]
+entity_counts: {"6471": 2, "6505": 2}
+annotations_consistent: False
+Record 6471 sorted entity tuples:
+[0, 7, "dis", "输尿管膀胱连接部"]
+[48, 54, "sym", "膀胱输尿管反流"]
+Record 6505 sorted entity tuples:
+[0, 7, "bod", "输尿管膀胱连接部"]
+[48, 54, "sym", "膀胱输尿管反流"]
+
+======================================================================
+Group: 13
+Text: "其后Bumpus和Gruber等发现反流与泌尿系感染之间的关系，但当时更多的认为膀胱输尿管反流是继发于膀胱颈部梗阻，故1950年前后，人们施行了许多不必要的手术如膀胱颈部成形去解除并不存在的膀胱颈梗阻。"
+record_indices: [6472, 6506]
+entity_counts: {"6472": 5, "6506": 5}
+annotations_consistent: False
+Record 6472 sorted entity tuples:
+[21, 25, "dis", "泌尿系感染"]
+[40, 46, "dis", "膀胱输尿管反流"]
+[51, 56, "dis", "膀胱颈部梗阻"]
+[81, 84, "bod", "膀胱颈部"]
+[95, 99, "dis", "膀胱颈梗阻"]
+Record 6506 sorted entity tuples:
+[21, 25, "dis", "泌尿系感染"]
+[40, 46, "dis", "膀胱输尿管反流"]
+[51, 56, "dis", "膀胱颈部梗阻"]
+[81, 89, "pro", "膀胱颈部成形去解除"]
+[95, 99, "dis", "膀胱颈梗阻"]
+
+======================================================================
+Group: 14
+Text: "从20世纪60年代起，出现了大量关于膀胱输尿管反流与尿路感染和肾瘢痕之间关系的研究，并逐步认识到膀胱输尿管反流可导致高血压和肾衰竭。"
+record_indices: [6473, 6507]
+entity_counts: {"6473": 6, "6507": 6}
+annotations_consistent: True
+
+======================================================================
+Group: 15
+Text: "【发病率】原发性膀胱输尿管反流在正常婴儿和儿童的发生率很难知道，统计的发生率为1%～18.5%，但70%发生在尿路感染的患儿中。"
+record_indices: [6474, 6508]
+entity_counts: {"6474": 2, "6508": 2}
+annotations_consistent: True
+
+======================================================================
+Group: 16
+Text: "反流有一定的性别倾向，女孩占85%，男孩如有尿路感染其反流可能性大，包皮环切对其发生也有影响，环切者，反流率低。"
+record_indices: [6475, 6509]
+entity_counts: {"6475": 2, "6509": 2}
+annotations_consistent: True
+
+======================================================================
+Group: 17
+Text: "年龄与反流发生率成反比，4岁20%，12岁15%，成人5.2%，由此也提示随着膀胱及输尿管的发育（输尿管隧道延长），反流可自然缓解。"
+record_indices: [6476, 6510]
+entity_counts: {"6476": 3, "6510": 3}
+annotations_consistent: True
+
+======================================================================
+Group: 18
+Text: "图12-7膀胱输尿管反流分级反流对肾功能的影响与尿路不完全性梗阻对肾脏的影响是一样的。"
+record_indices: [6490, 6511]
+entity_counts: {"6490": 3, "6511": 1}
+annotations_consistent: False
+Record 6490 sorted entity tuples:
+[5, 9, "bod", "膀胱输尿管"]
+[24, 31, "dis", "尿路不完全性梗阻"]
+[33, 34, "bod", "肾脏"]
+Record 6511 sorted entity tuples:
+[33, 34, "bod", "肾脏"]
+
+======================================================================
+Group: 19
+Text: "反流时上尿路内压增加，远端肾单位首受其害，因此肾小管功能受损早于肾小球。"
+record_indices: [6491, 6512]
+entity_counts: {"6491": 2, "6512": 1}
+annotations_consistent: False
+Record 6491 sorted entity tuples:
+[0, 19, "sym", "反流时上尿路内压增加，远端肾单位首受其害"]
+[23, 34, "sym", "肾小管功能受损早于肾小球"]
+Record 6512 sorted entity tuples:
+[32, 34, "bod", "肾小球"]
+
+======================================================================
+Group: 20
+Text: "无菌反流影响肾小管的浓缩能力，且持续时间较长。"
+record_indices: [6492, 6513]
+entity_counts: {"6492": 1, "6513": 1}
+annotations_consistent: True
+
+======================================================================
+Group: 21
+Text: "肾小球功能在有肾实质损害时受影响，并与肾实质损害的程度成正比。"
+record_indices: [6493, 6514]
+entity_counts: {"6493": 1, "6514": 1}
+annotations_consistent: True
+
+======================================================================
+Group: 22
+Text: "反流病人发生高血压的机会较高。"
+record_indices: [6495, 6516]
+entity_counts: {"6495": 1, "6516": 1}
+annotations_consistent: False
+Record 6495 sorted entity tuples:
+[0, 13, "sym", "反流病人发生高血压的机会较高"]
+Record 6516 sorted entity tuples:
+[6, 8, "dis", "高血压"]
+
+======================================================================
+Group: 23
+Text: "如反流未能有效控制，肾瘢痕进行性发展可导致肾衰竭。"
+record_indices: [6496, 6517]
+entity_counts: {"6496": 2, "6517": 1}
+annotations_consistent: False
+Record 6496 sorted entity tuples:
+[10, 12, "dis", "肾瘢痕"]
+[21, 23, "dis", "肾衰竭"]
+Record 6517 sorted entity tuples:
+[10, 12, "dis", "肾瘢痕"]
+
+======================================================================
+Group: 24
+Text: "原发性膀胱输尿管反流一般随年龄增长逐渐好转，可能是因输尿管膀胱壁内段和膀胱三角区肌肉的生长和成熟之故。"
+record_indices: [6497, 6518]
+entity_counts: {"6497": 3, "6518": 3}
+annotations_consistent: True
+
+======================================================================
+Group: 25
+Text: "如静脉尿路造影显示输尿管口径正常，原发反流85%可自然消失。"
+record_indices: [6498, 6519]
+entity_counts: {"6498": 2, "6519": 1}
+annotations_consistent: False
+Record 6498 sorted entity tuples:
+[1, 6, "pro", "静脉尿路造影"]
+[9, 11, "bod", "输尿管"]
+Record 6519 sorted entity tuples:
+[1, 6, "pro", "静脉尿路造影"]
+
+======================================================================
+Group: 26
+Text: "反流的自然消失与反流累及的范围也有关系，单侧反流自然消失率可达65%；双侧反流，输尿管无扩张者，自然消失率是50%，有输尿管扩张的仅10%左右。"
+record_indices: [6499, 6520]
+entity_counts: {"6499": 2, "6520": 1}
+annotations_consistent: False
+Record 6499 sorted entity tuples:
+[40, 42, "bod", "输尿管"]
+[59, 61, "bod", "输尿管"]
+Record 6520 sorted entity tuples:
+[59, 61, "bod", "输尿管"]
+
+======================================================================
+Group: 27
+Text: "感染及肾瘢痕并不直接影响反流的消失，但肾瘢痕多见于严重反流的病例，反流自行消失机会少。"
+record_indices: [6500, 6521]
+entity_counts: {"6500": 2, "6521": 2}
+annotations_consistent: True
+
+======================================================================
+Group: 28
+Text: "原发性膀胱输尿管反流在青年和成人中的发展趋势尚有争论。"
+record_indices: [6501, 6522]
+entity_counts: {"6501": 1, "6522": 1}
+annotations_consistent: True
+
+======================================================================
+Group: 29
+Text: "【临床表现】原发性膀胱输尿管反流的症状主要从两方面表现，肾积水和尿路感染。"
+record_indices: [6502, 6523]
+entity_counts: {"6502": 3, "6523": 3}
+annotations_consistent: True
+
+======================================================================
+Group: 30
+Text: "因此建议将APF作为JIA诊断指标。"
+record_indices: [12306, 13862]
+entity_counts: {"12306": 2, "13862": 2}
+annotations_consistent: False
+Record 12306 sorted entity tuples:
+[5, 7, "pro", "APF"]
+[10, 12, "dis", "JIA"]
+Record 13862 sorted entity tuples:
+[5, 7, "bod", "APF"]
+[10, 12, "dis", "JIA"]
+
+======================================================================
+Group: 31
+Text: "确诊有赖于肺活检。"
+record_indices: [14096, 14480]
+entity_counts: {"14096": 1, "14480": 1}
+annotations_consistent: True
+
+======================================================================
+Group: 32
+Text: "病毒主要通过空气飞沫传播。"
+record_indices: [14097, 14482]
+entity_counts: {"14097": 1, "14482": 1}
+annotations_consistent: True
+
+======================================================================
+Group: 33
+Text: "因某种原因使这种活瓣样功能受损时，尿液即倒流入输尿管，严重时到达肾脏，这种现象称膀胱输尿管反流。"
+record_indices: [14485, 14498]
+entity_counts: {"14485": 4, "14498": 4}
+annotations_consistent: True
+
+======================================================================
+Group: 34
+Text: "膀胱输尿管反流分为原发性和继发性两种。"
+record_indices: [14486, 14499]
+entity_counts: {"14486": 3, "14499": 3}
+annotations_consistent: True
+
+======================================================================
+Group: 35
+Text: "前者系活瓣机能先天性发育不全，后者继发于下尿路梗阻，如后尿道瓣膜及神经源性膀胱等。"
+record_indices: [14487, 14500]
+entity_counts: {"14487": 4, "14500": 4}
+annotations_consistent: False
+Record 14487 sorted entity tuples:
+[3, 13, "dis", "活瓣机能先天性发育不全"]
+[20, 24, "dis", "下尿路梗阻"]
+[27, 31, "dis", "后尿道瓣膜"]
+[33, 38, "dis", "神经源性膀胱"]
+Record 14500 sorted entity tuples:
+[3, 13, "dis", "活瓣机能先天性发育不全"]
+[20, 24, "dis", "下尿路梗阻"]
+[28, 31, "dis", "尿道瓣膜"]
+[33, 38, "dis", "神经源性膀胱"]
+
+======================================================================
+Group: 36
+Text: "1958年Politano-Leadbetter首先报道采用抗反流的输尿管膀胱再吻合术来解决膀胱输尿管反流。"
+record_indices: [14488, 14501]
+entity_counts: {"14488": 2, "14501": 2}
+annotations_consistent: True
+
+======================================================================
+Group: 37
+Text: "胎儿肾积水中，由反流引起的也很常见。"
+record_indices: [14489, 14502]
+entity_counts: {"14489": 1, "14502": 1}
+annotations_consistent: True
+
+======================================================================
+Group: 38
+Text: "种族与原发性膀胱输尿管反流也有关，如白人女孩是黑人女孩的10倍，但一旦发生，其程度和自然缓解的可能性没有区别。"
+record_indices: [14490, 14503]
+entity_counts: {"14490": 1, "14503": 1}
+annotations_consistent: True
+
+======================================================================
+Group: 39
+Text: "原发性膀胱输尿管反流与遗传之间的关系也有报告。"
+record_indices: [14491, 14504]
+entity_counts: {"14491": 1, "14504": 1}
+annotations_consistent: True
+
+======================================================================
+Group: 40
+Text: "故现提倡凡直系亲属有反流病史的均应接受排尿性膀胱尿道造影（VCUG）筛查。"
+record_indices: [14492, 14505]
+entity_counts: {"14492": 2, "14505": 2}
+annotations_consistent: True
+
+======================================================================
+Group: 41
+Text: "高血压的发生与肾瘢痕有关，肾瘢痕越多，发生高血压的危险越高，患双侧严重肾瘢痕的小儿随访20年以上，20%有高血压，单侧病变者为8%。"
+record_indices: [14495, 14506]
+entity_counts: {"14495": 5, "14506": 5}
+annotations_consistent: False
+Record 14495 sorted entity tuples:
+[0, 2, "dis", "高血压"]
+[7, 9, "dis", "肾瘢痕"]
+[13, 28, "sym", "肾瘢痕越多，发生高血压的危险越高"]
+[35, 37, "dis", "肾瘢痕"]
+[53, 55, "dis", "高血压"]
+Record 14506 sorted entity tuples:
+[0, 2, "dis", "高血压"]
+[13, 15, "dis", "肾瘢痕"]
+[21, 23, "dis", "高血压"]
+[35, 37, "dis", "肾瘢痕"]
+[53, 55, "dis", "高血压"]
+
+======================================================================
+Group: 42
+Text: "因此凡超声发现的肾积水都应行VCUG，以排除反流。"
+record_indices: [14496, 14507]
+entity_counts: {"14496": 2, "14507": 1}
+annotations_consistent: False
+Record 14496 sorted entity tuples:
+[3, 4, "pro", "超声"]
+[14, 17, "pro", "VCUG"]
+Record 14507 sorted entity tuples:
+[8, 10, "dis", "肾积水"]
+
+======================================================================
+Group: 43
+Text: "由于相当一部分患儿是无症状反流，在高危人群中用超声进行反流筛查有实际意义。"
+record_indices: [14497, 14508]
+entity_counts: {"14497": 1, "14508": 1}
+annotations_consistent: True
+
+======================================================================
+Summary:
+duplicate_text_groups: 43
+consistent_groups: 25
+inconsistent_groups: 18
+SHA256 before: 984f0bea3932c8c5afd96d9cccac4895b87ec77f57bd3e825d832a17943cd5d3
+SHA256 after:  984f0bea3932c8c5afd96d9cccac4895b87ec77f57bd3e825d832a17943cd5d3
+Source SHA256 unchanged: True
+No cleaning, correction or BIO conversion performed.
