@@ -13,10 +13,11 @@
 5. 实现精确词典基线。
 6. 实现最长匹配词典基线。
 7. 实现最低出现次数和最短实体长度的参数实验。
-8. 实现字符级 LinearSVC 小模型。
-9. 实现统一的实体级和字符级评测。
-10. 自动保存预测结果、指标、错误样本和实验汇总表。
-11. 自动分析最佳词典基线中的漏检、误报、边界错误和类型错误。
+8. 实现只依赖人工正则规则的纯规则基线。
+9. 实现字符级 LinearSVC 小模型。
+10. 实现统一的实体级和字符级评测。
+11. 自动保存预测结果、指标、错误样本和实验汇总表。
+12. 自动分析最佳词典基线和纯规则基线中的漏检、误报、边界错误和类型错误。
 
 成员 1 的原始数据和清洗后数据没有被修改。
 
@@ -50,6 +51,7 @@ dis, sym, dru, equ, pro, bod, ite, mic, dep
 | `span_utils.py` | 统一实体格式、实体排序、文本匹配和标签冲突处理 | 实体字典、文本 | 标准化实体或匹配位置 |
 | `metrics.py` | 统一计算实体级和 token 级指标 | 金标记录、预测记录 | Precision、Recall、F1、错误记录 |
 | `dictionary_baseline.py` | 从训练集建词典并运行词典预测 | train、dev | 预测文件和指标文件 |
+| `pure_rule_baseline.py` | 只使用人工正则规则运行纯规则预测，不读取训练词典 | dev | 规则预测文件和指标文件 |
 | `small_model.py` | 训练字符级 LinearSVC 小模型 | train、dev | 小模型预测和指标 |
 | `evaluate_saved.py` | 对已有预测文件重新使用统一评测 | 金标文件、预测文件 | 更新后的指标文件 |
 | `error_analysis.py` | 自动区分漏检、误报、边界错误和类型错误 | 金标文件、预测文件 | 错误分析 JSON |
@@ -93,7 +95,15 @@ python baseline/dictionary_baseline.py --method longest --min-length 3
 
 其中 `exact` 保留所有匹配；`longest` 优先保留最长实体；`--min-count` 过滤低频短语；`--min-length` 过滤过短实体。
 
-### 3. 运行字符级小模型
+### 3. 运行纯规则基线
+
+```powershell
+python baseline/pure_rule_baseline.py
+```
+
+纯规则基线只使用 `pure_rule_baseline.py` 中人工编写的正则规则，不读取训练集实体，也不建立词典。当前规则覆盖药物后缀、疾病后缀、症状词、检验项目、医疗程序、身体部位、设备、微生物和科室等模式。
+
+### 4. 运行字符级小模型
 
 ```powershell
 python baseline/small_model.py
@@ -101,7 +111,7 @@ python baseline/small_model.py
 
 该模型使用当前字符、前后字符、数字/英文特征和词典字符特征训练 LinearSVC。
 
-### 4. 重新评测已有预测
+### 5. 重新评测已有预测
 
 ```powershell
 python baseline/evaluate_saved.py `
@@ -110,7 +120,7 @@ python baseline/evaluate_saved.py `
   --output outputs/dictionary_best_metrics_recomputed.json
 ```
 
-### 5. 生成错误分析和实验汇总
+### 6. 生成错误分析和实验汇总
 
 ```powershell
 python baseline/error_analysis.py `
@@ -206,13 +216,14 @@ CMeEE 存在嵌套实体，例如同一段文字可以同时标注为 `bod` 和 
 | 最长匹配，实体长度≥2 | **0.3496** | **0.4796** | **0.4044** | **0.5060** | **0.7389** |
 | 最长匹配，实体长度≥3 | 0.4610 | 0.3126 | 0.3725 | 0.4581 | 0.7392 |
 | 最长匹配，出现次数≥2 | 0.3067 | 0.4433 | 0.3625 | 0.4703 | 0.7355 |
+| 纯人工正则规则 | 0.0908 | 0.0312 | 0.0465 | 0.2190 | 0.5972 |
 | 字符级 LinearSVC | 0.1161 | 0.3513 | 0.1745 | 0.4838 | 0.6976 |
 
 当前最佳基线是“最长匹配词典 + 过滤单字实体”，实体级 F1 为 `0.4044`。过滤单字实体减少了误报；过滤到长度≥3 后召回下降过多，F1 反而下降。频次过滤没有超过长度过滤方案。
 
 ## 八、错误分析结果
 
-最佳词典基线的错误分析文件为 `outputs/dictionary_best_error_analysis.json`：
+最佳词典基线的错误分析文件为 `outputs/dictionary_best_error_analysis.json`；纯规则基线的错误分析文件为 `outputs/pure_rules_error_analysis.json`：
 
 | 错误类型 | 数量 |
 |---|---:|

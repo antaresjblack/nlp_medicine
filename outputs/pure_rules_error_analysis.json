@@ -1,0 +1,195 @@
+{
+  "gold_file": "data_raw\\CMeEE_dev.json",
+  "prediction_file": "outputs\\pure_rules_predictions.json",
+  "error_counts": {
+    "boundary_error": 2900,
+    "missed_entity": 17203,
+    "spurious_entity": 3887,
+    "type_error": 197
+  },
+  "total_error_events": 24187,
+  "examples": {
+    "boundary_error": [
+      {
+        "kind": "boundary_error",
+        "gold": {
+          "start_idx": 26,
+          "end_idx": 27,
+          "type": "sym",
+          "entity": "发热"
+        },
+        "predicted": {
+          "start_idx": 21,
+          "end_idx": 30,
+          "type": "sym",
+          "entity": "主要表现为发热和咳嗽"
+        },
+        "record_index": 4,
+        "text": "（二）临床症状、体征与成年人类似，起病急，主要表现为发热和咳嗽，热峰高，腋温多在39℃以上，发热持续时间平均超过一周。"
+      },
+      {
+        "kind": "boundary_error",
+        "gold": {
+          "start_idx": 2,
+          "end_idx": 6,
+          "type": "sym",
+          "entity": "不规则发热"
+        },
+        "predicted": {
+          "start_idx": 0,
+          "end_idx": 6,
+          "type": "sym",
+          "entity": "可为不规则发热"
+        },
+        "record_index": 5,
+        "text": "可为不规则发热、稽留热或弛张热，但以不规则发热为多，可能与患儿应用退热药物导致热型不规律有关。"
+      },
+      {
+        "kind": "boundary_error",
+        "gold": {
+          "start_idx": 18,
+          "end_idx": 22,
+          "type": "sym",
+          "entity": "不规则发热"
+        },
+        "predicted": {
+          "start_idx": 16,
+          "end_idx": 22,
+          "type": "sym",
+          "entity": "但以不规则发热"
+        },
+        "record_index": 5,
+        "text": "可为不规则发热、稽留热或弛张热，但以不规则发热为多，可能与患儿应用退热药物导致热型不规律有关。"
+      }
+    ],
+    "missed_entity": [
+      {
+        "kind": "missed_entity",
+        "gold": {
+          "start_idx": 3,
+          "end_idx": 9,
+          "type": "bod",
+          "entity": "SARST细胞"
+        },
+        "predicted": null,
+        "record_index": 0,
+        "text": "对儿童SARST细胞亚群的研究表明，与成人SARS相比，儿童细胞下降不明显，证明上述推测成立。"
+      },
+      {
+        "kind": "missed_entity",
+        "gold": {
+          "start_idx": 19,
+          "end_idx": 24,
+          "type": "dis",
+          "entity": "成人SARS"
+        },
+        "predicted": null,
+        "record_index": 0,
+        "text": "对儿童SARST细胞亚群的研究表明，与成人SARS相比，儿童细胞下降不明显，证明上述推测成立。"
+      },
+      {
+        "kind": "missed_entity",
+        "gold": {
+          "start_idx": 10,
+          "end_idx": 10,
+          "type": "bod",
+          "entity": "肺"
+        },
+        "predicted": null,
+        "record_index": 1,
+        "text": "研究证实，细胞减少与肺内病变程度及肺内炎性病变吸收程度密切相关。"
+      }
+    ],
+    "spurious_entity": [
+      {
+        "kind": "spurious_entity",
+        "gold": null,
+        "predicted": {
+          "start_idx": 5,
+          "end_idx": 21,
+          "type": "dis",
+          "entity": "细胞减少与肺内病变程度及肺内炎性病"
+        },
+        "record_index": 1,
+        "text": "研究证实，细胞减少与肺内病变程度及肺内炎性病变吸收程度密切相关。"
+      },
+      {
+        "kind": "spurious_entity",
+        "gold": null,
+        "predicted": {
+          "start_idx": 0,
+          "end_idx": 6,
+          "type": "dis",
+          "entity": "因而儿童肺部病"
+        },
+        "record_index": 2,
+        "text": "因而儿童肺部病变较轻，肺内炎性病变吸收较快。"
+      },
+      {
+        "kind": "spurious_entity",
+        "gold": null,
+        "predicted": {
+          "start_idx": 11,
+          "end_idx": 15,
+          "type": "dis",
+          "entity": "肺内炎性病"
+        },
+        "record_index": 2,
+        "text": "因而儿童肺部病变较轻，肺内炎性病变吸收较快。"
+      }
+    ],
+    "type_error": [
+      {
+        "kind": "type_error",
+        "gold": {
+          "start_idx": 2,
+          "end_idx": 6,
+          "type": "pro",
+          "entity": "心电图检查"
+        },
+        "predicted": {
+          "start_idx": 2,
+          "end_idx": 6,
+          "type": "ite",
+          "entity": "心电图检查"
+        },
+        "record_index": 14,
+        "text": "3.心电图检查，阳性结果定期复查。"
+      },
+      {
+        "kind": "type_error",
+        "gold": {
+          "start_idx": 67,
+          "end_idx": 71,
+          "type": "bod",
+          "entity": "衣原体抗体"
+        },
+        "predicted": {
+          "start_idx": 67,
+          "end_idx": 71,
+          "type": "ite",
+          "entity": "衣原体抗体"
+        },
+        "record_index": 25,
+        "text": "咽拭子病毒分离查呼吸道合胞病毒、A型流感病毒、B型流感病毒、肠道病毒、拉萨热病毒、汉坦病毒、腺病毒，抽血查支原体抗体（MP-IgM）、衣原体抗体（CP-IgM）对排除其他病原肺炎是必要的。"
+      },
+      {
+        "kind": "type_error",
+        "gold": {
+          "start_idx": 32,
+          "end_idx": 35,
+          "type": "pro",
+          "entity": "外斐试验"
+        },
+        "predicted": {
+          "start_idx": 32,
+          "end_idx": 35,
+          "type": "ite",
+          "entity": "外斐试验"
+        },
+        "record_index": 29,
+        "text": "8.查血沉、C反应蛋白、冷凝集试验，发热超过一周者加做肥达试验、外斐试验、抗溶血素链球菌“O”、类风湿因子（RF），有助于鉴别诊断。"
+      }
+    ]
+  }
+}

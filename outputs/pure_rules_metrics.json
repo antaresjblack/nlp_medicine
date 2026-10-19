@@ -1,0 +1,105 @@
+{
+  "metric": "strict_entity_micro",
+  "gold_entities": 20300,
+  "predicted_entities": 6984,
+  "true_positive": 634,
+  "precision": 0.09077892325315005,
+  "recall": 0.03123152709359606,
+  "f1": 0.04647412402873479,
+  "records_with_errors": 4979,
+  "token_projection": "longest_non_overlapping_span_per_character",
+  "token_total": 270417,
+  "token_accuracy": 0.597162900261448,
+  "token_entity_precision": 0.28025684265144635,
+  "token_entity_recall": 0.17970285191461932,
+  "token_entity_f1": 0.21898855264074807,
+  "per_label": {
+    "bod": {
+      "precision": 0.06473029045643154,
+      "recall": 0.013258541560428353,
+      "f1": 0.02200902934537246,
+      "tp": 78,
+      "fp": 1127,
+      "fn": 5805
+    },
+    "dep": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "tp": 0,
+      "fp": 76,
+      "fn": 110
+    },
+    "dis": {
+      "precision": 0.12927756653992395,
+      "recall": 0.06889564336372847,
+      "f1": 0.08988764044943821,
+      "tp": 340,
+      "fp": 2290,
+      "fn": 4595
+    },
+    "dru": {
+      "precision": 0.026737967914438502,
+      "recall": 0.003472222222222222,
+      "f1": 0.0061462814996926865,
+      "tp": 5,
+      "fp": 182,
+      "fn": 1435
+    },
+    "equ": {
+      "precision": 0.046511627906976744,
+      "recall": 0.05042016806722689,
+      "f1": 0.04838709677419355,
+      "tp": 12,
+      "fp": 246,
+      "fn": 226
+    },
+    "ite": {
+      "precision": 0.04527162977867203,
+      "recall": 0.04875406283856988,
+      "f1": 0.04694835680751173,
+      "tp": 45,
+      "fp": 949,
+      "fn": 878
+    },
+    "mic": {
+      "precision": 0.1510791366906475,
+      "recall": 0.10787671232876712,
+      "f1": 0.1258741258741259,
+      "tp": 63,
+      "fp": 354,
+      "fn": 521
+    },
+    "pro": {
+      "precision": 0.0592503022974607,
+      "recall": 0.023821098687408847,
+      "f1": 0.03398058252427184,
+      "tp": 49,
+      "fp": 778,
+      "fn": 2008
+    },
+    "sym": {
+      "precision": 0.1076923076923077,
+      "recall": 0.010169491525423728,
+      "f1": 0.018584070796460173,
+      "tp": 42,
+      "fp": 348,
+      "fn": 4088
+    }
+  },
+  "method": "pure_handwritten_rules",
+  "eval_file": "D:\\学习记录\\3-1\\NLP\\code\\nlp_medicine\\data_raw\\CMeEE_dev.json",
+  "rule_count": 9,
+  "rule_names": [
+    "microorganism_suffix",
+    "drug_form_suffix",
+    "procedure_suffix",
+    "lab_item_suffix",
+    "disease_suffix",
+    "symptom_word",
+    "body_part_suffix",
+    "equipment_suffix",
+    "department_suffix"
+  ],
+  "runtime_seconds": 0.5852910000248812
+}
