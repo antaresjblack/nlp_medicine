@@ -69,10 +69,10 @@ dis, sym, dru, equ, pro, bod, ite, mic, dep
 
 ## 五、运行命令
 
-所有命令都在仓库根目录执行：
+所有命令都在仓库根目录执行。请把 `<REPO_ROOT>` 替换成你电脑上克隆本项目的实际目录；README 不依赖任何特定电脑路径。
 
 ```powershell
-cd "D:\学习记录\3-1\NLP\code\nlp_medicine"
+cd "<REPO_ROOT>"
 ```
 
 ### 1. 检查数据
@@ -121,11 +121,79 @@ python baseline/error_analysis.py `
 python baseline/summarize_experiments.py
 ```
 
-## 六、评测规则
+## 六、已经冻结的评测协议
 
-实体级严格匹配要求预测实体的 `start_idx`、`end_idx` 和 `type` 全部相同。主指标是实体级 Micro Precision、Micro Recall 和 Micro F1。
+本项目采用 CMeEE/CBLUE 的任务口径：医疗命名实体识别的官方主要指标是 **实体级严格 Micro-F1**。CBLUE 的 CMeEE 说明和示例见：
 
-CMeEE 含有嵌套实体，而单层字符标签只能给每个字符一个标签。因此 token 指标使用固定规则：优先保留最长实体，重叠的较短实体不参与字符级投影。实体级指标仍然使用原始实体跨度。
+- [CBLUE 官方仓库](https://github.com/CBLUEbenchmark/CBLUE)
+- [CMeEE 数据说明与提交格式](https://huggingface.co/datasets/Aunderline/CMeEE)
+
+### 1. 数据划分
+
+| 数据 | 用途 | 是否计算指标 |
+|---|---|---|
+| `data_cleaned/CMeEE_train_cleaned_final.json` | 训练模型、建立词典、选择训练参数 | 不作为最终报告指标 |
+| `data_raw/CMeEE_dev.json` | 本地开发、参数选择和方法比较 | 可以计算指标 |
+| `data_raw/CMeEE_test.json` | 生成最终预测文件或展示结果 | 当前没有公开金标，不计算 P/R/F1 |
+
+本地 test 的 `entities` 全为空，不能把空列表当作“没有实体”。因此当前仓库中的数值结果都应称为 **dev 集开发结果**，不能写成官方 test 集成绩。若之后取得带金标的测试集，应在所有方法和参数冻结后，只运行一次最终测试评估。
+
+为了公平比较，所有方法必须使用同一版训练集、同一份 dev 集、同一份金标和同一套评测代码。不能让某个方法使用其他方法没有看到的 dev 标注来建词典或调参数。
+
+### 2. 统一输出格式
+
+内部预测文件与 CMeEE 原始格式保持一致：顶层是列表，每条记录保留原文 `text` 和预测实体列表 `entities`。每个实体统一使用下面四个字段：
+
+```json
+{
+  "start_idx": 10,
+  "end_idx": 11,
+  "type": "dis",
+  "entity": "肺炎"
+}
+```
+
+规则如下：
+
+- `start_idx` 和 `end_idx` 是从 0 开始的字符位置；
+- `end_idx` 是包含式，实体文本必须满足 `text[start_idx:end_idx + 1] == entity`；
+- `type` 必须是 CMeEE 的九类之一；
+- `entity` 必须是原文对应切片；
+- 预测记录必须与输入记录保持相同顺序；
+- 评测时使用 `(record_index, start_idx, end_idx, type)` 作为实体键，不能只按实体文字匹配；
+- 对外提交时沿用 CMeEE 要求的 `text`、`entities` 结构；实体字段至少包含 `start_idx`、`end_idx`、`type`，本项目内部保留 `entity` 便于审计。
+
+这样，词典、LinearSVC、BERT 和 LLM 的结果都可以先转换到同一个 span 格式，再调用同一个评测脚本。
+
+### 3. 主指标：实体级严格 Micro-F1
+
+预测实体只有在下面三项全部相同才算正确：
+
+```text
+start_idx 相同
+end_idx 相同
+type 相同
+```
+
+然后在整个评估集上汇总：
+
+```text
+Precision = TP / (TP + FP)
+Recall    = TP / (TP + FN)
+F1        = 2PR / (P + R)
+```
+
+主结果报告总体 Micro Precision、Micro Recall、Micro F1，并同时报告九类实体各自的 P/R/F1。
+
+### 4. token/字符级指标：补充指标
+
+CMeEE 存在嵌套实体，例如同一段文字可以同时标注为 `bod` 和 `sym`。单层 BIO 或单层字符标签无法在一个位置同时保存多层实体，因此 token 指标不能替代官方实体级指标。
+
+当前代码采用明确的可复现投影：同一文本中优先保留最长的非重叠实体，再逐字符计算 Accuracy、实体字符 Precision、Recall、F1。报告中必须把它写成：
+
+> 基于最长非重叠实体投影的字符级补充指标。
+
+不能把这个投影结果称为完整的嵌套实体 token 金标准。实体级主指标仍然直接使用原始 span 标注，保留所有重叠实体。
 
 ## 七、当前实验结果
 
@@ -161,7 +229,8 @@ CMeEE 含有嵌套实体，而单层字符标签只能给每个字符一个标�
 2. 词典基线只能识别训练集中出现过的实体短语。
 3. 当前字符级 LinearSVC 使用最长非重叠投影训练，不能完整学习嵌套实体。
 4. 当前评估使用有金标的 dev 集；本地 test 没有公开答案，不能计算有效 F1。
-5. 成员 3 的 BERT/LLM 结果需要转换为相同的 span 输出格式后，再使用 `metrics.py` 评测。
+5. 当前 dev 结果用于开发和方法比较，不能替代隐藏 test 的官方成绩。
+6. 成员 3 的 BERT/LLM 结果需要转换为相同的 span 输出格式后，再使用 `metrics.py` 评测。
 
 ## 十、成员 2 的贡献证据
 
