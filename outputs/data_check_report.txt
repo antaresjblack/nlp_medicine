@@ -1,0 +1,29 @@
+CMeEE baseline data check
+============================
+
+File: D:\学习记录\3-1\NLP\code\nlp_medicine\data_cleaned\CMeEE_train_cleaned_final.json
+Records: 14984
+Entities: 61743
+Empty-entity records: 0
+Records with overlap: 1666
+Overlap pairs: 3681
+Label counts: {'bod': 17682, 'dep': 349, 'dis': 15819, 'dru': 3930, 'equ': 888, 'ite': 2581, 'mic': 1907, 'pro': 6323, 'sym': 12264}
+Errors: 0
+
+File: D:\学习记录\3-1\NLP\code\nlp_medicine\data_raw\CMeEE_dev.json
+Records: 5000
+Entities: 20300
+Empty-entity records: 0
+Records with overlap: 524
+Overlap pairs: 1225
+Label counts: {'bod': 5883, 'dep': 110, 'dis': 4935, 'dru': 1440, 'equ': 238, 'ite': 923, 'mic': 584, 'pro': 2057, 'sym': 4130}
+Errors: 0
+
+File: D:\学习记录\3-1\NLP\code\nlp_medicine\data_raw\CMeEE_test.json
+Records: 3000
+Entities: 0
+Empty-entity records: 3000
+Records with overlap: 0
+Overlap pairs: 0
+Label counts: {}
+Errors: 0
