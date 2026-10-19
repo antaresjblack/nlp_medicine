@@ -1,0 +1,96 @@
+{
+  "metric": "strict_entity_micro",
+  "gold_entities": 20300,
+  "predicted_entities": 27851,
+  "true_positive": 9736,
+  "precision": 0.34957452156116475,
+  "recall": 0.47960591133004926,
+  "f1": 0.4043945089406243,
+  "records_with_errors": 4682,
+  "token_projection": "longest_non_overlapping_span_per_character",
+  "token_total": 270417,
+  "token_accuracy": 0.7388995514335267,
+  "token_entity_precision": 0.5350346522031384,
+  "token_entity_recall": 0.47999085058379515,
+  "token_entity_f1": 0.5060202666783583,
+  "per_label": {
+    "bod": {
+      "precision": 0.370664823136306,
+      "recall": 0.5468298487166412,
+      "f1": 0.4418349127867051,
+      "tp": 3217,
+      "fp": 5462,
+      "fn": 2666
+    },
+    "dep": {
+      "precision": 0.10412926391382406,
+      "recall": 0.5272727272727272,
+      "f1": 0.1739130434782609,
+      "tp": 58,
+      "fp": 499,
+      "fn": 52
+    },
+    "dis": {
+      "precision": 0.38852163461538464,
+      "recall": 0.5240121580547112,
+      "f1": 0.4462082650332155,
+      "tp": 2586,
+      "fp": 4070,
+      "fn": 2349
+    },
+    "dru": {
+      "precision": 0.4808935920047031,
+      "recall": 0.5680555555555555,
+      "f1": 0.5208532314549507,
+      "tp": 818,
+      "fp": 883,
+      "fn": 622
+    },
+    "equ": {
+      "precision": 0.3222748815165877,
+      "recall": 0.2857142857142857,
+      "f1": 0.3028953229398664,
+      "tp": 68,
+      "fp": 143,
+      "fn": 170
+    },
+    "ite": {
+      "precision": 0.19896640826873385,
+      "recall": 0.333694474539545,
+      "f1": 0.24929178470254956,
+      "tp": 308,
+      "fp": 1240,
+      "fn": 615
+    },
+    "mic": {
+      "precision": 0.47903430749682335,
+      "recall": 0.6455479452054794,
+      "f1": 0.549963530269876,
+      "tp": 377,
+      "fp": 410,
+      "fn": 207
+    },
+    "pro": {
+      "precision": 0.2964699393270822,
+      "recall": 0.5226057365094798,
+      "f1": 0.37832130916769313,
+      "tp": 1075,
+      "fp": 2551,
+      "fn": 982
+    },
+    "sym": {
+      "precision": 0.3007831620166422,
+      "recall": 0.29757869249394675,
+      "f1": 0.2991723466407011,
+      "tp": 1229,
+      "fp": 2857,
+      "fn": 2901
+    }
+  },
+  "method": "dictionary_longest_min_count_1_min_length_2",
+  "split": "dev",
+  "train_file": "data_cleaned/CMeEE_train_cleaned_final.json",
+  "gold_file": "data_raw/CMeEE_dev.json",
+  "dictionary_size": 25206,
+  "runtime_seconds": 36.8264926999982
+}

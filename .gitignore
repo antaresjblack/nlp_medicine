@@ -10,3 +10,7 @@ venv/
 !.env.example
 Thumbs.db
 Desktop.ini
+
+# Member 4's regenerable evaluation artifacts
+outputs/eval_split/predictions/
+outputs/eval_split/errors/
