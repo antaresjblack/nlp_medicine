@@ -1,0 +1,118 @@
+{
+  "method": "nested_projection_loss_analysis",
+  "eval_file": "D:\\学习记录\\3-1\\NLP\\code\\nlp_medicine\\data_raw\\CMeEE_dev.json",
+  "predictions_file": "D:\\学习记录\\3-1\\NLP\\code\\nlp_medicine\\outputs\\small_model_predictions.json",
+  "projection": "longest_non_overlapping_gold_entities (same as training)",
+  "step1_projection": {
+    "gold_entities": 20300,
+    "kept": 19077,
+    "kept_ratio": 0.9397536945812808,
+    "dropped": 1223,
+    "dropped_ratio": 0.06024630541871921,
+    "dropped_type_distribution": {
+      "bod": 1025,
+      "dep": 2,
+      "dis": 47,
+      "dru": 7,
+      "equ": 3,
+      "ite": 109,
+      "mic": 4,
+      "pro": 25,
+      "sym": 1
+    },
+    "dropped_length_distribution": {
+      "1": 121,
+      "2": 443,
+      "3": 319,
+      "4": 124,
+      "5": 91,
+      "6": 41,
+      "7": 26,
+      "8": 19,
+      "9": 7,
+      "10": 8,
+      "11": 3,
+      "12": 2,
+      "13": 5,
+      "14": 6,
+      "15": 2,
+      "16": 1,
+      "17": 1,
+      "18": 2,
+      "19": 1,
+      "24": 1
+    }
+  },
+  "step2_recovery": {
+    "recovered": 1123,
+    "recovery_rate": 0.9182338511856092,
+    "missed": 100,
+    "per_type": {
+      "bod": {
+        "dropped": 1025,
+        "recovered": 956,
+        "missed": 69
+      },
+      "dep": {
+        "dropped": 2,
+        "recovered": 2,
+        "missed": 0
+      },
+      "dis": {
+        "dropped": 47,
+        "recovered": 43,
+        "missed": 4
+      },
+      "dru": {
+        "dropped": 7,
+        "recovered": 6,
+        "missed": 1
+      },
+      "equ": {
+        "dropped": 3,
+        "recovered": 3,
+        "missed": 0
+      },
+      "ite": {
+        "dropped": 109,
+        "recovered": 87,
+        "missed": 22
+      },
+      "mic": {
+        "dropped": 4,
+        "recovered": 3,
+        "missed": 1
+      },
+      "pro": {
+        "dropped": 25,
+        "recovered": 22,
+        "missed": 3
+      },
+      "sym": {
+        "dropped": 1,
+        "recovered": 1,
+        "missed": 0
+      }
+    }
+  },
+  "step3_dictionary_channel": {
+    "recovered_in_dictionary": 789,
+    "recovered_in_dictionary_ratio": 0.7025823686553874,
+    "missed_in_dictionary": 8
+  },
+  "ceiling": {
+    "current": {
+      "tp": 9742,
+      "precision": 0.38961766117421215,
+      "recall": 0.4799014778325123,
+      "f1": 0.4300723997880982
+    },
+    "all_missed_recovered": {
+      "tp": 9842,
+      "precision": 0.38961766117421215,
+      "recall": 0.48482758620689653,
+      "f1": 0.43203937759717226
+    },
+    "max_f1_gain": 0.0019669778090740664
+  }
+}
