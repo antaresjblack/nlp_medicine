@@ -16,6 +16,7 @@ from pathlib import Path
 from typing import Any
 
 import numpy as np
+from scipy.sparse import csr_matrix
 from sklearn.feature_extraction import DictVectorizer
 from sklearn.svm import LinearSVC
 
@@ -29,11 +30,18 @@ def load_json(path: Path) -> list[dict[str, Any]]:
 
 
 def sparse_int32(matrix: Any) -> Any:
-    """Make scipy sparse indices compatible with this scikit-learn build."""
+    """Make scipy sparse indices compatible with this scikit-learn build.
+
+    DictVectorizer.fit_transform can return int64 indices on some scipy
+    versions, which scikit-learn rejects. Rebuild the matrix explicitly with
+    int32 index arrays instead of relying on attribute assignment, which does
+    not stick on every scipy code path.
+    """
     matrix = matrix.tocsr()
-    matrix.indices = np.asarray(matrix.indices, dtype=np.int32)
-    matrix.indptr = np.asarray(matrix.indptr, dtype=np.int32)
-    return matrix
+    return csr_matrix(
+        (matrix.data, matrix.indices.astype(np.int32), matrix.indptr.astype(np.int32)),
+        shape=matrix.shape,
+    )
 
 
 def longest_non_overlapping_entities(record: dict[str, Any]) -> list[dict[str, Any]]:

@@ -1,0 +1,118 @@
+{
+  "hyperparameters": {
+    "C": 0.1,
+    "class_weight": "balanced",
+    "seed": 42
+  },
+  "note": "从最终配置出发逐组移除词典跨度特征，其余保持不变；delta_f1 为相对 full 的变化",
+  "full_entity_f1": 0.4300723997880982,
+  "rows": [
+    {
+      "config": "remove_all",
+      "removed": [
+        "dict_boundary",
+        "dict_freq",
+        "dict_label",
+        "dict_span_len",
+        "in_dict_span",
+        "label_conflict"
+      ],
+      "entity_precision": 0.12050983033030567,
+      "entity_recall": 0.36142857142857143,
+      "entity_f1": 0.1807521279085523,
+      "token_f1": 0.4846988334619401,
+      "char_multi_label_f1": 0.4944581665135938,
+      "runtime_seconds": 112.43998140003532,
+      "delta_f1": -0.2493202718795459
+    },
+    {
+      "config": "remove_dict_label",
+      "removed": [
+        "dict_label"
+      ],
+      "entity_precision": 0.22300703399765534,
+      "entity_recall": 0.37482758620689655,
+      "entity_f1": 0.27963983829474454,
+      "token_f1": 0.48914922775345937,
+      "char_multi_label_f1": 0.5022128520639155,
+      "runtime_seconds": 111.43104360002326,
+      "delta_f1": -0.15043256149335366
+    },
+    {
+      "config": "remove_dict_span_len",
+      "removed": [
+        "dict_span_len"
+      ],
+      "entity_precision": 0.36631736526946107,
+      "entity_recall": 0.48216748768472906,
+      "entity_f1": 0.4163334751169715,
+      "token_f1": 0.5214920753267586,
+      "char_multi_label_f1": 0.5348734435937379,
+      "runtime_seconds": 73.74866270000348,
+      "delta_f1": -0.013738924671126695
+    },
+    {
+      "config": "remove_dict_boundary",
+      "removed": [
+        "dict_boundary"
+      ],
+      "entity_precision": 0.38616205803266845,
+      "entity_recall": 0.4739901477832512,
+      "entity_f1": 0.42559214454740474,
+      "token_f1": 0.5233784952435862,
+      "char_multi_label_f1": 0.5366164320254292,
+      "runtime_seconds": 81.56146970001282,
+      "delta_f1": -0.004480255240693454
+    },
+    {
+      "config": "remove_dict_freq",
+      "removed": [
+        "dict_freq"
+      ],
+      "entity_precision": 0.3864158415841584,
+      "entity_recall": 0.48064039408866993,
+      "entity_f1": 0.4284083424807903,
+      "token_f1": 0.5238007824600451,
+      "char_multi_label_f1": 0.5370654941505053,
+      "runtime_seconds": 72.24516099999892,
+      "delta_f1": -0.001664057307307898
+    },
+    {
+      "config": "full",
+      "removed": [],
+      "entity_precision": 0.38961766117421215,
+      "entity_recall": 0.4799014778325123,
+      "entity_f1": 0.4300723997880982,
+      "token_f1": 0.5240611544749142,
+      "char_multi_label_f1": 0.5372633758750309,
+      "runtime_seconds": 85.78201319999062,
+      "delta_f1": 0.0
+    },
+    {
+      "config": "remove_in_dict_span",
+      "removed": [
+        "in_dict_span"
+      ],
+      "entity_precision": 0.38961766117421215,
+      "entity_recall": 0.4799014778325123,
+      "entity_f1": 0.4300723997880982,
+      "token_f1": 0.5240726669890171,
+      "char_multi_label_f1": 0.5372746302923898,
+      "runtime_seconds": 74.66086970001925,
+      "delta_f1": 0.0
+    },
+    {
+      "config": "remove_label_conflict",
+      "removed": [
+        "label_conflict"
+      ],
+      "entity_precision": 0.3900632556649852,
+      "entity_recall": 0.47995073891625617,
+      "entity_f1": 0.4303635319581254,
+      "token_f1": 0.523910941241481,
+      "char_multi_label_f1": 0.5371162330062124,
+      "runtime_seconds": 69.83765859995037,
+      "delta_f1": 0.0002911321700271863
+    }
+  ]
+}

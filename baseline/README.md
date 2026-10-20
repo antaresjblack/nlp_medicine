@@ -25,6 +25,7 @@
 17. 补充 token 级指标：新增逐类 token 指标（`token_per_label`）和保留嵌套实体的多标签字符级指标（`char_multi_label_*`），后者不依赖最长投影，能反映嵌套层的漏检；`evaluate_saved.py` 新增 `--batch-dir` 批量刷新历史指标文件。
 18. 小模型超参数在 dev 上网格搜索（C × class_weight，共 8 组，1 组因训练耗时约 100 分钟且趋势无竞争力而跳过）：去掉 balanced 权重后实体虚报减半（61,408 → 31,651），实体级 F1 从 0.1745 提升到 0.2281。网格结果存于 `outputs/grid/`，最终配置 C=1.0、class_weight=none、seed=42。
 19. 实现词典跨度特征（`dict_span_features.py` 的 `DictSpanAnnotator`：in_dict_span、dict_boundary、dict_label、长度/词频桶、标签冲突，共 6 项），小模型加入后实体级 F1 从 0.2281 跃升到 0.4201，超过词典基线成为最佳方法；第二轮 4 组网格发现超参数趋势反转（balanced 在新特征下反超 none），最终配置定为 C=0.1、class_weight=balanced、词典跨度特征开启，实体级 F1 达 **0.4301**。两轮 dev 调参均已如实披露。
+20. 完成词典跨度特征消融实验（`ablation_dict_features.py`，8 组）：dict_label 贡献了总增益的约 60%（移除后 F1 跌至 0.2796），dict_span_len 次之，in_dict_span 完全冗余、label_conflict 为噪声水平；六组单独贡献之和小于总贡献，说明特征间存在协同效应。报告见 `outputs/ablation/ablation_report.md`。
 
 成员 1 的原始数据和清洗后数据没有被修改。
 
@@ -61,6 +62,7 @@ dis, sym, dru, equ, pro, bod, ite, mic, dep
 | `pure_rule_baseline.py` | 只使用人工正则规则运行纯规则预测，不读取训练词典 | dev 或 test（`--eval-file`） | 规则预测文件和指标文件；无金标时仅预测文件 |
 | `small_model.py` | 训练字符级 LinearSVC 小模型，支持 `--seed`、`--C`、`--class-weight` | train、dev 或 test（`--eval-file`） | 小模型预测和指标；无金标时仅预测文件 |
 | `small_model_grid_search.py` | dev 上网格搜索小模型超参数，结果存 `outputs/grid/` | train、dev | 每组组合的指标文件和网格汇总 |
+| `ablation_dict_features.py` | 逐组移除词典跨度特征并输出消融实验报告，结果存 `outputs/ablation/` | train、dev | 每组配置的指标和 `ablation_report.md/json` |
 | `evaluate_saved.py` | 对已有预测文件重新使用统一评测；`--batch-dir` 可批量刷新目录内全部历史指标文件 | 金标文件、预测文件 | 更新后的指标文件 |
 | `error_analysis.py` | 自动区分漏检、误报、边界错误和类型错误 | 金标文件、预测文件 | 错误分析 JSON |
 | `summarize_experiments.py` | 汇总所有 `*_metrics.json` | 指标文件 | `experiment_summary.md` |
@@ -155,6 +157,14 @@ python baseline/small_model_grid_search.py --dict-span-features --C-values 0.1,1
 第一轮在 dev 上遍历 `C ∈ {0.01, 0.1, 1.0, 10.0}` × `class_weight ∈ {balanced, none}`：`C=10.0/none` 因训练耗时约 100 分钟且趋势无竞争力而跳过（汇总表中已标记）；选出 `C=1.0、class_weight=none`（F1 0.2281）。
 
 第二轮加入词典跨度特征后重搜 `C ∈ {0.1, 1.0}` × `class_weight ∈ {balanced, none}`：**趋势反转**——balanced 从全面落后变为全面领先（跨度特征解决了边界难分的问题后，balanced 的虚报副作用消失，开始正确补偿稀有类型），选出 `C=0.1、class_weight=balanced`（F1 0.4301）。两轮都属于开发集调参，报告中已如实说明。
+
+### 4.2 词典跨度特征消融实验
+
+```powershell
+python baseline/ablation_dict_features.py
+```
+
+从最终配置出发，每次移除一组跨度特征（其余保持不变），共 8 组（含 full 对照与全部移除），结果写入 `outputs/ablation/`（`ablation_report.md/json`）。
 
 ### 5. 重新评测已有预测
 
@@ -289,6 +299,21 @@ CMeEE 存在嵌套实体，例如同一段文字可以同时标注为 `bod` 和 
 ★ 标注的是 `configs/final_baseline.json` 一键复现的最终配置（词典取长度≥2；小模型经两轮 dev 网格调参取 C=0.1、class_weight=balanced、词典跨度特征开启、seed=42）。表中其余行是一次性调参实验，仅用于支撑方法选择，不属于最终复现范围。
 
 当前最佳基线是”字符级 LinearSVC + 词典跨度特征”，实体级 F1 为 `0.4301`，超过词典基线（0.4044）。小模型的提升分两段：① 超参数调参（class_weight 从 balanced 改为 none，虚报 61,408 → 31,651），F1 从 0.1745 到 0.2281；② 加入词典跨度特征（每字符获得”是否在词典实体跨度内、边界角色、词典标签、长度/词频桶、标签冲突”6 项特征，仅新增 28 个特征维度），F1 跃升到 0.4201；③ 第二轮网格确认 balanced 在新特征下反超 none，最终 0.4301。跨度特征让模型学会了”词典说哪里是实体就跟随、词典没说的地方靠字符特征泛化”，预测实体数 25,004 与金标 20,300 基本相当，Precision/Recall 平衡。两轮超参数选择均在 dev 上进行，属于开发集调参，报告中已如实说明。
+
+#### 跨度特征消融结果（dev，固定 C=0.1/balanced）
+
+| 移除的特征 | Entity F1 | ΔF1 |
+|---|---:|---:|
+| 无（完整模型） | 0.4301 | — |
+| label_conflict | 0.4304 | +0.0003 |
+| in_dict_span | 0.4301 | 0.0000 |
+| dict_freq | 0.4284 | -0.0017 |
+| dict_boundary | 0.4256 | -0.0045 |
+| dict_span_len | 0.4163 | -0.0137 |
+| dict_label | 0.2796 | **-0.1504** |
+| 全部跨度特征 | 0.1808 | -0.2493 |
+
+结论：① `dict_label`（词典标签）贡献了总增益的约 60%，是跨度特征的核心；② `in_dict_span` 完全冗余（其信息已被 dict_label 包含），`label_conflict` 处于噪声水平；③ 六组特征单独贡献之和（约 0.17）小于总贡献（0.2493），特征之间存在协同效应；④ “全部移除”的 0.1808 与第一轮网格同配置无跨度特征的结果（0.1809）互相印证。
 
 ## 八、错误分析结果
 
