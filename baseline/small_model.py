@@ -125,7 +125,7 @@ def main() -> None:
     parser.add_argument("--output-dir", type=Path, default=None)
     parser.add_argument("--seed", type=int, default=42, help="random seed for the LinearSVC")
     parser.add_argument("--C", type=float, default=1.0, help="LinearSVC regularization strength")
-    parser.add_argument("--class-weight", type=str, default="balanced", help="LinearSVC class_weight")
+    parser.add_argument("--class-weight", type=str, default="none", help="LinearSVC class_weight ('none' or 'balanced')")
     parser.add_argument(
         "--eval-file",
         type=Path,
@@ -154,7 +154,8 @@ def main() -> None:
 
     vectorizer = DictVectorizer()
     x_train = sparse_int32(vectorizer.fit_transform(train_features))
-    classifier = LinearSVC(C=args.C, class_weight=args.class_weight, random_state=args.seed)
+    class_weight = None if args.class_weight.lower() == "none" else args.class_weight
+    classifier = LinearSVC(C=args.C, class_weight=class_weight, random_state=args.seed)
     classifier.fit(x_train, train_labels)
 
     predictions: list[dict[str, Any]] = []
@@ -190,7 +191,7 @@ def main() -> None:
             "projection": "longest_non_overlapping_gold_entities",
             "seed": args.seed,
             "C": args.C,
-            "class_weight": args.class_weight,
+            "class_weight": class_weight,
             "runtime_seconds": time.perf_counter() - started,
         }
     )

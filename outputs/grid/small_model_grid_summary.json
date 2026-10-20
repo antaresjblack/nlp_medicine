@@ -1,0 +1,111 @@
+{
+  "grid": {
+    "C_values": [
+      0.01,
+      0.1,
+      1.0,
+      10.0
+    ],
+    "class_weight_values": [
+      "balanced",
+      null
+    ],
+    "seed": 42,
+    "note": "dev 集调参实验；最终配置选 entity_f1 最高的组合，报告中须说明为开发集调参"
+  },
+  "rows": [
+    {
+      "C": 1.0,
+      "class_weight": "none",
+      "entity_precision": 0.18716628226596316,
+      "entity_recall": 0.29182266009852215,
+      "entity_f1": 0.22806105753498487,
+      "token_f1": 0.511076536413141,
+      "char_multi_label_f1": 0.5178089237495178,
+      "predicted_entities": 31651,
+      "runtime_seconds": 658.7521114000119
+    },
+    {
+      "C": 0.1,
+      "class_weight": "none",
+      "entity_precision": 0.19002909283258398,
+      "entity_recall": 0.2831527093596059,
+      "entity_f1": 0.22742739574266047,
+      "token_f1": 0.5062765317834824,
+      "char_multi_label_f1": 0.5130303299831006,
+      "predicted_entities": 30248,
+      "runtime_seconds": 290.19708020001417
+    },
+    {
+      "C": 0.01,
+      "class_weight": "none",
+      "entity_precision": 0.1709920854040125,
+      "entity_recall": 0.2288177339901478,
+      "entity_f1": 0.19572316443695356,
+      "token_f1": 0.46801957802456207,
+      "char_multi_label_f1": 0.47487008212554366,
+      "predicted_entities": 27165,
+      "runtime_seconds": 84.92776839999715
+    },
+    {
+      "C": 0.1,
+      "class_weight": "balanced",
+      "entity_precision": 0.1205814717477004,
+      "entity_recall": 0.3616256157635468,
+      "entity_f1": 0.18085735402808575,
+      "token_f1": 0.48470571147151076,
+      "char_multi_label_f1": 0.49446487884259577,
+      "predicted_entities": 60880,
+      "runtime_seconds": 161.99356800003443
+    },
+    {
+      "C": 1.0,
+      "class_weight": "balanced",
+      "entity_precision": 0.11612493486190724,
+      "entity_recall": 0.3512807881773399,
+      "entity_f1": 0.1745483918343369,
+      "token_f1": 0.4838468958739057,
+      "char_multi_label_f1": 0.49327839253472533,
+      "predicted_entities": 61408,
+      "runtime_seconds": 349.61890629999107
+    },
+    {
+      "C": 0.01,
+      "class_weight": "balanced",
+      "entity_precision": 0.1156681431666074,
+      "entity_recall": 0.3524630541871921,
+      "entity_f1": 0.17417658657708318,
+      "token_f1": 0.4696636618472191,
+      "char_multi_label_f1": 0.48003476456320365,
+      "predicted_entities": 61858,
+      "runtime_seconds": 83.59354039997561
+    },
+    {
+      "C": 10.0,
+      "class_weight": "balanced",
+      "entity_precision": 0.11567947653694029,
+      "entity_recall": 0.35009852216748766,
+      "entity_f1": 0.17389921333056022,
+      "token_f1": 0.4825839138695377,
+      "char_multi_label_f1": 0.49188016020405884,
+      "predicted_entities": 61437,
+      "runtime_seconds": 6175.993519200012
+    },
+    {
+      "C": 10.0,
+      "class_weight": "none",
+      "skipped": "not run (see README tuning note)"
+    }
+  ],
+  "best": {
+    "C": 1.0,
+    "class_weight": "none",
+    "entity_precision": 0.18716628226596316,
+    "entity_recall": 0.29182266009852215,
+    "entity_f1": 0.22806105753498487,
+    "token_f1": 0.511076536413141,
+    "char_multi_label_f1": 0.5178089237495178,
+    "predicted_entities": 31651,
+    "runtime_seconds": 658.7521114000119
+  }
+}

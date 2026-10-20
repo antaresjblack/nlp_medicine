@@ -21,7 +21,7 @@
       "script": "baseline/small_model.py",
       "seed": 42,
       "C": 1.0,
-      "class_weight": "balanced",
+      "class_weight": "none",
       "projection": "longest_non_overlapping_gold_entities"
     }
   },

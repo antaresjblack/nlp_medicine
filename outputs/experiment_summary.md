@@ -13,4 +13,4 @@ Token metrics use the documented longest-non-overlapping character projection; c
 | dictionary_longest_min_count_3 | 0.3162 | 0.4135 | 0.3584 | 0.5424 | 0.3829 | 0.4489 | 0.7345 | 0.4664 | 0.7334 | 26546 | - |
 | dictionary_longest_min_count_5 | 0.3217 | 0.3678 | 0.3432 | 0.5339 | 0.3241 | 0.4033 | 0.7234 | 0.4218 | 0.7225 | 23205 | - |
 | pure_handwritten_rules | 0.0908 | 0.0312 | 0.0465 | 0.2803 | 0.1797 | 0.2190 | 0.5972 | 0.2196 | 0.5967 | 6984 | 0.84 |
-| character_linear_svm_longest_projection | 0.1161 | 0.3513 | 0.1745 | 0.4302 | 0.5528 | 0.4838 | 0.6976 | 0.4933 | 0.6949 | 61408 | 366.23 |
+| character_linear_svm_longest_projection | 0.1872 | 0.2918 | 0.2281 | 0.6021 | 0.4440 | 0.5111 | 0.7661 | 0.5178 | 0.7629 | 31651 | 250.42 |

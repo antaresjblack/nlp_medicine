@@ -23,6 +23,7 @@
 15. 小模型支持 `--seed`、`--C`、`--class-weight` 参数；词典字符特征改为预计算字符集合，特征提取从小时级降到秒级。
 16. 新增 `requirements.txt`，记录已验证的 numpy/scikit-learn 版本。
 17. 补充 token 级指标：新增逐类 token 指标（`token_per_label`）和保留嵌套实体的多标签字符级指标（`char_multi_label_*`），后者不依赖最长投影，能反映嵌套层的漏检；`evaluate_saved.py` 新增 `--batch-dir` 批量刷新历史指标文件。
+18. 小模型超参数在 dev 上网格搜索（C × class_weight，共 8 组，1 组因训练耗时约 100 分钟且趋势无竞争力而跳过）：去掉 balanced 权重后实体虚报减半（61,408 → 31,651），实体级 F1 从 0.1745 提升到 0.2281。网格结果存于 `outputs/grid/`，最终配置 C=1.0、class_weight=none、seed=42。
 
 成员 1 的原始数据和清洗后数据没有被修改。
 
@@ -58,6 +59,7 @@ dis, sym, dru, equ, pro, bod, ite, mic, dep
 | `dictionary_baseline.py` | 从训练集建词典并运行词典预测 | train、dev 或 test（`--eval-file`） | 预测文件和指标文件；无金标时仅预测文件 |
 | `pure_rule_baseline.py` | 只使用人工正则规则运行纯规则预测，不读取训练词典 | dev 或 test（`--eval-file`） | 规则预测文件和指标文件；无金标时仅预测文件 |
 | `small_model.py` | 训练字符级 LinearSVC 小模型，支持 `--seed`、`--C`、`--class-weight` | train、dev 或 test（`--eval-file`） | 小模型预测和指标；无金标时仅预测文件 |
+| `small_model_grid_search.py` | dev 上网格搜索小模型超参数，结果存 `outputs/grid/` | train、dev | 每组组合的指标文件和网格汇总 |
 | `evaluate_saved.py` | 对已有预测文件重新使用统一评测；`--batch-dir` 可批量刷新目录内全部历史指标文件 | 金标文件、预测文件 | 更新后的指标文件 |
 | `error_analysis.py` | 自动区分漏检、误报、边界错误和类型错误 | 金标文件、预测文件 | 错误分析 JSON |
 | `summarize_experiments.py` | 汇总所有 `*_metrics.json` | 指标文件 | `experiment_summary.md` |
@@ -74,6 +76,7 @@ dis, sym, dru, equ, pro, bod, ite, mic, dep
 | `*_metrics.json` | 实体级、投影/多标签字符级（`token_*`/`char_multi_label_*`）和按类别统计的指标 |
 | `*_errors.json` | 每条预测中的漏检和误报详情 |
 | `dictionary_best_error_analysis.json` | 最佳词典基线的错误类别和代表样例 |
+| `grid/` | 小模型超参数网格搜索结果（每组指标 + 汇总 md/json），属调参实验，不进入主汇总表 |
 | `experiment_summary.md` | 所有已运行实验的比较表 |
 | `data_check_report.txt` | 第一步数据检查报告 |
 
@@ -135,7 +138,15 @@ python baseline/small_model.py
 python baseline/small_model.py --eval-file data_raw/CMeEE_test.json
 ```
 
-该模型使用当前字符、前后字符、数字/英文特征和词典字符特征训练 LinearSVC。可加 `--seed 42 --C 1.0 --class-weight balanced` 复现最终配置的超参数（默认值与之一致）；第二条命令对测试集生成最终预测。
+该模型使用当前字符、前后字符、数字/英文特征和词典字符特征训练 LinearSVC。最终配置的超参数为 `--seed 42 --C 1.0 --class-weight none`（与默认值一致，来自第 4.1 节的 dev 网格调参）；第二条命令对测试集生成最终预测。
+
+### 4.1 小模型超参数网格搜索（调参实验）
+
+```powershell
+python baseline/small_model_grid_search.py
+```
+
+在 dev 上遍历 `C ∈ {0.01, 0.1, 1.0, 10.0}` × `class_weight ∈ {balanced, none}`，结果写入 `outputs/grid/`（`small_model_grid_summary.md/json`），不进入主实验汇总表。已运行 7/8 组：`C=10.0/none` 因训练耗时约 100 分钟且同 C 下 balanced 已确认更差（F1 0.1739）、趋势无竞争力而跳过，在汇总表中标记。最终按 dev 上实体级 F1 最高选择 `C=1.0、class_weight=none`。此过程属于开发集调参，报告中已如实说明。
 
 ### 5. 重新评测已有预测
 
@@ -265,11 +276,13 @@ CMeEE 存在嵌套实体，例如同一段文字可以同时标注为 `bod` 和 
 | 最长匹配，出现次数≥3 | 0.3162 | 0.4135 | 0.3584 | 0.4489 | 0.7345 | 0.4664 |
 | 最长匹配，出现次数≥5 | 0.3217 | 0.3678 | 0.3432 | 0.4033 | 0.7234 | 0.4218 |
 | 纯人工正则规则 ★ | 0.0908 | 0.0312 | 0.0465 | 0.2190 | 0.5972 | 0.2196 |
-| 字符级 LinearSVC ★ | 0.1161 | 0.3513 | 0.1745 | 0.4838 | 0.6976 | 0.4933 |
+| 字符级 LinearSVC ★ | 0.1872 | 0.2918 | **0.2281** | 0.5111 | 0.7661 | 0.5178 |
 
-★ 标注的是 `configs/final_baseline.json` 一键复现的最终配置（词典取长度≥2，其余为默认超参数）。表中其余行是一次性调参实验，仅用于支撑方法选择，不属于最终复现范围。
+★ 标注的是 `configs/final_baseline.json` 一键复现的最终配置（词典取长度≥2；小模型经 dev 网格调参取 C=1.0、class_weight=none、seed=42）。表中其余行是一次性调参实验，仅用于支撑方法选择，不属于最终复现范围。
 
 当前最佳基线是”最长匹配词典 + 过滤单字实体”，实体级 F1 为 `0.4044`。过滤单字实体减少了误报；过滤到长度≥3 后召回下降过多，F1 反而下降。频次过滤（≥2、≥3、≥5）整体都不如长度过滤方案。
+
+字符级 LinearSVC 经网格调参后实体级 F1 从 0.1745 提升到 0.2281：class_weight 从 balanced 改为 none 后实体虚报减半（61,408 → 31,651），Precision 翻倍（0.1161 → 0.1872），代价是 Recall 从 0.3513 降到 0.2918。小模型超参数在 dev 上选出（`outputs/grid/`），属于开发集调参；它仍然低于词典基线，与”简单统计模型不如词典”的结论一致。
 
 ## 八、错误分析结果
 
