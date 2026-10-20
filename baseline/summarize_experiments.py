@@ -29,6 +29,8 @@ def main() -> None:
                 "token_recall": data.get("token_entity_recall", 0.0),
                 "token_f1": data.get("token_entity_f1", 0.0),
                 "token_accuracy": data.get("token_accuracy", 0.0),
+                "char_multi_f1": data.get("char_multi_label_f1", 0.0),
+                "char_multi_accuracy": data.get("char_multi_label_exact_accuracy", 0.0),
                 "predicted_entities": data.get("predicted_entities", 0),
                 "runtime_seconds": data.get("runtime_seconds", "-") ,
             }
@@ -37,10 +39,10 @@ def main() -> None:
     lines = [
         "# Baseline experiment summary",
         "",
-        "Token metrics use the documented longest-non-overlapping character projection; entity metrics use strict span matching.",
+        "Token metrics use the documented longest-non-overlapping character projection; char-multi metrics keep all entities per character (nested included); entity metrics use strict span matching.",
         "",
-        "| Method | Entity P | Entity R | Entity F1 | Token P | Token R | Token F1 | Token accuracy | Predicted entities | Runtime (s) |",
-        "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
+        "| Method | Entity P | Entity R | Entity F1 | Token P | Token R | Token F1 | Token accuracy | Char-multi F1 | Char-multi acc | Predicted entities | Runtime (s) |",
+        "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
     ]
     for row in rows:
         runtime = row["runtime_seconds"]
@@ -48,7 +50,8 @@ def main() -> None:
         lines.append(
             f"| {row['method']} | {row['entity_precision']:.4f} | {row['entity_recall']:.4f} | "
             f"{row['entity_f1']:.4f} | {row['token_precision']:.4f} | {row['token_recall']:.4f} | "
-            f"{row['token_f1']:.4f} | {row['token_accuracy']:.4f} | {row['predicted_entities']} | {runtime_text} |"
+            f"{row['token_f1']:.4f} | {row['token_accuracy']:.4f} | {row['char_multi_f1']:.4f} | "
+            f"{row['char_multi_accuracy']:.4f} | {row['predicted_entities']} | {runtime_text} |"
         )
 
     args.output.parent.mkdir(parents=True, exist_ok=True)

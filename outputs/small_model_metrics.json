@@ -1,4 +1,14 @@
 {
+  "method": "character_linear_svm_longest_projection",
+  "train_file": "D:\\学习记录\\3-1\\NLP\\code\\nlp_medicine\\data_cleaned\\CMeEE_train_cleaned_final.json",
+  "eval_file": "D:\\学习记录\\3-1\\NLP\\code\\nlp_medicine\\data_raw\\CMeEE_dev.json",
+  "feature_count": 14176,
+  "train_characters": 811435,
+  "projection": "longest_non_overlapping_gold_entities",
+  "seed": 42,
+  "C": 1.0,
+  "class_weight": "balanced",
+  "runtime_seconds": 366.23187449999386,
   "metric": "strict_entity_micro",
   "gold_entities": 20300,
   "predicted_entities": 61408,
@@ -13,6 +23,160 @@
   "token_entity_precision": 0.43019313704072304,
   "token_entity_recall": 0.5527910917956769,
   "token_entity_f1": 0.4838468958739057,
+  "token_per_label": {
+    "bod": {
+      "precision": 0.4520264681555004,
+      "recall": 0.6228985011682909,
+      "f1": 0.5238814197042683,
+      "tp": 10930,
+      "fp": 13250,
+      "fn": 6617
+    },
+    "dep": {
+      "precision": 0.1458128078817734,
+      "recall": 0.5,
+      "f1": 0.22578184591914569,
+      "tp": 148,
+      "fp": 867,
+      "fn": 148
+    },
+    "dis": {
+      "precision": 0.57122591712853,
+      "recall": 0.6380587389910455,
+      "f1": 0.6027955229856048,
+      "tp": 17315,
+      "fp": 12997,
+      "fn": 9822
+    },
+    "dru": {
+      "precision": 0.47352941176470587,
+      "recall": 0.7330004405933324,
+      "f1": 0.5753645743270506,
+      "tp": 4991,
+      "fp": 5549,
+      "fn": 1818
+    },
+    "equ": {
+      "precision": 0.11353591160220994,
+      "recall": 0.43217665615141954,
+      "f1": 0.17982935900240649,
+      "tp": 411,
+      "fp": 3209,
+      "fn": 540
+    },
+    "ite": {
+      "precision": 0.12761506276150628,
+      "recall": 0.42220884742702375,
+      "f1": 0.1959907801913809,
+      "tp": 1403,
+      "fp": 9591,
+      "fn": 1920
+    },
+    "mic": {
+      "precision": 0.2759440975319655,
+      "recall": 0.76253081347576,
+      "f1": 0.4052401746724891,
+      "tp": 1856,
+      "fp": 4870,
+      "fn": 578
+    },
+    "pro": {
+      "precision": 0.39766364830303447,
+      "recall": 0.5666863672182821,
+      "f1": 0.4673626061172266,
+      "tp": 5753,
+      "fp": 8714,
+      "fn": 4399
+    },
+    "sym": {
+      "precision": 0.47665271196577264,
+      "recall": 0.37632573005956704,
+      "f1": 0.4205890113458767,
+      "tp": 10361,
+      "fp": 11376,
+      "fn": 17171
+    }
+  },
+  "char_multi_label_projection": "none_all_entities_kept",
+  "char_multi_label_total": 270417,
+  "char_multi_label_exact_accuracy": 0.6948712543959884,
+  "char_multi_label_precision": 0.44652927802186243,
+  "char_multi_label_recall": 0.5509609144910897,
+  "char_multi_label_f1": 0.49327839253472533,
+  "char_multi_label_per_label": {
+    "bod": {
+      "precision": 0.5201819685690653,
+      "recall": 0.6044209514656416,
+      "f1": 0.5591464769948877,
+      "tp": 12578,
+      "fp": 11602,
+      "fn": 8232
+    },
+    "dep": {
+      "precision": 0.1458128078817734,
+      "recall": 0.49333333333333335,
+      "f1": 0.22509505703422053,
+      "tp": 148,
+      "fp": 867,
+      "fn": 152
+    },
+    "dis": {
+      "precision": 0.575283716020058,
+      "recall": 0.6381001170960188,
+      "f1": 0.6050659264399721,
+      "tp": 17438,
+      "fp": 12874,
+      "fn": 9890
+    },
+    "dru": {
+      "precision": 0.4752371916508539,
+      "recall": 0.7317750182615047,
+      "f1": 0.5762438884095484,
+      "tp": 5009,
+      "fp": 5531,
+      "fn": 1836
+    },
+    "equ": {
+      "precision": 0.11602209944751381,
+      "recall": 0.4365904365904366,
+      "f1": 0.18332605848974245,
+      "tp": 420,
+      "fp": 3200,
+      "fn": 542
+    },
+    "ite": {
+      "precision": 0.14362379479716209,
+      "recall": 0.4272186147186147,
+      "f1": 0.21497617426820967,
+      "tp": 1579,
+      "fp": 9415,
+      "fn": 2117
+    },
+    "mic": {
+      "precision": 0.27713351174546536,
+      "recall": 0.7611269906084116,
+      "f1": 0.4063215258855586,
+      "tp": 1864,
+      "fp": 4862,
+      "fn": 585
+    },
+    "pro": {
+      "precision": 0.40022119306006776,
+      "recall": 0.5656506447831184,
+      "f1": 0.46876897542808565,
+      "tp": 5790,
+      "fp": 8677,
+      "fn": 4446
+    },
+    "sym": {
+      "precision": 0.47665271196577264,
+      "recall": 0.3762300737136425,
+      "f1": 0.42052926373893984,
+      "tp": 10361,
+      "fp": 11376,
+      "fn": 17178
+    }
+  },
   "per_label": {
     "bod": {
       "precision": 0.19637790018360873,
@@ -86,15 +250,5 @@
       "fp": 10710,
       "fn": 3279
     }
-  },
-  "method": "character_linear_svm_longest_projection",
-  "train_file": "D:\\学习记录\\3-1\\NLP\\code\\nlp_medicine\\data_cleaned\\CMeEE_train_cleaned_final.json",
-  "eval_file": "D:\\学习记录\\3-1\\NLP\\code\\nlp_medicine\\data_raw\\CMeEE_dev.json",
-  "feature_count": 14176,
-  "train_characters": 811435,
-  "projection": "longest_non_overlapping_gold_entities",
-  "seed": 42,
-  "C": 1.0,
-  "class_weight": "balanced",
-  "runtime_seconds": 366.23187449999386
+  }
 }

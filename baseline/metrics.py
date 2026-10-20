@@ -1,4 +1,11 @@
-"""Strict span-level evaluation for CMeEE predictions."""
+"""Strict span-level evaluation for CMeEE predictions.
+
+Besides the official strict entity-level micro P/R/F1, this module reports two
+documented character-level supplementary metrics:
+- ``token_*``: longest-non-overlapping projection to one label per character.
+- ``char_multi_label_*``: all entities kept (nested included), one label set
+  per character, evaluated per label.
+"""
 
 from __future__ import annotations
 
@@ -36,6 +43,58 @@ def _project_character_labels(record: dict[str, Any]) -> list[str]:
     return labels
 
 
+def _multi_label_char_sets(record: dict[str, Any]) -> list[set[str]]:
+    """Keep every entity label per character, including nested entities.
+
+    Unlike the longest-span projection, nothing is dropped: overlapping and
+    nested entities all contribute their labels at the same positions.
+    """
+    text = record["text"]
+    labels: list[set[str]] = [set() for _ in text]
+    for entity in record.get("entities", []):
+        start, end = entity["start_idx"], entity["end_idx"]
+        for position in range(start, end + 1):
+            labels[position].add(entity["type"])
+    return labels
+
+
+def _aggregate_token_counts(counts: Counter[str]) -> dict[str, Any]:
+    """Turn per-label tp/fp/fn character counts into overall and per-label P/R/F1."""
+    total_tp = sum(value for key, value in counts.items() if key.endswith(":tp"))
+    total_fp = sum(value for key, value in counts.items() if key.endswith(":fp"))
+    total_fn = sum(value for key, value in counts.items() if key.endswith(":fn"))
+    precision = total_tp / (total_tp + total_fp) if total_tp + total_fp else 0.0
+    recall = total_tp / (total_tp + total_fn) if total_tp + total_fn else 0.0
+    f1 = 2 * precision * recall / (precision + recall) if precision + recall else 0.0
+    per_label: dict[str, dict[str, Any]] = {}
+    for label in sorted({key.split(":", 1)[0] for key in counts}):
+        tp, fp, fn = counts[label + ":tp"], counts[label + ":fp"], counts[label + ":fn"]
+        label_precision = tp / (tp + fp) if tp + fp else 0.0
+        label_recall = tp / (tp + fn) if tp + fn else 0.0
+        label_f1 = (
+            2 * label_precision * label_recall / (label_precision + label_recall)
+            if label_precision + label_recall
+            else 0.0
+        )
+        per_label[label] = {
+            "precision": label_precision,
+            "recall": label_recall,
+            "f1": label_f1,
+            "tp": tp,
+            "fp": fp,
+            "fn": fn,
+        }
+    return {
+        "precision": precision,
+        "recall": recall,
+        "f1": f1,
+        "tp": total_tp,
+        "fp": total_fp,
+        "fn": total_fn,
+        "per_label": per_label,
+    }
+
+
 def evaluate_records(gold_records: list[dict[str, Any]], predicted_records: list[dict[str, Any]]) -> dict[str, Any]:
     """Evaluate predictions aligned to gold records in the same order.
 
@@ -51,6 +110,9 @@ def evaluate_records(gold_records: list[dict[str, Any]], predicted_records: list
     token_counts: Counter[str] = Counter()
     token_total = 0
     token_correct = 0
+    multi_counts: Counter[str] = Counter()
+    multi_total = 0
+    multi_exact_correct = 0
     errors: list[dict[str, Any]] = []
 
     for record_index, (gold, predicted) in enumerate(zip(gold_records, predicted_records)):
@@ -81,6 +143,17 @@ def evaluate_records(gold_records: list[dict[str, Any]], predicted_records: list
                 token_counts[predicted_label + ":fp"] += 1
             if gold_label != "O" and gold_label != predicted_label:
                 token_counts[gold_label + ":fn"] += 1
+
+        for gold_labels, predicted_labels in zip(_multi_label_char_sets(gold), _multi_label_char_sets(predicted)):
+            multi_total += 1
+            multi_exact_correct += gold_labels == predicted_labels
+            for label in gold_labels | predicted_labels:
+                if label in gold_labels and label in predicted_labels:
+                    multi_counts[label + ":tp"] += 1
+                elif label in predicted_labels:
+                    multi_counts[label + ":fp"] += 1
+                else:
+                    multi_counts[label + ":fn"] += 1
 
         if missing or extra:
             errors.append(
@@ -117,16 +190,8 @@ def evaluate_records(gold_records: list[dict[str, Any]], predicted_records: list
             "fn": fn,
         }
 
-    token_tp = sum(value for key, value in token_counts.items() if key.endswith(":tp"))
-    token_fp = sum(value for key, value in token_counts.items() if key.endswith(":fp"))
-    token_fn = sum(value for key, value in token_counts.items() if key.endswith(":fn"))
-    token_precision = token_tp / (token_tp + token_fp) if token_tp + token_fp else 0.0
-    token_recall = token_tp / (token_tp + token_fn) if token_tp + token_fn else 0.0
-    token_f1 = (
-        2 * token_precision * token_recall / (token_precision + token_recall)
-        if token_precision + token_recall
-        else 0.0
-    )
+    token_stats = _aggregate_token_counts(token_counts)
+    multi_stats = _aggregate_token_counts(multi_counts)
 
     return {
         "metric": "strict_entity_micro",
@@ -140,9 +205,17 @@ def evaluate_records(gold_records: list[dict[str, Any]], predicted_records: list
         "token_projection": "longest_non_overlapping_span_per_character",
         "token_total": token_total,
         "token_accuracy": token_correct / token_total if token_total else 0.0,
-        "token_entity_precision": token_precision,
-        "token_entity_recall": token_recall,
-        "token_entity_f1": token_f1,
+        "token_entity_precision": token_stats["precision"],
+        "token_entity_recall": token_stats["recall"],
+        "token_entity_f1": token_stats["f1"],
+        "token_per_label": token_stats["per_label"],
+        "char_multi_label_projection": "none_all_entities_kept",
+        "char_multi_label_total": multi_total,
+        "char_multi_label_exact_accuracy": multi_exact_correct / multi_total if multi_total else 0.0,
+        "char_multi_label_precision": multi_stats["precision"],
+        "char_multi_label_recall": multi_stats["recall"],
+        "char_multi_label_f1": multi_stats["f1"],
+        "char_multi_label_per_label": multi_stats["per_label"],
         "errors": errors,
         "per_label": per_label,
     }

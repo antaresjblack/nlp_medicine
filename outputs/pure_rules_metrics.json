@@ -1,4 +1,19 @@
 {
+  "method": "pure_handwritten_rules",
+  "eval_file": "D:\\学习记录\\3-1\\NLP\\code\\nlp_medicine\\data_raw\\CMeEE_dev.json",
+  "rule_count": 9,
+  "rule_names": [
+    "microorganism_suffix",
+    "drug_form_suffix",
+    "procedure_suffix",
+    "lab_item_suffix",
+    "disease_suffix",
+    "symptom_word",
+    "body_part_suffix",
+    "equipment_suffix",
+    "department_suffix"
+  ],
+  "runtime_seconds": 0.8355001999880187,
   "metric": "strict_entity_micro",
   "gold_entities": 20300,
   "predicted_entities": 6984,
@@ -13,6 +28,160 @@
   "token_entity_precision": 0.28025684265144635,
   "token_entity_recall": 0.17970285191461932,
   "token_entity_f1": 0.21898855264074807,
+  "token_per_label": {
+    "bod": {
+      "precision": 0.2308080808080808,
+      "recall": 0.10417735225394655,
+      "f1": 0.1435583303883457,
+      "tp": 1828,
+      "fp": 6092,
+      "fn": 15719
+    },
+    "dep": {
+      "precision": 0.1984924623115578,
+      "recall": 0.2668918918918919,
+      "f1": 0.2276657060518732,
+      "tp": 79,
+      "fp": 319,
+      "fn": 217
+    },
+    "dis": {
+      "precision": 0.3894382911392405,
+      "recall": 0.3627888123226591,
+      "f1": 0.3756414903561821,
+      "tp": 9845,
+      "fp": 15435,
+      "fn": 17292
+    },
+    "dru": {
+      "precision": 0.1425831202046036,
+      "recall": 0.03275077103833162,
+      "f1": 0.053266451689955814,
+      "tp": 223,
+      "fp": 1341,
+      "fn": 6586
+    },
+    "equ": {
+      "precision": 0.1364717070851165,
+      "recall": 0.3017875920084122,
+      "f1": 0.1879502292075966,
+      "tp": 287,
+      "fp": 1816,
+      "fn": 664
+    },
+    "ite": {
+      "precision": 0.06998725573491929,
+      "recall": 0.19831477580499549,
+      "f1": 0.10346181018918282,
+      "tp": 659,
+      "fp": 8757,
+      "fn": 2664
+    },
+    "mic": {
+      "precision": 0.33676357087728326,
+      "recall": 0.5377978635990139,
+      "f1": 0.4141749723145072,
+      "tp": 1309,
+      "fp": 2578,
+      "fn": 1125
+    },
+    "pro": {
+      "precision": 0.22954461310625693,
+      "recall": 0.18321513002364065,
+      "f1": 0.20377978635990138,
+      "tp": 1860,
+      "fp": 6243,
+      "fn": 8292
+    },
+    "sym": {
+      "precision": 0.39786737754081974,
+      "recall": 0.04336771756501526,
+      "f1": 0.07821046081289096,
+      "tp": 1194,
+      "fp": 1807,
+      "fn": 26338
+    }
+  },
+  "char_multi_label_projection": "none_all_entities_kept",
+  "char_multi_label_total": 270417,
+  "char_multi_label_exact_accuracy": 0.5966821612546549,
+  "char_multi_label_precision": 0.2881534569983137,
+  "char_multi_label_recall": 0.1774172615184945,
+  "char_multi_label_f1": 0.21961603341633865,
+  "char_multi_label_per_label": {
+    "bod": {
+      "precision": 0.2792929292929293,
+      "recall": 0.10629505045651129,
+      "f1": 0.1539853811347024,
+      "tp": 2212,
+      "fp": 5708,
+      "fn": 18598
+    },
+    "dep": {
+      "precision": 0.1984924623115578,
+      "recall": 0.2633333333333333,
+      "f1": 0.2263610315186246,
+      "tp": 79,
+      "fp": 319,
+      "fn": 221
+    },
+    "dis": {
+      "precision": 0.39212816455696203,
+      "recall": 0.3627415105386417,
+      "f1": 0.37686283454987834,
+      "tp": 9913,
+      "fp": 15367,
+      "fn": 17415
+    },
+    "dru": {
+      "precision": 0.1425831202046036,
+      "recall": 0.03257852447041636,
+      "f1": 0.053038411226067304,
+      "tp": 223,
+      "fp": 1341,
+      "fn": 6622
+    },
+    "equ": {
+      "precision": 0.1378982406086543,
+      "recall": 0.30145530145530147,
+      "f1": 0.18923327895595432,
+      "tp": 290,
+      "fp": 1813,
+      "fn": 672
+    },
+    "ite": {
+      "precision": 0.07274851316907392,
+      "recall": 0.18533549783549783,
+      "f1": 0.1044844417327639,
+      "tp": 685,
+      "fp": 8731,
+      "fn": 3011
+    },
+    "mic": {
+      "precision": 0.3383071777720607,
+      "recall": 0.5369538587178441,
+      "f1": 0.41508838383838387,
+      "tp": 1315,
+      "fp": 2572,
+      "fn": 1134
+    },
+    "pro": {
+      "precision": 0.22954461310625693,
+      "recall": 0.1817116060961313,
+      "f1": 0.2028463929330934,
+      "tp": 1860,
+      "fp": 6243,
+      "fn": 8376
+    },
+    "sym": {
+      "precision": 0.39786737754081974,
+      "recall": 0.043356694142851954,
+      "f1": 0.07819253438113949,
+      "tp": 1194,
+      "fp": 1807,
+      "fn": 26345
+    }
+  },
   "per_label": {
     "bod": {
       "precision": 0.06473029045643154,
@@ -86,20 +255,5 @@
       "fp": 348,
       "fn": 4088
     }
-  },
-  "method": "pure_handwritten_rules",
-  "eval_file": "D:\\学习记录\\3-1\\NLP\\code\\nlp_medicine\\data_raw\\CMeEE_dev.json",
-  "rule_count": 9,
-  "rule_names": [
-    "microorganism_suffix",
-    "drug_form_suffix",
-    "procedure_suffix",
-    "lab_item_suffix",
-    "disease_suffix",
-    "symptom_word",
-    "body_part_suffix",
-    "equipment_suffix",
-    "department_suffix"
-  ],
-  "runtime_seconds": 0.8355001999880187
+  }
 }
