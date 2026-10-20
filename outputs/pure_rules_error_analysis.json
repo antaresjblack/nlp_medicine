@@ -1,6 +1,6 @@
 {
-  "gold_file": "data_raw\\CMeEE_dev.json",
-  "prediction_file": "outputs\\pure_rules_predictions.json",
+  "gold_file": "D:\\学习记录\\3-1\\NLP\\code\\nlp_medicine\\data_raw\\CMeEE_dev.json",
+  "prediction_file": "D:\\学习记录\\3-1\\NLP\\code\\nlp_medicine\\outputs\\pure_rules_predictions.json",
   "error_counts": {
     "boundary_error": 2900,
     "missed_entity": 17203,
@@ -60,6 +60,40 @@
         },
         "record_index": 5,
         "text": "可为不规则发热、稽留热或弛张热，但以不规则发热为多，可能与患儿应用退热药物导致热型不规律有关。"
+      },
+      {
+        "kind": "boundary_error",
+        "gold": {
+          "start_idx": 4,
+          "end_idx": 5,
+          "type": "sym",
+          "entity": "咳嗽"
+        },
+        "predicted": {
+          "start_idx": 0,
+          "end_idx": 8,
+          "type": "sym",
+          "entity": "多数患儿咳嗽与发热"
+        },
+        "record_index": 6,
+        "text": "多数患儿咳嗽与发热同时出现，少数发热数天后始出现咳嗽。"
+      },
+      {
+        "kind": "boundary_error",
+        "gold": {
+          "start_idx": 24,
+          "end_idx": 25,
+          "type": "sym",
+          "entity": "咳嗽"
+        },
+        "predicted": {
+          "start_idx": 14,
+          "end_idx": 25,
+          "type": "sym",
+          "entity": "少数发热数天后始出现咳嗽"
+        },
+        "record_index": 6,
+        "text": "多数患儿咳嗽与发热同时出现，少数发热数天后始出现咳嗽。"
       }
     ],
     "missed_entity": [
@@ -92,6 +126,30 @@
         "gold": {
           "start_idx": 10,
           "end_idx": 10,
+          "type": "bod",
+          "entity": "肺"
+        },
+        "predicted": null,
+        "record_index": 1,
+        "text": "研究证实，细胞减少与肺内病变程度及肺内炎性病变吸收程度密切相关。"
+      },
+      {
+        "kind": "missed_entity",
+        "gold": {
+          "start_idx": 10,
+          "end_idx": 13,
+          "type": "sym",
+          "entity": "肺内病变"
+        },
+        "predicted": null,
+        "record_index": 1,
+        "text": "研究证实，细胞减少与肺内病变程度及肺内炎性病变吸收程度密切相关。"
+      },
+      {
+        "kind": "missed_entity",
+        "gold": {
+          "start_idx": 17,
+          "end_idx": 17,
           "type": "bod",
           "entity": "肺"
         },
@@ -136,6 +194,30 @@
         },
         "record_index": 2,
         "text": "因而儿童肺部病变较轻，肺内炎性病变吸收较快。"
+      },
+      {
+        "kind": "spurious_entity",
+        "gold": null,
+        "predicted": {
+          "start_idx": 15,
+          "end_idx": 24,
+          "type": "dis",
+          "entity": "亦有少部分患儿整个病"
+        },
+        "record_index": 7,
+        "text": "咳嗽多为有痰咳嗽，少数为干咳，亦有少部分患儿整个病程中均无咳嗽。"
+      },
+      {
+        "kind": "spurious_entity",
+        "gold": null,
+        "predicted": {
+          "start_idx": 15,
+          "end_idx": 18,
+          "type": "bod",
+          "entity": "大多无肌"
+        },
+        "record_index": 9,
+        "text": "除个别年长患儿诉胸痛和头痛外，大多无肌肉酸痛、寒战、头痛、胸痛等，与成年人报道不同。"
       }
     ],
     "type_error": [
@@ -189,6 +271,40 @@
         },
         "record_index": 29,
         "text": "8.查血沉、C反应蛋白、冷凝集试验，发热超过一周者加做肥达试验、外斐试验、抗溶血素链球菌“O”、类风湿因子（RF），有助于鉴别诊断。"
+      },
+      {
+        "kind": "type_error",
+        "gold": {
+          "start_idx": 23,
+          "end_idx": 30,
+          "type": "pro",
+          "entity": "RT-PCR检测"
+        },
+        "predicted": {
+          "start_idx": 23,
+          "end_idx": 30,
+          "type": "ite",
+          "entity": "RT-PCR检测"
+        },
+        "record_index": 41,
+        "text": "6.有条件的单位，可作SARS病毒抗体和（或）RT-PCR检测，以助诊断。"
+      },
+      {
+        "kind": "type_error",
+        "gold": {
+          "start_idx": 32,
+          "end_idx": 36,
+          "type": "pro",
+          "entity": "血清学检查"
+        },
+        "predicted": {
+          "start_idx": 32,
+          "end_idx": 36,
+          "type": "ite",
+          "entity": "血清学检查"
+        },
+        "record_index": 77,
+        "text": "实验室检查：可进行咽分泌物、痰等涂片直接镜检，或通过衣原体分离、血清学检查、PCR技术等方法检测。"
       }
     ]
   }

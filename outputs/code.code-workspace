@@ -1,0 +1,12 @@
+{
+	"folders": [
+		{
+			"path": "../.."
+		},
+		{
+			"name": "nlp_medicine",
+			"path": ".."
+		}
+	],
+	"settings": {}
+}

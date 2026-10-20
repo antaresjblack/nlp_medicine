@@ -1,6 +1,6 @@
 {
-  "gold_file": "data_raw\\CMeEE_dev.json",
-  "prediction_file": "outputs\\dictionary_longest_min_count_1_min_length_2_predictions.json",
+  "gold_file": "D:\\学习记录\\3-1\\NLP\\code\\nlp_medicine\\data_raw\\CMeEE_dev.json",
+  "prediction_file": "D:\\学习记录\\3-1\\NLP\\code\\nlp_medicine\\outputs\\dictionary_longest_min_count_1_min_length_2_predictions.json",
   "error_counts": {
     "boundary_error": 4137,
     "missed_entity": 14914,

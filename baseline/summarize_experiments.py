@@ -25,6 +25,8 @@ def main() -> None:
                 "entity_f1": data.get("f1", 0.0),
                 "entity_precision": data.get("precision", 0.0),
                 "entity_recall": data.get("recall", 0.0),
+                "token_precision": data.get("token_entity_precision", 0.0),
+                "token_recall": data.get("token_entity_recall", 0.0),
                 "token_f1": data.get("token_entity_f1", 0.0),
                 "token_accuracy": data.get("token_accuracy", 0.0),
                 "predicted_entities": data.get("predicted_entities", 0),
@@ -37,16 +39,16 @@ def main() -> None:
         "",
         "Token metrics use the documented longest-non-overlapping character projection; entity metrics use strict span matching.",
         "",
-        "| Method | Entity P | Entity R | Entity F1 | Token F1 | Token accuracy | Predicted entities | Runtime (s) |",
-        "|---|---:|---:|---:|---:|---:|---:|---:|",
+        "| Method | Entity P | Entity R | Entity F1 | Token P | Token R | Token F1 | Token accuracy | Predicted entities | Runtime (s) |",
+        "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
     ]
     for row in rows:
         runtime = row["runtime_seconds"]
         runtime_text = f"{runtime:.2f}" if isinstance(runtime, (int, float)) else str(runtime)
         lines.append(
             f"| {row['method']} | {row['entity_precision']:.4f} | {row['entity_recall']:.4f} | "
-            f"{row['entity_f1']:.4f} | {row['token_f1']:.4f} | {row['token_accuracy']:.4f} | "
-            f"{row['predicted_entities']} | {runtime_text} |"
+            f"{row['entity_f1']:.4f} | {row['token_precision']:.4f} | {row['token_recall']:.4f} | "
+            f"{row['token_f1']:.4f} | {row['token_accuracy']:.4f} | {row['predicted_entities']} | {runtime_text} |"
         )
 
     args.output.parent.mkdir(parents=True, exist_ok=True)

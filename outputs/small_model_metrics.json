@@ -86,5 +86,15 @@
       "fp": 10710,
       "fn": 3279
     }
-  }
+  },
+  "method": "character_linear_svm_longest_projection",
+  "train_file": "D:\\学习记录\\3-1\\NLP\\code\\nlp_medicine\\data_cleaned\\CMeEE_train_cleaned_final.json",
+  "eval_file": "D:\\学习记录\\3-1\\NLP\\code\\nlp_medicine\\data_raw\\CMeEE_dev.json",
+  "feature_count": 14176,
+  "train_characters": 811435,
+  "projection": "longest_non_overlapping_gold_entities",
+  "seed": 42,
+  "C": 1.0,
+  "class_weight": "balanced",
+  "runtime_seconds": 366.23187449999386
 }

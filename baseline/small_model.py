@@ -12,7 +12,6 @@ from __future__ import annotations
 import argparse
 import json
 import time
-from collections import Counter
 from pathlib import Path
 from typing import Any
 
@@ -54,7 +53,7 @@ def longest_non_overlapping_entities(record: dict[str, Any]) -> list[dict[str, A
     return sorted(selected, key=lambda entity: (entity["start_idx"], entity["end_idx"]))
 
 
-def char_features(text: str, index: int, dictionary_phrases: set[str]) -> dict[str, str]:
+def char_features(text: str, index: int, dictionary_chars: set[str]) -> dict[str, str]:
     """Create small, explainable local features for one character."""
     character = text[index]
     features = {
@@ -66,7 +65,7 @@ def char_features(text: str, index: int, dictionary_phrases: set[str]) -> dict[s
         "is_digit": str(character.isdigit()),
         "is_alpha": str(character.isalpha()),
         "is_ascii": str(character.isascii()),
-        "is_dictionary_char": str(any(character in phrase for phrase in dictionary_phrases)),
+        "is_dictionary_char": str(character in dictionary_chars),
     }
     return features
 
@@ -124,62 +123,83 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", type=Path, default=Path(__file__).resolve().parents[1])
     parser.add_argument("--output-dir", type=Path, default=None)
+    parser.add_argument("--seed", type=int, default=42, help="random seed for the LinearSVC")
+    parser.add_argument("--C", type=float, default=1.0, help="LinearSVC regularization strength")
+    parser.add_argument("--class-weight", type=str, default="balanced", help="LinearSVC class_weight")
+    parser.add_argument(
+        "--eval-file",
+        type=Path,
+        default=None,
+        help="file to predict/evaluate (default: data_raw/CMeEE_dev.json; use CMeEE_test.json for final predictions)",
+    )
     args = parser.parse_args()
 
     root = args.root.resolve()
     output_dir = (args.output_dir or root / "outputs").resolve()
     output_dir.mkdir(parents=True, exist_ok=True)
     train_path = root / "data_cleaned" / "CMeEE_train_cleaned_final.json"
-    dev_path = root / "data_raw" / "CMeEE_dev.json"
+    eval_path = (args.eval_file or root / "data_raw" / "CMeEE_dev.json").resolve()
     train = load_json(train_path)
-    dev = load_json(dev_path)
+    eval_records = load_json(eval_path)
     dictionary_phrases = {entity["entity"] for record in train for entity in record.get("entities", [])}
+    dictionary_chars = {char for phrase in dictionary_phrases for char in phrase}
 
     started = time.perf_counter()
     train_features: list[dict[str, str]] = []
     train_labels: list[str] = []
     for record in train:
         text = record["text"]
-        train_features.extend(char_features(text, index, dictionary_phrases) for index in range(len(text)))
+        train_features.extend(char_features(text, index, dictionary_chars) for index in range(len(text)))
         train_labels.extend(labels_from_entities(text, record.get("entities", [])))
 
     vectorizer = DictVectorizer()
     x_train = sparse_int32(vectorizer.fit_transform(train_features))
-    classifier = LinearSVC(C=1.0, class_weight="balanced", random_state=42)
+    classifier = LinearSVC(C=args.C, class_weight=args.class_weight, random_state=args.seed)
     classifier.fit(x_train, train_labels)
 
     predictions: list[dict[str, Any]] = []
-    for record in dev:
+    for record in eval_records:
         text = record["text"]
-        features = [char_features(text, index, dictionary_phrases) for index in range(len(text))]
+        features = [char_features(text, index, dictionary_chars) for index in range(len(text))]
         labels = classifier.predict(sparse_int32(vectorizer.transform(features))).tolist()
         predictions.append({"text": text, "entities": decode_bio(text, labels)})
 
-    metrics = evaluate_records(dev, predictions)
-    metrics.pop("errors", None)
+    eval_tag = "" if eval_path.name == "CMeEE_dev.json" else "_" + eval_path.stem.removeprefix("CMeEE_")
+    stem = f"small_model{eval_tag}"
+    prediction_path = output_dir / f"{stem}_predictions.json"
+    prediction_path.write_text(json.dumps(predictions, ensure_ascii=False, indent=2), encoding="utf-8")
+
+    print("Method: character_linear_svm_longest_projection")
+    print(f"LinearSVC: C={args.C}, class_weight={args.class_weight}, seed={args.seed}")
+    print(f"Training characters: {len(train_labels)}")
+    print(f"Feature count: {len(vectorizer.vocabulary_)}")
+    if not any(record.get("entities") for record in eval_records):
+        print(f"Eval file {eval_path.name} has no gold entities -> predict-only mode, no metrics computed.")
+        print(f"Predictions: {prediction_path}")
+        return
+
+    full_metrics = evaluate_records(eval_records, predictions)
+    metrics = {key: value for key, value in full_metrics.items() if key != "errors"}
     metrics.update(
         {
             "method": "character_linear_svm_longest_projection",
             "train_file": str(train_path),
-            "eval_file": str(dev_path),
+            "eval_file": str(eval_path),
             "feature_count": len(vectorizer.vocabulary_),
             "train_characters": len(train_labels),
             "projection": "longest_non_overlapping_gold_entities",
+            "seed": args.seed,
+            "C": args.C,
+            "class_weight": args.class_weight,
             "runtime_seconds": time.perf_counter() - started,
         }
     )
 
-    prediction_path = output_dir / "small_model_predictions.json"
-    metrics_path = output_dir / "small_model_metrics.json"
-    errors_path = output_dir / "small_model_errors.json"
-    prediction_path.write_text(json.dumps(predictions, ensure_ascii=False, indent=2), encoding="utf-8")
+    metrics_path = output_dir / f"{stem}_metrics.json"
+    errors_path = output_dir / f"{stem}_errors.json"
     metrics_path.write_text(json.dumps(metrics, ensure_ascii=False, indent=2), encoding="utf-8")
-    full_metrics = evaluate_records(dev, predictions)
     errors_path.write_text(json.dumps(full_metrics["errors"], ensure_ascii=False, indent=2), encoding="utf-8")
 
-    print("Method: character_linear_svm_longest_projection")
-    print(f"Training characters: {len(train_labels)}")
-    print(f"Feature count: {len(vectorizer.vocabulary_)}")
     print(f"Entity precision: {metrics['precision']:.4f}")
     print(f"Entity recall:    {metrics['recall']:.4f}")
     print(f"Entity F1:        {metrics['f1']:.4f}")

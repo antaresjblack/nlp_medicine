@@ -3,6 +3,10 @@
 Examples from repository root:
     python baseline/dictionary_baseline.py --method exact
     python baseline/dictionary_baseline.py --method longest
+    python baseline/dictionary_baseline.py --method longest --min-length 2 --eval-file data_raw/CMeEE_test.json
+
+The eval file defaults to the dev set. When it contains no gold entities
+(CMeEE_test.json), the script writes predictions only and skips metrics.
 """
 
 from __future__ import annotations
@@ -71,40 +75,54 @@ def main() -> None:
     parser.add_argument("--min-length", type=int, default=1, help="keep phrases at least this many characters long")
     parser.add_argument("--root", type=Path, default=Path(__file__).resolve().parents[1])
     parser.add_argument("--output-dir", type=Path, default=None)
+    parser.add_argument(
+        "--eval-file",
+        type=Path,
+        default=None,
+        help="file to predict/evaluate (default: data_raw/CMeEE_dev.json; use CMeEE_test.json for final predictions)",
+    )
     args = parser.parse_args()
 
     root = args.root.resolve()
     output_dir = (args.output_dir or root / "outputs").resolve()
     output_dir.mkdir(parents=True, exist_ok=True)
     train_path = root / "data_cleaned" / "CMeEE_train_cleaned_final.json"
-    dev_path = root / "data_raw" / "CMeEE_dev.json"
+    eval_path = (args.eval_file or root / "data_raw" / "CMeEE_dev.json").resolve()
     train = load_json(train_path)
-    dev = load_json(dev_path)
+    eval_records = load_json(eval_path)
     started = time.perf_counter()
     if args.min_count < 1 or args.min_length < 1:
         raise ValueError("--min-count and --min-length must be at least 1")
     dictionary = build_dictionary(train, min_count=args.min_count, min_length=args.min_length)
     predictor = predict_exact if args.method == "exact" else predict_longest
-    predictions = [predictor(record, dictionary) for record in dev]
-    metrics = evaluate_records(dev, predictions)
+    predictions = [predictor(record, dictionary) for record in eval_records]
     elapsed = time.perf_counter() - started
+
+    eval_tag = "" if eval_path.name == "CMeEE_dev.json" else "_" + eval_path.stem.removeprefix("CMeEE_")
+    stem = f"dictionary_{args.method}_min_count_{args.min_count}_min_length_{args.min_length}{eval_tag}"
+    prediction_path = output_dir / f"{stem}_predictions.json"
+    prediction_path.write_text(json.dumps(predictions, ensure_ascii=False, indent=2), encoding="utf-8")
+
+    print(f"Method: dictionary_{args.method}_min_count_{args.min_count}_min_length_{args.min_length}")
+    print(f"Dictionary entries: {len(dictionary)}")
+    if not any(record.get("entities") for record in eval_records):
+        print(f"Eval file {eval_path.name} has no gold entities -> predict-only mode, no metrics computed.")
+        print(f"Predictions: {prediction_path}")
+        return
+
+    metrics = evaluate_records(eval_records, predictions)
     metrics["method"] = f"dictionary_{args.method}_min_count_{args.min_count}_min_length_{args.min_length}"
     metrics["train_file"] = str(train_path)
-    metrics["eval_file"] = str(dev_path)
+    metrics["eval_file"] = str(eval_path)
     metrics["dictionary_size"] = len(dictionary)
     metrics["runtime_seconds"] = elapsed
 
-    stem = f"dictionary_{args.method}_min_count_{args.min_count}_min_length_{args.min_length}"
-    prediction_path = output_dir / f"{stem}_predictions.json"
     metrics_path = output_dir / f"{stem}_metrics.json"
     errors_path = output_dir / f"{stem}_errors.json"
-    prediction_path.write_text(json.dumps(predictions, ensure_ascii=False, indent=2), encoding="utf-8")
     compact_metrics = {key: value for key, value in metrics.items() if key != "errors"}
     metrics_path.write_text(json.dumps(compact_metrics, ensure_ascii=False, indent=2), encoding="utf-8")
     errors_path.write_text(json.dumps(metrics["errors"], ensure_ascii=False, indent=2), encoding="utf-8")
 
-    print(f"Method: dictionary_{args.method}_min_count_{args.min_count}_min_length_{args.min_length}")
-    print(f"Dictionary entries: {len(dictionary)}")
     print(f"Entity precision: {metrics['precision']:.4f}")
     print(f"Entity recall:    {metrics['recall']:.4f}")
     print(f"Entity F1:        {metrics['f1']:.4f}")
