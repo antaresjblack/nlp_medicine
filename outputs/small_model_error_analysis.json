@@ -1,0 +1,311 @@
+{
+  "gold_file": "D:\\学习记录\\3-1\\NLP\\code\\nlp_medicine\\data_raw\\CMeEE_dev.json",
+  "prediction_file": "D:\\学习记录\\3-1\\NLP\\code\\nlp_medicine\\outputs\\small_model_predictions.json",
+  "error_counts": {
+    "boundary_error": 4216,
+    "missed_entity": 14863,
+    "spurious_entity": 19567,
+    "type_error": 1221
+  },
+  "total_error_events": 39867,
+  "examples": {
+    "boundary_error": [
+      {
+        "kind": "boundary_error",
+        "gold": {
+          "start_idx": 3,
+          "end_idx": 9,
+          "type": "bod",
+          "entity": "SARST细胞"
+        },
+        "predicted": {
+          "start_idx": 7,
+          "end_idx": 9,
+          "type": "bod",
+          "entity": "T细胞"
+        },
+        "record_index": 0,
+        "text": "对儿童SARST细胞亚群的研究表明，与成人SARS相比，儿童细胞下降不明显，证明上述推测成立。"
+      },
+      {
+        "kind": "boundary_error",
+        "gold": {
+          "start_idx": 19,
+          "end_idx": 24,
+          "type": "dis",
+          "entity": "成人SARS"
+        },
+        "predicted": {
+          "start_idx": 22,
+          "end_idx": 22,
+          "type": "dis",
+          "entity": "A"
+        },
+        "record_index": 0,
+        "text": "对儿童SARST细胞亚群的研究表明，与成人SARS相比，儿童细胞下降不明显，证明上述推测成立。"
+      },
+      {
+        "kind": "boundary_error",
+        "gold": {
+          "start_idx": 17,
+          "end_idx": 22,
+          "type": "sym",
+          "entity": "肺内炎性病变"
+        },
+        "predicted": {
+          "start_idx": 19,
+          "end_idx": 22,
+          "type": "sym",
+          "entity": "炎性病变"
+        },
+        "record_index": 1,
+        "text": "研究证实，细胞减少与肺内病变程度及肺内炎性病变吸收程度密切相关。"
+      },
+      {
+        "kind": "boundary_error",
+        "gold": {
+          "start_idx": 11,
+          "end_idx": 16,
+          "type": "sym",
+          "entity": "肺内炎性病变"
+        },
+        "predicted": {
+          "start_idx": 13,
+          "end_idx": 16,
+          "type": "sym",
+          "entity": "炎性病变"
+        },
+        "record_index": 2,
+        "text": "因而儿童肺部病变较轻，肺内炎性病变吸收较快。"
+      },
+      {
+        "kind": "boundary_error",
+        "gold": {
+          "start_idx": 5,
+          "end_idx": 8,
+          "type": "dis",
+          "entity": "SARS"
+        },
+        "predicted": {
+          "start_idx": 6,
+          "end_idx": 6,
+          "type": "dis",
+          "entity": "A"
+        },
+        "record_index": 3,
+        "text": "一般有明确SARS接触史。"
+      }
+    ],
+    "missed_entity": [
+      {
+        "kind": "missed_entity",
+        "gold": {
+          "start_idx": 10,
+          "end_idx": 10,
+          "type": "bod",
+          "entity": "肺"
+        },
+        "predicted": null,
+        "record_index": 1,
+        "text": "研究证实，细胞减少与肺内病变程度及肺内炎性病变吸收程度密切相关。"
+      },
+      {
+        "kind": "missed_entity",
+        "gold": {
+          "start_idx": 10,
+          "end_idx": 13,
+          "type": "sym",
+          "entity": "肺内病变"
+        },
+        "predicted": null,
+        "record_index": 1,
+        "text": "研究证实，细胞减少与肺内病变程度及肺内炎性病变吸收程度密切相关。"
+      },
+      {
+        "kind": "missed_entity",
+        "gold": {
+          "start_idx": 17,
+          "end_idx": 17,
+          "type": "bod",
+          "entity": "肺"
+        },
+        "predicted": null,
+        "record_index": 1,
+        "text": "研究证实，细胞减少与肺内病变程度及肺内炎性病变吸收程度密切相关。"
+      },
+      {
+        "kind": "missed_entity",
+        "gold": {
+          "start_idx": 4,
+          "end_idx": 5,
+          "type": "bod",
+          "entity": "肺部"
+        },
+        "predicted": null,
+        "record_index": 2,
+        "text": "因而儿童肺部病变较轻，肺内炎性病变吸收较快。"
+      },
+      {
+        "kind": "missed_entity",
+        "gold": {
+          "start_idx": 4,
+          "end_idx": 7,
+          "type": "sym",
+          "entity": "肺部病变"
+        },
+        "predicted": null,
+        "record_index": 2,
+        "text": "因而儿童肺部病变较轻，肺内炎性病变吸收较快。"
+      }
+    ],
+    "spurious_entity": [
+      {
+        "kind": "spurious_entity",
+        "gold": null,
+        "predicted": {
+          "start_idx": 4,
+          "end_idx": 4,
+          "type": "dis",
+          "entity": "A"
+        },
+        "record_index": 0,
+        "text": "对儿童SARST细胞亚群的研究表明，与成人SARS相比，儿童细胞下降不明显，证明上述推测成立。"
+      },
+      {
+        "kind": "spurious_entity",
+        "gold": null,
+        "predicted": {
+          "start_idx": 5,
+          "end_idx": 6,
+          "type": "dis",
+          "entity": "RS"
+        },
+        "record_index": 0,
+        "text": "对儿童SARST细胞亚群的研究表明，与成人SARS相比，儿童细胞下降不明显，证明上述推测成立。"
+      },
+      {
+        "kind": "spurious_entity",
+        "gold": null,
+        "predicted": {
+          "start_idx": 23,
+          "end_idx": 24,
+          "type": "dis",
+          "entity": "RS"
+        },
+        "record_index": 0,
+        "text": "对儿童SARST细胞亚群的研究表明，与成人SARS相比，儿童细胞下降不明显，证明上述推测成立。"
+      },
+      {
+        "kind": "spurious_entity",
+        "gold": null,
+        "predicted": {
+          "start_idx": 30,
+          "end_idx": 31,
+          "type": "bod",
+          "entity": "细胞"
+        },
+        "record_index": 0,
+        "text": "对儿童SARST细胞亚群的研究表明，与成人SARS相比，儿童细胞下降不明显，证明上述推测成立。"
+      },
+      {
+        "kind": "spurious_entity",
+        "gold": null,
+        "predicted": {
+          "start_idx": 5,
+          "end_idx": 6,
+          "type": "bod",
+          "entity": "细胞"
+        },
+        "record_index": 1,
+        "text": "研究证实，细胞减少与肺内病变程度及肺内炎性病变吸收程度密切相关。"
+      }
+    ],
+    "type_error": [
+      {
+        "kind": "type_error",
+        "gold": {
+          "start_idx": 63,
+          "end_idx": 65,
+          "type": "sym",
+          "entity": "肺实变"
+        },
+        "predicted": {
+          "start_idx": 63,
+          "end_idx": 65,
+          "type": "dis",
+          "entity": "肺实变"
+        },
+        "record_index": 10,
+        "text": "阳性体征主要表现在呼吸系统，多数患儿肺部可闻及啰音，啰音可出现在疾病早期或中期，多为细湿啰音，啰音出现部位多与胸部X线片显示的肺实变部位一致，可以双侧或单侧，随着疾病好转而消失，少数患儿始终无啰音、呼吸音减弱或管状呼吸音等病理性呼吸音出现。"
+      },
+      {
+        "kind": "type_error",
+        "gold": {
+          "start_idx": 8,
+          "end_idx": 11,
+          "type": "pro",
+          "entity": "血气分析"
+        },
+        "predicted": {
+          "start_idx": 8,
+          "end_idx": 11,
+          "type": "ite",
+          "entity": "血气分析"
+        },
+        "record_index": 17,
+        "text": "6.对重症者进行血气分析。"
+      },
+      {
+        "kind": "type_error",
+        "gold": {
+          "start_idx": 31,
+          "end_idx": 36,
+          "type": "bod",
+          "entity": "外周血白细胞"
+        },
+        "predicted": {
+          "start_idx": 31,
+          "end_idx": 36,
+          "type": "ite",
+          "entity": "外周血白细胞"
+        },
+        "record_index": 19,
+        "text": "血常规的动态变化是本病的特点之一，是重要的诊断依据，典型病例其外周血白细胞在病情进展期呈进行性下降。"
+      },
+      {
+        "kind": "type_error",
+        "gold": {
+          "start_idx": 31,
+          "end_idx": 34,
+          "type": "sym",
+          "entity": "细菌感染"
+        },
+        "predicted": {
+          "start_idx": 31,
+          "end_idx": 34,
+          "type": "dis",
+          "entity": "细菌感染"
+        },
+        "record_index": 26,
+        "text": "5.痰细菌培养加药敏、血培养致病性球杆菌加药敏有助于排除或诊断细菌感染。"
+      },
+      {
+        "kind": "type_error",
+        "gold": {
+          "start_idx": 9,
+          "end_idx": 13,
+          "type": "bod",
+          "entity": "免疫球蛋白"
+        },
+        "predicted": {
+          "start_idx": 9,
+          "end_idx": 13,
+          "type": "dru",
+          "entity": "免疫球蛋白"
+        },
+        "record_index": 30,
+        "text": "9.查T细胞功能及免疫球蛋白水平有助于了解患儿免疫功能的变化。"
+      }
+    ]
+  }
+}

@@ -1,0 +1,72 @@
+{
+  "grid": {
+    "C_values": [
+      0.1,
+      1.0
+    ],
+    "class_weight_values": [
+      "balanced",
+      null
+    ],
+    "seed": 42,
+    "dict_span_features": true,
+    "note": "dev 集调参实验；最终配置选 entity_f1 最高的组合，报告中须说明为开发集调参"
+  },
+  "rows": [
+    {
+      "C": 0.1,
+      "class_weight": "balanced",
+      "entity_precision": 0.38961766117421215,
+      "entity_recall": 0.4799014778325123,
+      "entity_f1": 0.4300723997880982,
+      "token_f1": 0.5240611544749142,
+      "char_multi_label_f1": 0.5372633758750309,
+      "predicted_entities": 25004,
+      "runtime_seconds": 83.95083619997604
+    },
+    {
+      "C": 0.1,
+      "class_weight": "none",
+      "entity_precision": 0.4289525691699605,
+      "entity_recall": 0.4276847290640394,
+      "entity_f1": 0.428317710902812,
+      "token_f1": 0.5118951986652661,
+      "char_multi_label_f1": 0.5231645096312736,
+      "predicted_entities": 20240,
+      "runtime_seconds": 66.82551190000959
+    },
+    {
+      "C": 1.0,
+      "class_weight": "balanced",
+      "entity_precision": 0.3816230450047877,
+      "entity_recall": 0.4711822660098522,
+      "entity_f1": 0.4217000264526938,
+      "token_f1": 0.5226399855903595,
+      "char_multi_label_f1": 0.5357002913266435,
+      "predicted_entities": 25064,
+      "runtime_seconds": 236.63445780001348
+    },
+    {
+      "C": 1.0,
+      "class_weight": "none",
+      "entity_precision": 0.4187059514487079,
+      "entity_recall": 0.42142857142857143,
+      "entity_f1": 0.4200628498477855,
+      "token_f1": 0.5108973124724385,
+      "char_multi_label_f1": 0.5220047640117099,
+      "predicted_entities": 20432,
+      "runtime_seconds": 110.81926729995757
+    }
+  ],
+  "best": {
+    "C": 0.1,
+    "class_weight": "balanced",
+    "entity_precision": 0.38961766117421215,
+    "entity_recall": 0.4799014778325123,
+    "entity_f1": 0.4300723997880982,
+    "token_f1": 0.5240611544749142,
+    "char_multi_label_f1": 0.5372633758750309,
+    "predicted_entities": 25004,
+    "runtime_seconds": 83.95083619997604
+  }
+}

@@ -1,9 +1,4 @@
 {
-  "method": "dictionary_longest_min_count_1_min_length_2",
-  "train_file": "D:\\学习记录\\3-1\\NLP\\code\\nlp_medicine\\data_cleaned\\CMeEE_train_cleaned_final.json",
-  "eval_file": "D:\\学习记录\\3-1\\NLP\\code\\nlp_medicine\\data_raw\\CMeEE_dev.json",
-  "dictionary_size": 25206,
-  "runtime_seconds": 43.49985140003264,
   "metric": "strict_entity_micro",
   "gold_entities": 20300,
   "predicted_entities": 27851,
@@ -245,5 +240,10 @@
       "fp": 2857,
       "fn": 2901
     }
-  }
+  },
+  "method": "dictionary_longest_min_count_1_min_length_2",
+  "train_file": "D:\\学习记录\\3-1\\NLP\\code\\nlp_medicine\\data_cleaned\\CMeEE_train_cleaned_final.json",
+  "eval_file": "D:\\学习记录\\3-1\\NLP\\code\\nlp_medicine\\data_raw\\CMeEE_dev.json",
+  "dictionary_size": 25206,
+  "runtime_seconds": 26.068224699993152
 }

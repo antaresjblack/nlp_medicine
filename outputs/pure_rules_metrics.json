@@ -1,19 +1,4 @@
 {
-  "method": "pure_handwritten_rules",
-  "eval_file": "D:\\学习记录\\3-1\\NLP\\code\\nlp_medicine\\data_raw\\CMeEE_dev.json",
-  "rule_count": 9,
-  "rule_names": [
-    "microorganism_suffix",
-    "drug_form_suffix",
-    "procedure_suffix",
-    "lab_item_suffix",
-    "disease_suffix",
-    "symptom_word",
-    "body_part_suffix",
-    "equipment_suffix",
-    "department_suffix"
-  ],
-  "runtime_seconds": 0.8355001999880187,
   "metric": "strict_entity_micro",
   "gold_entities": 20300,
   "predicted_entities": 6984,
@@ -255,5 +240,20 @@
       "fp": 348,
       "fn": 4088
     }
-  }
+  },
+  "method": "pure_handwritten_rules",
+  "eval_file": "D:\\学习记录\\3-1\\NLP\\code\\nlp_medicine\\data_raw\\CMeEE_dev.json",
+  "rule_count": 9,
+  "rule_names": [
+    "microorganism_suffix",
+    "drug_form_suffix",
+    "procedure_suffix",
+    "lab_item_suffix",
+    "disease_suffix",
+    "symptom_word",
+    "body_part_suffix",
+    "equipment_suffix",
+    "department_suffix"
+  ],
+  "runtime_seconds": 0.4975436000386253
 }

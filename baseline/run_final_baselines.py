@@ -59,6 +59,7 @@ def main() -> None:
         )
 
     small_model = methods["small_model"]
+    small_model_ran = False
     if small_model.get("enabled", False) and not args.skip_small_model:
         command = [
             sys.executable,
@@ -69,7 +70,10 @@ def main() -> None:
             "--C", str(small_model.get("C", 1.0)),
             "--class-weight", str(small_model.get("class_weight", "balanced")),
         ]
+        if small_model.get("dict_span_features", False):
+            command.append("--dict-span-features")
         run(command, root)
+        small_model_ran = True
 
     error_analysis = config.get("error_analysis", {})
     if error_analysis.get("enabled", False):
@@ -82,6 +86,8 @@ def main() -> None:
             )
         if methods["pure_rules"].get("enabled", False):
             stems_by_name["pure_rules"] = "pure_rules"
+        if small_model_ran:
+            stems_by_name["small_model"] = "small_model"
         for target in error_analysis.get("targets", []):
             stem = stems_by_name.get(target["name"])
             if stem is None:

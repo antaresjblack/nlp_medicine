@@ -25,6 +25,7 @@ from typing import Any
 from sklearn.feature_extraction import DictVectorizer
 from sklearn.svm import LinearSVC
 
+from dict_span_features import DictSpanAnnotator
 from metrics import evaluate_records
 from small_model import char_features, decode_bio, labels_from_entities, load_json, sparse_int32
 
@@ -50,6 +51,7 @@ def write_grid_summary(
     c_values: list[float],
     class_weights: list[Any],
     seed: int,
+    name_suffix: str = "",
 ) -> None:
     """Sort grid rows, write the JSON/Markdown summaries and print the winner."""
     rows = sorted(
@@ -62,14 +64,18 @@ def write_grid_summary(
             "C_values": c_values,
             "class_weight_values": [None if value is None else value for value in class_weights],
             "seed": seed,
+            "dict_span_features": name_suffix == "_span",
             "note": "dev 集调参实验；最终配置选 entity_f1 最高的组合，报告中须说明为开发集调参",
         },
         "rows": rows,
         "best": completed[0],
     }
-    (grid_dir / "small_model_grid_summary.json").write_text(json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8")
+    (grid_dir / f"small_model_grid_summary{name_suffix}.json").write_text(
+        json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
 
-    lines = ["# Small model grid search (dev)", ""]
+    title = "# Small model grid search (dev" + (", with dictionary span features)" if name_suffix else ")")
+    lines = [title, ""]
     lines.append(
         "| C | class_weight | Entity P | Entity R | Entity F1 | Token F1 | Char-multi F1 | Predicted | Runtime (s) |"
     )
@@ -85,7 +91,7 @@ def write_grid_summary(
             f"{row['entity_f1']:.4f} | {row['token_f1']:.4f} | {row['char_multi_label_f1']:.4f} | "
             f"{row['predicted_entities']} | {row['runtime_seconds']:.1f} |"
         )
-    (grid_dir / "small_model_grid_summary.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
+    (grid_dir / f"small_model_grid_summary{name_suffix}.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
 
     print("\nBest combination:")
     print(json.dumps(completed[0], ensure_ascii=False, indent=2))
@@ -99,6 +105,11 @@ def main() -> None:
     parser.add_argument("--C-values", type=str, default="0.01,0.1,1.0,10.0", help="comma-separated C candidates")
     parser.add_argument("--class-weights", type=str, default="balanced,none", help="comma-separated class_weight candidates")
     parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument(
+        "--dict-span-features",
+        action="store_true",
+        help="add dictionary span features (DictSpanAnnotator) to each character",
+    )
     parser.add_argument(
         "--summarize-only",
         action="store_true",
@@ -115,17 +126,18 @@ def main() -> None:
 
     c_values = [float(value) for value in args.C_values.split(",")]
     class_weights = [None if value.lower() == "none" else value for value in args.class_weights.split(",")]
+    name_suffix = "_span" if args.dict_span_features else ""
 
     if args.summarize_only:
         rows: list[dict[str, Any]] = []
         for C, class_weight in itertools.product(c_values, class_weights):
             weight_name = "none" if class_weight is None else class_weight
-            metrics_path = grid_dir / f"small_model_grid_C{C}_cw_{weight_name}_metrics.json"
+            metrics_path = grid_dir / f"small_model_grid_C{C}_cw_{weight_name}{name_suffix}_metrics.json"
             if metrics_path.exists():
                 rows.append(row_from_metrics(json.loads(metrics_path.read_text(encoding="utf-8"))))
             else:
                 rows.append({"C": C, "class_weight": weight_name, "skipped": "not run (see README tuning note)"})
-        write_grid_summary(grid_dir, rows, c_values, class_weights, args.seed)
+        write_grid_summary(grid_dir, rows, c_values, class_weights, args.seed, name_suffix)
         return
 
     train = load_json(train_path)
@@ -133,6 +145,7 @@ def main() -> None:
 
     dictionary_phrases = {entity["entity"] for record in train for entity in record.get("entities", [])}
     dictionary_chars = {char for phrase in dictionary_phrases for char in phrase}
+    annotator = DictSpanAnnotator(train) if args.dict_span_features else None
 
     print("Building shared features ...", flush=True)
     started = time.perf_counter()
@@ -140,7 +153,11 @@ def main() -> None:
     train_labels: list[str] = []
     for record in train:
         text = record["text"]
-        train_features.extend(char_features(text, index, dictionary_chars) for index in range(len(text)))
+        spans = annotator.annotate(text) if annotator is not None else None
+        train_features.extend(
+            char_features(text, index, dictionary_chars, spans[index] if spans is not None else None)
+            for index in range(len(text))
+        )
         train_labels.extend(labels_from_entities(text, record.get("entities", [])))
 
     vectorizer = DictVectorizer()
@@ -149,7 +166,11 @@ def main() -> None:
     dev_matrices: list[Any] = []
     for record in dev:
         text = record["text"]
-        features = [char_features(text, index, dictionary_chars) for index in range(len(text))]
+        spans = annotator.annotate(text) if annotator is not None else None
+        features = [
+            char_features(text, index, dictionary_chars, spans[index] if spans is not None else None)
+            for index in range(len(text))
+        ]
         dev_matrices.append(sparse_int32(vectorizer.transform(features)))
     print(f"Features ready in {time.perf_counter() - started:.1f}s", flush=True)
 
@@ -157,8 +178,8 @@ def main() -> None:
     for C, class_weight in itertools.product(c_values, class_weights):
         combo_started = time.perf_counter()
         weight_name = "none" if class_weight is None else class_weight
-        stem = f"small_model_grid_C{C}_cw_{weight_name}"
-        print(f"Fitting C={C}, class_weight={weight_name} ...", flush=True)
+        stem = f"small_model_grid_C{C}_cw_{weight_name}{name_suffix}"
+        print(f"Fitting C={C}, class_weight={weight_name} (dict span features: {args.dict_span_features}) ...", flush=True)
         classifier = LinearSVC(C=C, class_weight=class_weight, random_state=args.seed)
         classifier.fit(x_train, train_labels)
 
@@ -179,6 +200,14 @@ def main() -> None:
                 "train_file": str(train_path),
                 "eval_file": str(dev_path),
                 "projection": "longest_non_overlapping_gold_entities",
+                "dict_span_features": args.dict_span_features,
+                "dict_span_annotator": {
+                    "min_count": annotator.min_count,
+                    "min_length": annotator.min_length,
+                    "num_phrases": len(annotator.entries),
+                }
+                if annotator is not None
+                else None,
                 "runtime_seconds": time.perf_counter() - combo_started,
             }
         )
@@ -202,7 +231,7 @@ def main() -> None:
             flush=True,
         )
 
-    write_grid_summary(grid_dir, summary_rows, c_values, class_weights, args.seed)
+    write_grid_summary(grid_dir, summary_rows, c_values, class_weights, args.seed, name_suffix)
 
 
 if __name__ == "__main__":

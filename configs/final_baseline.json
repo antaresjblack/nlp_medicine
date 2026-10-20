@@ -20,8 +20,9 @@
       "enabled": true,
       "script": "baseline/small_model.py",
       "seed": 42,
-      "C": 1.0,
-      "class_weight": "none",
+      "C": 0.1,
+      "class_weight": "balanced",
+      "dict_span_features": true,
       "projection": "longest_non_overlapping_gold_entities"
     }
   },
@@ -32,7 +33,8 @@
     "examples_per_kind": 5,
     "targets": [
       {"name": "dictionary_best", "output": "dictionary_best_error_analysis.json"},
-      {"name": "pure_rules", "output": "pure_rules_error_analysis.json"}
+      {"name": "pure_rules", "output": "pure_rules_error_analysis.json"},
+      {"name": "small_model", "output": "small_model_error_analysis.json"}
     ]
   },
   "evaluation": {

@@ -136,8 +136,8 @@ def main() -> None:
     parser.add_argument("--root", type=Path, default=Path(__file__).resolve().parents[1])
     parser.add_argument("--output-dir", type=Path, default=None)
     parser.add_argument("--seed", type=int, default=42, help="random seed for the LinearSVC")
-    parser.add_argument("--C", type=float, default=1.0, help="LinearSVC regularization strength")
-    parser.add_argument("--class-weight", type=str, default="none", help="LinearSVC class_weight ('none' or 'balanced')")
+    parser.add_argument("--C", type=float, default=0.1, help="LinearSVC regularization strength")
+    parser.add_argument("--class-weight", type=str, default="balanced", help="LinearSVC class_weight ('none' or 'balanced')")
     parser.add_argument(
         "--eval-file",
         type=Path,
@@ -146,7 +146,8 @@ def main() -> None:
     )
     parser.add_argument(
         "--dict-span-features",
-        action="store_true",
+        action=argparse.BooleanOptionalAction,
+        default=True,
         help="add dictionary span features (DictSpanAnnotator) to each character",
     )
     args = parser.parse_args()
