@@ -19,6 +19,7 @@ import numpy as np
 from sklearn.feature_extraction import DictVectorizer
 from sklearn.svm import LinearSVC
 
+from dict_span_features import DictSpanAnnotator
 from metrics import evaluate_records
 
 
@@ -53,8 +54,17 @@ def longest_non_overlapping_entities(record: dict[str, Any]) -> list[dict[str, A
     return sorted(selected, key=lambda entity: (entity["start_idx"], entity["end_idx"]))
 
 
-def char_features(text: str, index: int, dictionary_chars: set[str]) -> dict[str, str]:
-    """Create small, explainable local features for one character."""
+def char_features(
+    text: str,
+    index: int,
+    dictionary_chars: set[str],
+    span_features: dict[str, str] | None = None,
+) -> dict[str, str]:
+    """Create small, explainable local features for one character.
+
+    ``span_features`` optionally carries the dictionary span features for this
+    position (see dict_span_features.DictSpanAnnotator).
+    """
     character = text[index]
     features = {
         "char": character,
@@ -67,6 +77,8 @@ def char_features(text: str, index: int, dictionary_chars: set[str]) -> dict[str
         "is_ascii": str(character.isascii()),
         "is_dictionary_char": str(character in dictionary_chars),
     }
+    if span_features:
+        features.update(span_features)
     return features
 
 
@@ -132,6 +144,11 @@ def main() -> None:
         default=None,
         help="file to predict/evaluate (default: data_raw/CMeEE_dev.json; use CMeEE_test.json for final predictions)",
     )
+    parser.add_argument(
+        "--dict-span-features",
+        action="store_true",
+        help="add dictionary span features (DictSpanAnnotator) to each character",
+    )
     args = parser.parse_args()
 
     root = args.root.resolve()
@@ -143,13 +160,18 @@ def main() -> None:
     eval_records = load_json(eval_path)
     dictionary_phrases = {entity["entity"] for record in train for entity in record.get("entities", [])}
     dictionary_chars = {char for phrase in dictionary_phrases for char in phrase}
+    annotator = DictSpanAnnotator(train) if args.dict_span_features else None
 
     started = time.perf_counter()
     train_features: list[dict[str, str]] = []
     train_labels: list[str] = []
     for record in train:
         text = record["text"]
-        train_features.extend(char_features(text, index, dictionary_chars) for index in range(len(text)))
+        spans = annotator.annotate(text) if annotator is not None else None
+        train_features.extend(
+            char_features(text, index, dictionary_chars, spans[index] if spans is not None else None)
+            for index in range(len(text))
+        )
         train_labels.extend(labels_from_entities(text, record.get("entities", [])))
 
     vectorizer = DictVectorizer()
@@ -161,7 +183,11 @@ def main() -> None:
     predictions: list[dict[str, Any]] = []
     for record in eval_records:
         text = record["text"]
-        features = [char_features(text, index, dictionary_chars) for index in range(len(text))]
+        spans = annotator.annotate(text) if annotator is not None else None
+        features = [
+            char_features(text, index, dictionary_chars, spans[index] if spans is not None else None)
+            for index in range(len(text))
+        ]
         labels = classifier.predict(sparse_int32(vectorizer.transform(features))).tolist()
         predictions.append({"text": text, "entities": decode_bio(text, labels)})
 
@@ -172,6 +198,7 @@ def main() -> None:
 
     print("Method: character_linear_svm_longest_projection")
     print(f"LinearSVC: C={args.C}, class_weight={args.class_weight}, seed={args.seed}")
+    print(f"Dictionary span features: {'on' if args.dict_span_features else 'off'}")
     print(f"Training characters: {len(train_labels)}")
     print(f"Feature count: {len(vectorizer.vocabulary_)}")
     if not any(record.get("entities") for record in eval_records):
@@ -192,6 +219,14 @@ def main() -> None:
             "seed": args.seed,
             "C": args.C,
             "class_weight": class_weight,
+            "dict_span_features": args.dict_span_features,
+            "dict_span_annotator": {
+                "min_count": annotator.min_count,
+                "min_length": annotator.min_length,
+                "num_phrases": len(annotator.entries),
+            }
+            if annotator is not None
+            else None,
             "runtime_seconds": time.perf_counter() - started,
         }
     )
