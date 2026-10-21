@@ -1,16 +1,21 @@
 # MedicalNER_Project 文件使用与组员交接说明
 
-更新时间：2026-10-18。适用于当前项目目录 `C:\Users\home\Desktop\MedicalNER_Project`。
+更新时间：2026-10-19。适用于当前项目根目录 `nlp_medicine/`。
+
+> 当前整合标准：成员2的 `baseline/` 代码和 `outputs/` 结果是基线权威版本；
+> 数据布局沿用根目录的 `data_raw/`、`data_cleaned/`。成员4新增的冻结评估集在
+> `data_eval/`，统一评分入口在 `eval/`。详细说明见 `baseline/README.md` 和
+> `eval/README.md`。
 
 ## 小组直接使用说明
 
-本小组仓库包含原始数据、清洗结果及复核材料，供组员直接使用。下载或克隆整个仓库后，**训练读取 `data_cleaned/CMeEE_train_cleaned_final.json`，无需重复清洗**；开发验证读取 `data_raw/CMeEE_dev.json`。目录中的旧版数据、日志和脚本保留用于追溯，不是组员开始建模前必须执行的步骤。
+本小组仓库包含原始数据、清洗结果、基线代码及复核材料，供组员直接使用。下载或克隆整个仓库后，**训练读取 `data_cleaned/CMeEE_train_cleaned_final.json`，无需重复清洗**；完整开发集读取 `data_raw/CMeEE_dev.json`，需要留出评估时读取 `data_eval/eval_tune.jsonl` 和 `data_eval/eval_test.jsonl`。目录中的旧版数据、日志和脚本保留用于追溯，不是组员开始建模前必须执行的步骤。
 
 在自己的电脑上把代码中的项目根目录设置为实际下载位置；本说明里的 `C:\Users\home\...` 路径只是数据负责人本机路径。共享范围和来源许可记录见 `docs/data_source.md`。GitHub 小组共享与课程最终提交是两件事，课程压缩包仍按任务书排除数据集。
 
 ## 1. 新组员先看这里
 
-本项目是自然语言处理课程 B 方向的医疗命名实体识别（NER）项目。当前已完成成员 1 的数据检查、人工复核记录整理及保守清洗；尚未实现基线模型、大模型方案、统一评估或模型训练结果。
+本项目是自然语言处理课程 B 方向的医疗命名实体识别（NER）项目。当前已完成成员 1 的数据检查、人工复核记录整理及保守清洗，以及成员 2 的词典／字符级小模型基线和统一评测；大模型方案仍待成员 3 实现。基线代码、输出格式和评测协议以 `baseline/README.md` 为准，成员 4 的评估整合说明见 `eval/README.md`。
 
 **后续训练使用 `data_cleaned/CMeEE_train_cleaned_final.json`。不要误用文件名相似的上一版 `CMeEE_train_cleaned.json`。**
 
@@ -18,6 +23,7 @@
 | --- | --- | --- |
 | 模型训练、训练词典构建 | `data_cleaned/CMeEE_train_cleaned_final.json` | 14,984 条文本，61,743 个实体 |
 | 有标签的开发验证 | `data_raw/CMeEE_dev.json` | 5,000 条文本，20,300 个实体；具体调参／最终评估使用方式须组内冻结 |
+| 调参与留出评估（成员4补充） | `data_eval/eval_tune.jsonl`、`data_eval/eval_test.jsonl` | 各 2,500 条；由 dev 按 seed 42 切分，`eval_test` 定稿时只用一次 |
 | 无公开答案文本上的预测展示 | `data_raw/CMeEE_test.json` | 3,000 条；实体列表全部为空，不能据此计算有效实体级 P/R/F1 |
 | 了解清洗与验证结果 | `docs/final_cleaning_summary.md`、`docs/final_validation_report.json` | 最新结果；包含类别统计、检查项与哈希 |
 | 追溯最终样本原始位置 | `docs/record_index_map_final.csv` | 最终行号、原始行号、上一版行号对应表，均从 0 开始 |
@@ -30,14 +36,17 @@
 ```text
 MedicalNER_Project/
 ├── README.md              本说明
+├── baseline/              成员2：基线代码、评测模块与权威实验结果
 ├── data_raw/              原始文件，保留不改
 ├── data_cleaned/          上一版与最终版清洗数据、日志和依赖
-├── data_processed/        当前为空，预留模型专用派生格式
+├── data_eval/             成员4：冻结的调参集与留出评估集
 ├── docs/                  数据说明、质量报告、复核证据和最终映射
+├── eval/                  成员4：评估整合与统一评分入口
+├── outputs/               预测、指标、错误分析和实验汇总
 └── scripts/               检查、复核整理与清洗脚本
 ```
 
-`data_processed/` 当前没有文件。成员 2、3 如确需生成分词、分块、BIO 或其他模型输入，应将其作为独立派生步骤放在此目录并说明规则；不要改写原始数据或最终跨度格式数据。重叠、嵌套实体不能被静默丢弃。
+成员 2、3 如确需生成分词、分块、BIO 或其他模型输入，应将其作为独立派生步骤放在新目录或 `outputs/` 下并说明规则；不要改写原始数据、最终跨度格式数据或成员2已提交的权威结果。重叠、嵌套实体不能被静默丢弃。
 
 ## 3. 每个数据文件的用途
 
@@ -89,7 +98,7 @@ MedicalNER_Project/
 
 ## 5. 每个脚本做什么、会写什么
 
-Python 脚本使用标准库；本机已验证的解释器是 `C:\Users\home\anaconda3\python.exe`，版本为 3.13.5。`audit_data.cjs` 使用 Node.js，与 Python 主流程独立。
+Python 脚本使用标准库，Python 3.8 以上均可运行。`audit_data.cjs` 使用 Node.js，与 Python 主流程独立。
 
 | 脚本 | 功能 | 写出的文件／运行注意事项 |
 | --- | --- | --- |
@@ -134,8 +143,8 @@ for record in train:
 CMD 中运行：
 
 ```bat
-cd /d C:\Users\home\Desktop\MedicalNER_Project
-"C:\Users\home\anaconda3\python.exe" -X utf8 -B scripts\clean_medical_ner_data.py --final
+cd /d <仓库根目录>
+python -X utf8 -B scripts\clean_medical_ner_data.py --final
 ```
 
 该命令核验原始数据、历史日志、计划、上一版数据和映射，从上一版筛选而不是从最终版反复删除。每次独立构建两遍，写盘后再检查；现有最终文件若与重建结果不同会停止，防止覆盖人工改动。此前已实际连续运行两次，五个最终输出文件的哈希一致。
@@ -151,7 +160,7 @@ e0e0d1bba812040e8e7f3e1096234e361db7ccc048db9575943fcfd9b3eb86dc
 可用 PowerShell 只读核对文件哈希：
 
 ```powershell
-Get-FileHash -Algorithm SHA256 -LiteralPath 'C:\Users\home\Desktop\MedicalNER_Project\data_cleaned\CMeEE_train_cleaned_final.json'
+Get-FileHash -Algorithm SHA256 -LiteralPath 'data_cleaned\CMeEE_train_cleaned_final.json'
 ```
 
 ### 6.3 换电脑时注意
@@ -168,9 +177,9 @@ Get-FileHash -Algorithm SHA256 -LiteralPath 'C:\Users\home\Desktop\MedicalNER_Pr
 
 ### 成员 2：非大模型基线负责人
 
-以最终训练集构建规则／词典或课程要求的小模型。词典、特征和训练资源从训练集产生，避免将 dev/test 的金标用于构建预测规则。当前目录没有基线代码，需另建模型入口、配置、预测输出和运行日志。
+已完成精确词典、最长匹配词典、参数扫描、字符级 LinearSVC、统一实体级／字符级评测、错误分析和实验汇总；代码在 `baseline/`，说明和结果在 `baseline/README.md`，该目录是基线权威版本。
 
-优先保留原始跨度格式输出；如模型需要单层 BIO，应单独编写转换，明确重叠／嵌套实体的兼容限制并统计转换损失。不要为适配基线直接改共享金标。
+后续如扩展基线，继续保留原始跨度格式输出；如模型需要单层 BIO，应单独编写转换，明确重叠／嵌套实体的兼容限制并统计转换损失。不要为适配基线直接改共享金标，也不要覆盖已提交的权威结果。
 
 ### 成员 3：LLM 与特色模块负责人
 
@@ -180,11 +189,11 @@ Get-FileHash -Algorithm SHA256 -LiteralPath 'C:\Users\home\Desktop\MedicalNER_Pr
 
 ### 成员 4：评估与工程整合负责人
 
-以 `docs/final_validation_report.json` 冻结训练数据版本，并汇总模型共用的样本、金标、预测格式和评测脚本。与成员 2、3 一起先约定实体级严格匹配口径（样本、起点、终点、类型），以及课程要求的逐 token 指标如何处理重叠实体；这些约定尚未在本项目实现。
+以 `docs/final_validation_report.json` 冻结训练数据版本，并汇总模型共用的样本、金标、预测格式和评测脚本。实体级严格匹配口径（样本、起点、终点、类型）和逐 token 投影规则以 `baseline/README.md` 为准；统一评分直接复用 `baseline/metrics.py`。
 
-dev 有公开实体标注，但如何用于调参和最终比较需先确定。若用 dev 调参，应在报告如实说明，并共同制定公平的最终评估协议；不能用空标注 test 替代金标。错误分析通过最终索引映射定位原始文本。报告中的指标、成本和曲线须来自后续真实运行。
+已完成 `data_eval/` 的 seed 42 切分和 `eval/` 的评估封装：`eval_tune` 用于调参，`eval_test` 用于最终留出评估，完整 dev 结果继续作为成员2的基线主表。运行命令和口径说明见 `eval/README.md`；不能用空标注 test 替代金标。错误分析通过最终索引映射定位原始文本。报告中的指标、成本和曲线须来自真实运行。
 
-建议新增 `src/` 或模型专用 `scripts/` 文件、`configs/`、`outputs/`、`logs/` 等目录，但这些目前尚不存在。本说明仅给衔接建议，没有替组员创建模型、设计实验或编造结果。
+后续重点是接入成员 3 的 LLM 预测、统一预测文件格式、补齐最终对比表和复现命令；模型专用配置、日志和权重另建目录保存。
 
 ## 8. 文件保留、修改和提交约定
 
@@ -194,6 +203,6 @@ dev 有公开实体标注，但如何用于调参和最终比较需先确定。�
 - 后续预测、模型权重和日志另存，避免与共享金标和人工复核文件同名覆盖。
 - 同一组模型比较应使用同一版本训练集与同一评估协议，不能把上一版或原始 train 与最终 train 混用却不作说明。
 - 按课程任务书，提交压缩包不打入数据集、模型权重或虚拟环境；提供数据来源及复现方式，并核实授权。可执行源码、文档和允许提交的证据按要求组织。
-- 当前这些脚本只完成数据准备，不是课程项目完整的一键训练／评估入口。成员 4 后续需要补齐整合命令、模型依赖、随机种子和真实预期结果。
+- 当前已有成员2的基线代码与成员4的评估封装；成员3的大模型入口、模型依赖、随机种子和最终报告仍待补齐。
 
 本文只新增使用说明，不修改数据、人工记录、清洗代码或既有报告。
