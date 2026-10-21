@@ -1,10 +1,8 @@
-"""Strict span-level evaluation for CMeEE predictions.
-
-Besides the official strict entity-level micro P/R/F1, this module reports two
-documented character-level supplementary metrics:
-- ``token_*``: longest-non-overlapping projection to one label per character.
-- ``char_multi_label_*``: all entities kept (nested included), one label set
-  per character, evaluated per label.
+"""
+CMeEE 预测结果的严格实体跨度评估模块。
+除官方标准实体级微平均 P/R/F1 外，额外提供两种字符维度指标：
+token_*：最长非重叠投影，每个字符只保留一个标签
+char_multi_label_*：保留全部实体（含嵌套），每个字符可绑定一组标签，按类别评估
 """
 
 from __future__ import annotations

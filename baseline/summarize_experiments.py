@@ -1,4 +1,4 @@
-"""Create a compact Markdown table from saved *_metrics.json files."""
+"""总结实验结果。"""
 
 from __future__ import annotations
 

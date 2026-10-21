@@ -1,9 +1,11 @@
-"""Check and summarize the CMeEE files used by the baseline experiments.
+"""
+检查并汇总基线实验所使用的CMeEE文件。
 
-This script is intentionally read-only: it never edits the dataset files.
-Run it from the repository root with:
+该脚本为纯只读模式：不会修改数据集文件。
+请从仓库根目录执行以下命令运行该脚本：
 
     python baseline/data_check.py
+
 """
 
 from __future__ import annotations
@@ -38,7 +40,7 @@ def check_file(path: Path, expect_gold: bool) -> dict[str, Any]:
 
     if not isinstance(data, list):
         return {"path": str(path), "records": 0, "entities": 0, "errors": ["top-level JSON value is not a list"]}
-
+    # 遍历每一条样本
     for record_index, record in enumerate(data):
         if not isinstance(record, dict):
             errors.append(f"record {record_index}: not an object")
@@ -53,10 +55,10 @@ def check_file(path: Path, expect_gold: bool) -> dict[str, Any]:
             errors.append(f"record {record_index}: entities is not a list")
             continue
         if not entities:
-            empty_entity_records += 1
+            empty_entity_records += 1  # 空实体列表
 
         total_char_positions += len(text)
-        position_labels: list[set[str]] = [set() for _ in text]
+        position_labels: list[set[str]] = [set() for _ in text]  # 每个字存一个集合，用于存储该字的所有实体标签
         spans: list[tuple[int, int]] = []
         for entity_index, entity in enumerate(entities):
             entity_count += 1
@@ -68,14 +70,17 @@ def check_file(path: Path, expect_gold: bool) -> dict[str, Any]:
             end = entity.get("end_idx")
             label = entity.get("type")
             entity_text = entity.get("entity")
-
+            # 检查实体起止下标是不是整数
+            if not start or not end or not label or not entity_text:
+                errors.append(f"record {record_index}, entity {entity_index}: missing required fields")
+                continue
             if not isinstance(start, int) or not isinstance(end, int):
                 errors.append(f"record {record_index}, entity {entity_index}: offsets are not integers")
                 continue
             if label not in ALLOWED_LABELS:
                 errors.append(f"record {record_index}, entity {entity_index}: unknown label {label!r}")
             else:
-                label_counts[label] += 1
+                label_counts[label] += 1  # 统计实体标签出现次数
             if not isinstance(entity_text, str):
                 errors.append(f"record {record_index}, entity {entity_index}: entity is not a string")
                 continue
@@ -92,7 +97,7 @@ def check_file(path: Path, expect_gold: bool) -> dict[str, Any]:
                     position_labels[position].add(str(label))
             spans.append((start, end))
 
-        nested_label_positions += sum(1 for labels in position_labels if len(labels) >= 2)
+        nested_label_positions += sum(1 for labels in position_labels if len(labels) >= 2)  # 统计有多个实体标签的字数
 
         record_overlap_pairs = 0
         for left_index, (left_start, left_end) in enumerate(spans):
@@ -102,7 +107,7 @@ def check_file(path: Path, expect_gold: bool) -> dict[str, Any]:
         if record_overlap_pairs:
             records_with_overlap += 1
             overlap_pair_count += record_overlap_pairs
-
+    #金标不能有空实体样本
     if expect_gold and empty_entity_records:
         errors.append(
             f"file contains {empty_entity_records} records with empty entities; "
@@ -164,7 +169,7 @@ def main() -> None:
     )
     parser.add_argument("--report", type=Path, default=None, help="optional path for the text report")
     args = parser.parse_args()
-
+    #指定要校验的数据集
     root = args.root.resolve()
     files = [
         (root / "data_cleaned" / "CMeEE_train_cleaned_final.json", True),

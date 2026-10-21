@@ -1,23 +1,11 @@
-"""Quantify the information lost by the single-layer BIO training projection.
-
-The character-level LinearSVC is trained on the longest-non-overlapping
-projection of the gold entities, so nested inner-layer entities are never
-seen during training. This script measures how much that loss actually costs
-in three steps:
-
-1. split dev gold entities into "kept by the projection" and "dropped";
-2. count how many dropped entities the single-layer model nevertheless
-   predicts exactly (start + end + type);
-3. check how many of those go through the train dictionary (the information
-   channel of the dictionary span features), and compute the strict
-   entity-F1 ceiling if every remaining dropped entity were predicted
-   correctly.
-
-Run from the repository root:
-
-    python baseline/nested_loss_analysis.py
-
-Outputs: outputs/nested_loss_analysis_report.md and .json.
+"""
+量化单层 BIO 投影训练带来的信息损失：
+字符级 LinearSVC 采用黄金实体最长非重叠投影做训练，嵌套内层实体训练时直接丢失。本脚本分三步量化损失：
+1.把验证集标注实体分为投影保留、投影丢弃两组；
+2.统计单层模型能完整预测的丢弃实体；
+3.统计其中依赖词典跨度特征的实体，并估算全部丢弃实体均可预测时的实体 F1 理论上限。
+在代码根目录执行：python baseline/nested_loss_analysis.py
+输出：outputs/nested_loss_analysis_report.md 与配套 json 结果文件。
 """
 
 from __future__ import annotations

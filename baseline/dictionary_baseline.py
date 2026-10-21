@@ -1,12 +1,11 @@
-"""Dictionary baselines for CMeEE.
+"""
+CMeEE 词典基线模型。
+仓库根目录运行示例：
+python baseline/dictionary_baseline.py --method exact
+python baseline/dictionary_baseline.py --method longest
+python baseline/dictionary_baseline.py --method longest --min-length 2 --eval-file data_raw/CMeEE_test.json
 
-Examples from repository root:
-    python baseline/dictionary_baseline.py --method exact
-    python baseline/dictionary_baseline.py --method longest
-    python baseline/dictionary_baseline.py --method longest --min-length 2 --eval-file data_raw/CMeEE_test.json
-
-The eval file defaults to the dev set. When it contains no gold entities
-(CMeEE_test.json), the script writes predictions only and skips metrics.
+默认在验证集评估。如果评估文件没有标准标注（如 CMeEE_test.json），脚本只输出预测结果，不计算指标。
 """
 
 from __future__ import annotations

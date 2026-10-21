@@ -1,14 +1,7 @@
-"""Run the final baseline configuration from the repository root.
-
-Usage:
-    python baseline/run_final_baselines.py --config configs/final_baseline.json
-
-The runner executes, in order: pure rules, the best dictionary setting, the
-character-level small model, error analysis on the enabled methods, and the
-experiment summary table.
-
-Use --skip-small-model for a quick run while developing the rules and
-dictionary. The small model is the slowest part of the current pipeline.
+"""
+运行最终基线配置。
+用法： python baseline/run_final_baselines.py --config configs/final_baseline.json
+运行程序将按顺序执行：纯规则、最优字典设置、字符级小型模型、对已启用方法的错误分析，以及实验汇总表。
 """
 
 from __future__ import annotations

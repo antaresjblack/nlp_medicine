@@ -1,10 +1,6 @@
-"""A lightweight character-level linear NER baseline.
-
-The CMeEE gold data contains overlapping/nested entities, while a single BIO
-sequence can represent only one label at each character. This baseline uses a
-documented projection: keep the longest non-overlapping gold entities for
-training, then decode one BIO sequence at prediction time. The original span
-data remains untouched and evaluation still uses strict spans.
+"""
+一个轻量级的字符级线性命名实体识别基线模型。
+CMeEE黄金数据集包含重叠/嵌套实体，而单个BIO序列在每个字符位置仅能表示一个标签。该基线采用了已记录的投影方案：训练时保留最长的非重叠黄金实体，预测阶段解码出一条BIO序列。原始的跨度数据保持不变，评估过程仍采用严格的跨度匹配规则。
 """
 
 from __future__ import annotations
@@ -30,12 +26,8 @@ def load_json(path: Path) -> list[dict[str, Any]]:
 
 
 def sparse_int32(matrix: Any) -> Any:
-    """Make scipy sparse indices compatible with this scikit-learn build.
-
-    DictVectorizer.fit_transform can return int64 indices on some scipy
-    versions, which scikit-learn rejects. Rebuild the matrix explicitly with
-    int32 index arrays instead of relying on attribute assignment, which does
-    not stick on every scipy code path.
+    """
+    使用32位整数索引的稀疏矩阵，以避免scipy索引数据类型和效率问题。
     """
     matrix = matrix.tocsr()
     return csr_matrix(
@@ -45,7 +37,7 @@ def sparse_int32(matrix: Any) -> Any:
 
 
 def longest_non_overlapping_entities(record: dict[str, Any]) -> list[dict[str, Any]]:
-    """Project nested gold spans to one deterministic, longest-only layer."""
+    """将嵌套的金标准跨度映射到唯一确定的、仅保留最长跨度的层级中。"""
     entities = sorted(
         record.get("entities", []),
         key=lambda entity: (-len(entity["entity"]), entity["start_idx"], entity["end_idx"], entity["type"]),
@@ -68,10 +60,9 @@ def char_features(
     dictionary_chars: set[str],
     span_features: dict[str, str] | None = None,
 ) -> dict[str, str]:
-    """Create small, explainable local features for one character.
-
-    ``span_features`` optionally carries the dictionary span features for this
-    position (see dict_span_features.DictSpanAnnotator).
+    """
+    为单个字符创建可解释的小型局部特征。
+    `span_features` 可选择性携带该位置的字典跨度特征（参见 dict_span_features.DictSpanAnnotator）。
     """
     character = text[index]
     features = {
@@ -100,7 +91,7 @@ def labels_from_entities(text: str, entities: list[dict[str, Any]]) -> list[str]
 
 
 def decode_bio(text: str, labels: list[str]) -> list[dict[str, Any]]:
-    """Decode BIO labels and repair illegal I-* transitions conservatively."""
+    """解码BIO标签，并以保守方式修复不合法的I-*类型转移。"""
     entities: list[dict[str, Any]] = []
     start: int | None = None
     current_type: str | None = None

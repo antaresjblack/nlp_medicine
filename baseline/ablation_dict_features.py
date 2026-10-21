@@ -1,28 +1,5 @@
-"""Ablation study for the dictionary span features.
-
-The final small-model configuration (C=0.1, class_weight=balanced, all six
-dictionary span features) reaches entity F1 0.4301 on dev. This script
-quantifies how much each feature group contributes: starting from the full
-configuration it removes one group at a time, keeping everything else fixed,
-and reports the resulting scores plus a Markdown/JSON report.
-
-Removal is implemented by zeroing the columns of the dropped group in the
-shared sparse feature matrix. For a linear model, all-zero columns have no
-effect during training or prediction, so this is exactly equivalent to
-building the features without the group, while paying the feature-building
-cost only once.
-
-Runs (all with C=0.1, class_weight=balanced, seed=42):
-
-    full, remove_in_dict_span, remove_dict_boundary, remove_dict_label,
-    remove_dict_span_len, remove_dict_freq, remove_label_conflict, remove_all
-
-Run from the repository root:
-
-    python baseline/ablation_dict_features.py
-
-Outputs go to outputs/ablation/: one metrics file per run plus
-ablation_report.md and ablation_report.json.
+"""
+字典跨度特征消融实验。
 """
 
 from __future__ import annotations

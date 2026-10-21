@@ -1,16 +1,12 @@
-"""Pure hand-written rule baseline for CMeEE.
+"""
+针对CMeEE的纯手写规则基线模型。
+该基线模型刻意不读取训练集，也不构建词典。它仅应用人工编写的正则表达式规则，之后使用通用的严格跨度评估器。
 
-This baseline deliberately does not read the training set or build a
-dictionary. It applies only manually written regular-expression rules, then
-uses the shared strict span evaluator.
-
-Run from the repository root:
-
+从代码库根目录运行：
     python baseline/pure_rule_baseline.py
     python baseline/pure_rule_baseline.py --eval-file data_raw/CMeEE_test.json
 
-The eval file defaults to the dev set. When it contains no gold entities
-(CMeEE_test.json), the script writes predictions only and skips metrics.
+评估文件默认使用开发集。当文件中不包含标注实体（如CMeEE_test.json）时，该脚本仅输出预测结果，跳过指标计算环节。
 """
 
 from __future__ import annotations
@@ -34,8 +30,7 @@ class Rule:
     priority: int
 
 
-# These rules are deliberately human-authored. They are not learned from
-# train/dev and should be described as a conservative heuristic baseline.
+# 人工编写的正则表达式规则
 RULES: tuple[Rule, ...] = (
     Rule(
         "microorganism_suffix",
@@ -124,7 +119,7 @@ def collect_candidates(text: str) -> list[dict[str, Any]]:
 
 def resolve_candidates(candidates: list[dict[str, Any]]) -> list[dict[str, Any]]:
     """Keep deterministic, highest-priority non-overlapping rule matches."""
-    # Prefer higher-priority rules, then longer spans, then earlier positions.
+    # 优先级排序：优先级高的规则 > 实体长度长的规则 > 起始位置靠前 > 结束位置靠前 > 类型字典序
     ordered = sorted(
         candidates,
         key=lambda item: (

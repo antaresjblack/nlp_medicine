@@ -1,19 +1,5 @@
-"""Dictionary span features for the character-level baseline.
-
-The character-level LinearSVC only sees a four-character local window, so
-entity-boundary decisions are made almost blindly. This module encodes the
-dictionary's span-level knowledge as per-character features: for every
-position, find the dictionary matches covering it and report the longest
-covering match's label, boundary role, length and frequency buckets, plus a
-label-conflict flag when several matches with different types overlap.
-
-The dictionary is built from training entities only, with the same
-min_count/min_length/majority-label convention as the final dictionary
-baseline, so the two methods stay comparable. Matching uses an inverted index
-on the first character: a text only checks phrases that could start at one of
-its characters, instead of scanning the whole dictionary per text.
-
-Feature values are strings so DictVectorizer can consume them directly.
+"""
+为字符级基线添加字典跨度特征。
 """
 
 from __future__ import annotations
@@ -44,18 +30,15 @@ def _bucket_freq(freq: int) -> str:
 
 
 class DictSpanAnnotator:
-    """Annotate each character of a text with dictionary span features.
-
-    For every position the features describe the longest dictionary match
-    covering it (ties prefer higher frequency, then the earlier start):
-
-    - ``in_dict_span``: 0/1, whether the position is covered by a match.
-    - ``dict_boundary``: S/B/I/E inside that match, O when not covered.
-    - ``dict_label``: the match's entity type, or ``none``.
-    - ``dict_span_len``: length bucket of the match (2 / 3-4 / 5-8 / 9+).
-    - ``dict_freq``: training frequency bucket (1 / 2-5 / 6-20 / 21+).
-    - ``label_conflict``: 0/1, whether several matches with different types
-      cover the position.
+    """
+    给文本每个字符标注词典跨度特征。
+    对每个字符位置，提取覆盖该位置的最长词典匹配（长度相同优先选频次更高，频次一样选起始位置靠前）：
+    in_dict_span：0/1，该字符是否被词典匹配覆盖
+    dict_boundary：匹配内部标记 S/B/I/E；未命中则 O
+    dict_label：匹配对应的实体类型，无则none
+    dict_span_len：匹配长度分箱（2 / 3-4 / 5-8 / 9+）
+    dict_freq：词条训练集频次分箱（1 / 2-5 / 6-20 / 21+）
+    label_conflict：0/1，是否有多个不同类型词条同时覆盖当前字符
     """
 
     def __init__(self, records: list[dict[str, Any]], min_count: int = 1, min_length: int = 2) -> None:
@@ -79,12 +62,16 @@ class DictSpanAnnotator:
             self.by_first_char[phrase[0]].append((phrase, label, freq))
 
     def annotate(self, text: str) -> list[dict[str, str]]:
-        """Return one feature dict per character position of ``text``."""
+        """
+        为文本每个字符标注词典跨度特征。
+        """
         matches = self._find_matches(text)
         return self._per_position_features(text, matches)
 
     def _find_matches(self, text: str) -> list[tuple[int, int, str, int]]:
-        """Return (start, inclusive end, label, frequency) for every match."""
+        """
+        输出所有匹配词条：起点、闭区间终点、标签、出现频次。
+        """
         matches: list[tuple[int, int, str, int]] = []
         for start, char in enumerate(text):
             bucket = self.by_first_char.get(char)
@@ -148,7 +135,9 @@ class DictSpanAnnotator:
 
 
 def main() -> None:
-    """Build the annotator from the final train set and demo it on one dev record."""
+    """
+    为文本每个字符标注词典跨度特征。
+    """
     import argparse
     import json
     import time

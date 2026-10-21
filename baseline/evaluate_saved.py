@@ -1,16 +1,13 @@
-"""Re-evaluate saved prediction files with the shared metrics.
+"""
+复用统一指标，对已保存的预测文件重新评估。
+单文件模式，生成精简指标文件：
+python baseline/evaluate_saved.py \
+    --gold data_raw/CMeEE_dev.json \
+    --predictions outputs/dictionary_longest_min_count_1_min_length_2_predictions.json \
+    --output outputs/dictionary_best_metrics_recomputed.json
 
-Single mode writes a new compact metrics file:
-
-    python baseline/evaluate_saved.py \
-        --gold data_raw/CMeEE_dev.json \
-        --predictions outputs/dictionary_longest_min_count_1_min_length_2_predictions.json \
-        --output outputs/dictionary_best_metrics_recomputed.json
-
-Batch mode refreshes every ``*_metrics.json`` in a directory in place after a
-metrics-code change, keeping each file's method metadata:
-
-    python baseline/evaluate_saved.py --gold data_raw/CMeEE_dev.json --batch-dir outputs
+批量模式，刷新目录下所有指标文件，保持每个文件的元数据：
+python baseline/evaluate_saved.py --gold data_raw/CMeEE_dev.json --batch-dir outputs
 """
 
 from __future__ import annotations

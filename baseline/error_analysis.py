@@ -1,4 +1,4 @@
-"""Classify errors from a saved CMeEE prediction file."""
+"""对 CMeEE 预测文件做错误分类分析"""
 
 from __future__ import annotations
 

@@ -1,16 +1,9 @@
-"""Grid search over LinearSVC hyperparameters for the character-level baseline.
+"""
+字符级小型模型超参数网格搜索。
+仓库根目录执行：
+`python baseline/small_model_grid_search.py`
 
-Reuses the feature pipeline of small_model.py: the shared feature matrix and
-dev matrices are built once, then every (C, class_weight) combination fits its
-own classifier. Results go to outputs/grid/ so the main experiment summary
-table is not flooded with tuning runs.
-
-Run from the repository root:
-
-    python baseline/small_model_grid_search.py
-
-This is a dev-set tuning experiment: the winner is selected on
-data_raw/CMeEE_dev.json and must be reported as such.
+这是基于验证集的调参实验：最优参数在`data_raw/CMeEE_dev.json`上选出
 """
 
 from __future__ import annotations
@@ -31,7 +24,7 @@ from small_model import char_features, decode_bio, labels_from_entities, load_js
 
 
 def row_from_metrics(data: dict[str, Any]) -> dict[str, Any]:
-    """Rebuild one summary row from a saved grid metrics file."""
+    """从已保存的网格指标文件中重建一个汇总行。"""
     return {
         "C": data["C"],
         "class_weight": data["class_weight"],
@@ -53,7 +46,7 @@ def write_grid_summary(
     seed: int,
     name_suffix: str = "",
 ) -> None:
-    """Sort grid rows, write the JSON/Markdown summaries and print the winner."""
+    """对网格行进行排序，编写JSON/Markdown摘要并输出获胜者。"""
     rows = sorted(
         summary_rows,
         key=lambda row: (-float(row.get("entity_f1") or -1.0), -float(row.get("token_f1") or -1.0)),
