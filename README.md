@@ -1,11 +1,36 @@
 # MedicalNER_Project 文件使用与组员交接说明
 
-更新时间：2026-10-19。适用于当前项目根目录 `nlp_medicine/`。
+更新时间：2026-10-21。适用于当前项目根目录 `nlp_medicine/`。
 
 > 当前整合标准：成员2的 `baseline/` 代码和 `outputs/` 结果是基线权威版本；
 > 数据布局沿用根目录的 `data_raw/`、`data_cleaned/`。成员4新增的冻结评估集在
 > `data_eval/`，统一评分入口在 `eval/`。详细说明见 `baseline/README.md` 和
 > `eval/README.md`。
+
+## 当前状态（2026-10-21）
+
+| 工作流 | 状态 | 当前结果 / 产物 |
+|---|---|---|
+| 数据与清洗（成员1） | 已完成 | 最终训练集 14,984 条 / 61,743 实体；dev 5,000 条 / 20,300 实体 |
+| 非大模型基线（成员2） | 已完成 | 纯规则、词典、字符级小模型；最佳完整 dev 实体级 F1 **0.4301** |
+| 评估整合（成员4） | 已完成基础层 | `eval_tune` / `eval_test` 各 2,500 条；词典 tune F1 **0.4010** |
+| LLM / BERT（成员3） | 仓库中尚无实现 | 模型代码、tune 预测、成本与延迟记录待补 |
+| 报告 / 录屏 / 提交包 | 未完成 | 八节报告、摘要、贡献声明、AI 声明、zip 待补 |
+
+当前最佳基线是“字符级 LinearSVC + 词典跨度特征”，完整 dev 实体级 F1 为
+**0.4301**；词典基线的最佳成绩是 **0.4044**。这两个数字口径相同，但方法不同，
+报告里要写清方法名。
+
+### 基线快速复现
+
+```powershell
+pip install -r requirements.txt
+python baseline/run_final_baselines.py --config configs/final_baseline.json
+```
+
+详细结果见 `baseline/README.md`，留出评估规则见 `eval/README.md`。
+`requirements.txt` 记录的是 Python 3.12.7 / numpy 2.3.4 / scikit-learn 1.9.0；
+如果本机版本不同，`0.4301` 可能有小幅波动，报告中应注明实际环境。
 
 ## 小组直接使用说明
 
@@ -15,7 +40,7 @@
 
 ## 1. 新组员先看这里
 
-本项目是自然语言处理课程 B 方向的医疗命名实体识别（NER）项目。当前已完成成员 1 的数据检查、人工复核记录整理及保守清洗，以及成员 2 的词典／字符级小模型基线和统一评测；大模型方案仍待成员 3 实现。基线代码、输出格式和评测协议以 `baseline/README.md` 为准，成员 4 的评估整合说明见 `eval/README.md`。
+本项目是自然语言处理课程 B 方向的医疗命名实体识别（NER）项目。当前已完成成员 1 的数据检查、人工复核记录整理及保守清洗，以及成员 2 的纯规则、词典、字符级小模型基线和统一评测；最佳完整 dev 实体级 F1 为 **0.4301**。大模型方案仍待成员 3 实现。基线代码、输出格式和评测协议以 `baseline/README.md` 为准，成员 4 的评估整合说明见 `eval/README.md`。
 
 **后续训练使用 `data_cleaned/CMeEE_train_cleaned_final.json`。不要误用文件名相似的上一版 `CMeEE_train_cleaned.json`。**
 
@@ -37,13 +62,15 @@
 MedicalNER_Project/
 ├── README.md              本说明
 ├── baseline/              成员2：基线代码、评测模块与权威实验结果
+├── configs/               最终基线配置（JSON）
 ├── data_raw/              原始文件，保留不改
 ├── data_cleaned/          上一版与最终版清洗数据、日志和依赖
 ├── data_eval/             成员4：冻结的调参集与留出评估集
 ├── docs/                  数据说明、质量报告、复核证据和最终映射
 ├── eval/                  成员4：评估整合与统一评分入口
 ├── outputs/               预测、指标、错误分析和实验汇总
-└── scripts/               检查、复核整理与清洗脚本
+├── scripts/               检查、复核整理与清洗脚本
+└── requirements.txt       基线模型环境依赖
 ```
 
 成员 2、3 如确需生成分词、分块、BIO 或其他模型输入，应将其作为独立派生步骤放在新目录或 `outputs/` 下并说明规则；不要改写原始数据、最终跨度格式数据或成员2已提交的权威结果。重叠、嵌套实体不能被静默丢弃。
@@ -177,9 +204,9 @@ Get-FileHash -Algorithm SHA256 -LiteralPath 'data_cleaned\CMeEE_train_cleaned_fi
 
 ### 成员 2：非大模型基线负责人
 
-已完成精确词典、最长匹配词典、参数扫描、字符级 LinearSVC、统一实体级／字符级评测、错误分析和实验汇总；代码在 `baseline/`，说明和结果在 `baseline/README.md`，该目录是基线权威版本。
+已完成纯规则基线、精确/最长匹配词典、词典参数扫描、字符级 LinearSVC、词典跨度特征、两轮网格搜索、特征消融、嵌套投影损失分析、统一评测、错误分析和实验汇总。最佳方法为“字符级 LinearSVC + 词典跨度特征”，完整 dev 实体级 F1 **0.4301**。代码在 `baseline/`，说明、运行命令和结果在 `baseline/README.md`，该目录是基线权威版本；一键入口为 `baseline/run_final_baselines.py --config configs/final_baseline.json`。
 
-后续如扩展基线，继续保留原始跨度格式输出；如模型需要单层 BIO，应单独编写转换，明确重叠／嵌套实体的兼容限制并统计转换损失。不要为适配基线直接改共享金标，也不要覆盖已提交的权威结果。
+后续如扩展基线，继续保留原始跨度格式输出；如模型需要单层 BIO，应单独编写转换，明确重叠／嵌套实体的兼容限制并统计转换损失。嵌套损失已经量化，不要为适配单层 BIO 直接改共享金标，也不要覆盖已提交的权威结果。
 
 ### 成员 3：LLM 与特色模块负责人
 
@@ -189,9 +216,9 @@ Get-FileHash -Algorithm SHA256 -LiteralPath 'data_cleaned\CMeEE_train_cleaned_fi
 
 ### 成员 4：评估与工程整合负责人
 
-以 `docs/final_validation_report.json` 冻结训练数据版本，并汇总模型共用的样本、金标、预测格式和评测脚本。实体级严格匹配口径（样本、起点、终点、类型）和逐 token 投影规则以 `baseline/README.md` 为准；统一评分直接复用 `baseline/metrics.py`。
+以 `docs/final_validation_report.json` 冻结训练数据版本，并汇总模型共用的样本、金标、预测格式和评测脚本。实体级严格匹配、`token_*` 最长非重叠投影和 `char_multi_label_*` 多标签字符指标以 `baseline/README.md` 第五节为准；统一评分直接复用 `baseline/metrics.py`。
 
-已完成 `data_eval/` 的 seed 42 切分和 `eval/` 的评估封装：`eval_tune` 用于调参，`eval_test` 用于最终留出评估，完整 dev 结果继续作为成员2的基线主表。运行命令和口径说明见 `eval/README.md`；不能用空标注 test 替代金标。错误分析通过最终索引映射定位原始文本。报告中的指标、成本和曲线须来自真实运行。
+已完成 `data_eval/` 的 seed 42 切分和 `eval/` 的评估封装：`eval_tune` 用于调参，`eval_test` 用于最终留出评估，完整 dev 结果继续作为成员2的基线主表。词典基线已在 tune 上复算为 `0.4010`；新的小模型 `0.4301` 目前仍是完整 dev 结果，需要补 tune/test wrapper 后才能与 LLM 同表比较。运行命令和口径说明见 `eval/README.md`；不能用空标注 test 替代金标。错误分析通过最终索引映射定位原始文本。报告中的指标、成本和曲线须来自真实运行。
 
 后续重点是接入成员 3 的 LLM 预测、统一预测文件格式、补齐最终对比表和复现命令；模型专用配置、日志和权重另建目录保存。
 
@@ -203,6 +230,6 @@ Get-FileHash -Algorithm SHA256 -LiteralPath 'data_cleaned\CMeEE_train_cleaned_fi
 - 后续预测、模型权重和日志另存，避免与共享金标和人工复核文件同名覆盖。
 - 同一组模型比较应使用同一版本训练集与同一评估协议，不能把上一版或原始 train 与最终 train 混用却不作说明。
 - 按课程任务书，提交压缩包不打入数据集、模型权重或虚拟环境；提供数据来源及复现方式，并核实授权。可执行源码、文档和允许提交的证据按要求组织。
-- 当前已有成员2的基线代码与成员4的评估封装；成员3的大模型入口、模型依赖、随机种子和最终报告仍待补齐。
+- 当前已有成员2的完整非大模型基线、成员4的评估封装和基线环境依赖；成员3的大模型入口、tune/test 预测、成本延迟记录、最终报告和录屏仍待补齐。
 
 本文只新增使用说明，不修改数据、人工记录、清洗代码或既有报告。
