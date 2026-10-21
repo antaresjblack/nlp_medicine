@@ -4,9 +4,8 @@ Token metrics use the documented longest-non-overlapping character projection; c
 
 | Method | Entity P | Entity R | Entity F1 | Token P | Token R | Token F1 | Token accuracy | Char-multi F1 | Char-multi acc | Predicted entities | Runtime (s) |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| dictionary_exact | 0.1520 | 0.5415 | 0.2374 | 0.5058 | 0.4898 | 0.4977 | 0.7281 | 0.4815 | 0.6754 | 72331 | - |
-| dictionary_longest | 0.2875 | 0.4916 | 0.3628 | 0.5058 | 0.4898 | 0.4977 | 0.7281 | 0.5116 | 0.7260 | 34713 | - |
-| dictionary_longest_min_count_1_min_length_1 | 0.2875 | 0.4916 | 0.3628 | 0.5058 | 0.4898 | 0.4977 | 0.7281 | 0.5116 | 0.7260 | 34713 | 26.84 |
+| dictionary_exact_min_count_1_min_length_1 | 0.1520 | 0.5415 | 0.2374 | 0.5058 | 0.4898 | 0.4977 | 0.7281 | 0.4815 | 0.6754 | 72331 | 26.15 |
+| dictionary_longest_min_count_1_min_length_1 | 0.2875 | 0.4916 | 0.3628 | 0.5058 | 0.4898 | 0.4977 | 0.7281 | 0.5116 | 0.7260 | 34713 | 26.94 |
 | dictionary_longest_min_count_1_min_length_2 | 0.3496 | 0.4796 | 0.4044 | 0.5350 | 0.4800 | 0.5060 | 0.7389 | 0.5188 | 0.7369 | 27851 | 26.07 |
 | dictionary_longest_min_count_1_min_length_3 | 0.4610 | 0.3126 | 0.3725 | 0.6082 | 0.3675 | 0.4581 | 0.7392 | 0.4647 | 0.7373 | 13764 | - |
 | dictionary_longest_min_count_2 | 0.3067 | 0.4433 | 0.3625 | 0.5329 | 0.4208 | 0.4703 | 0.7355 | 0.4873 | 0.7342 | 29338 | - |

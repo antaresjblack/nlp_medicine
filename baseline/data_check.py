@@ -33,6 +33,8 @@ def check_file(path: Path, expect_gold: bool) -> dict[str, Any]:
     records_with_overlap = 0
     entity_count = 0
     empty_entity_records = 0
+    total_char_positions = 0
+    nested_label_positions = 0
 
     if not isinstance(data, list):
         return {"path": str(path), "records": 0, "entities": 0, "errors": ["top-level JSON value is not a list"]}
@@ -53,6 +55,8 @@ def check_file(path: Path, expect_gold: bool) -> dict[str, Any]:
         if not entities:
             empty_entity_records += 1
 
+        total_char_positions += len(text)
+        position_labels: list[set[str]] = [set() for _ in text]
         spans: list[tuple[int, int]] = []
         for entity_index, entity in enumerate(entities):
             entity_count += 1
@@ -83,7 +87,12 @@ def check_file(path: Path, expect_gold: bool) -> dict[str, Any]:
                 continue
             if text[start : end + 1] != entity_text:
                 errors.append(f"record {record_index}, entity {entity_index}: text slice mismatch")
+            else:
+                for position in range(start, end + 1):
+                    position_labels[position].add(str(label))
             spans.append((start, end))
+
+        nested_label_positions += sum(1 for labels in position_labels if len(labels) >= 2)
 
         record_overlap_pairs = 0
         for left_index, (left_start, left_end) in enumerate(spans):
@@ -108,6 +117,8 @@ def check_file(path: Path, expect_gold: bool) -> dict[str, Any]:
         "label_counts": dict(sorted(label_counts.items())),
         "records_with_overlap": records_with_overlap,
         "overlap_pairs": overlap_pair_count,
+        "total_char_positions": total_char_positions,
+        "nested_label_positions": nested_label_positions,
         "errors": errors,
     }
 
@@ -124,6 +135,13 @@ def render_report(summaries: list[dict[str, Any]]) -> str:
                 f"Empty-entity records: {summary.get('empty_entity_records', 0)}",
                 f"Records with overlap: {summary.get('records_with_overlap', 0)}",
                 f"Overlap pairs: {summary.get('overlap_pairs', 0)}",
+                f"Nested multi-label positions: {summary.get('nested_label_positions', 0)}"
+                f" / {summary.get('total_char_positions', 0)}"
+                + (
+                    f" ({summary['nested_label_positions'] / summary['total_char_positions']:.2%})"
+                    if summary.get("total_char_positions")
+                    else ""
+                ),
                 f"Label counts: {summary.get('label_counts', {})}",
                 f"Errors: {len(summary.get('errors', []))}",
             ]

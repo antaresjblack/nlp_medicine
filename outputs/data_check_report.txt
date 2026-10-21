@@ -7,6 +7,7 @@ Entities: 61743
 Empty-entity records: 0
 Records with overlap: 1666
 Overlap pairs: 3681
+Nested multi-label positions: 11077 / 811435 (1.37%)
 Label counts: {'bod': 17682, 'dep': 349, 'dis': 15819, 'dru': 3930, 'equ': 888, 'ite': 2581, 'mic': 1907, 'pro': 6323, 'sym': 12264}
 Errors: 0
 
@@ -16,6 +17,7 @@ Entities: 20300
 Empty-entity records: 0
 Records with overlap: 524
 Overlap pairs: 1225
+Nested multi-label positions: 3982 / 270417 (1.47%)
 Label counts: {'bod': 5883, 'dep': 110, 'dis': 4935, 'dru': 1440, 'equ': 238, 'ite': 923, 'mic': 584, 'pro': 2057, 'sym': 4130}
 Errors: 0
 
@@ -25,5 +27,6 @@ Entities: 0
 Empty-entity records: 3000
 Records with overlap: 0
 Overlap pairs: 0
+Nested multi-label positions: 0 / 165673 (0.00%)
 Label counts: {}
 Errors: 0
