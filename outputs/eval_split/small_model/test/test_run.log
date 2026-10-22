@@ -1,0 +1,6 @@
+[2026-10-22T14:30:54+08:00] stage=test root=D:\17434\LessonWork\自然语言处理\nlp_medicine
+[2026-10-22T14:30:54+08:00] selected_config=D:\17434\LessonWork\自然语言处理\nlp_medicine\outputs\eval_split\small_model\tune\runs\20261022T141507+0800\selected_config.json
+[2026-10-22T14:30:54+08:00] train=D:\17434\LessonWork\自然语言处理\nlp_medicine\data_cleaned\CMeEE_train_cleaned_final.json
+[2026-10-22T14:30:54+08:00] test=D:\17434\LessonWork\自然语言处理\nlp_medicine\data_eval\eval_test.jsonl
+[2026-10-22T14:31:53+08:00] test: P=0.4301 R=0.4278 F1=0.4290 time=56.5s
+[2026-10-22T14:31:53+08:00] manifest=D:\17434\LessonWork\自然语言处理\nlp_medicine\outputs\eval_split\small_model\test\test_manifest.json

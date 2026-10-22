@@ -1,0 +1,39 @@
+{
+  "stage": "test",
+  "completed_at": "2026-10-22T14:31:53+08:00",
+  "selected_config": "outputs/eval_split/small_model/tune/runs/20261022T141507+0800/selected_config.json",
+  "selected_config_sha256": "e973eda2a018b822071b4fed3cbb89622bd1369776e6f034e7de21460ccf5bf3",
+  "files": {
+    "train": "data_cleaned/CMeEE_train_cleaned_final.json",
+    "test": "data_eval/eval_test.jsonl",
+    "predictions": "outputs/eval_split/small_model/test/test_predictions.jsonl",
+    "metrics": "outputs/eval_split/small_model/test/test_metrics.json",
+    "errors": "outputs/eval_split/small_model/test/test_errors.json"
+  },
+  "hashes": {
+    "train": "e0e0d1bba812040e8e7f3e1096234e361db7ccc048db9575943fcfd9b3eb86dc",
+    "test": "ca65235e83f5ba055af7498b25ea55c376747a64ab6b1d4e5bffc0dfb8e62778",
+    "predictions": "76beece6f7a40413b7d2cb7f07b6fec2063777760428e482e62cffc22e6d1e07",
+    "metrics": "18cd11901f12208fba5287f14ffd1ed0db216bc274c02ab5661a9019357161a8"
+  },
+  "selected_candidate": {
+    "id": "span_c0.1_none",
+    "C": 0.1,
+    "class_weight": "none",
+    "dict_span_features": true
+  },
+  "metrics": {
+    "precision": 0.43012302960399845,
+    "recall": 0.42782026768642445,
+    "f1": 0.4289685582822086
+  },
+  "source": {
+    "repository_commit": "26d1d7ad28c51c47e9eb8c6d6a7cdc159c3c3add"
+  },
+  "environment": {
+    "python": "3.13.9",
+    "numpy": "2.3.5",
+    "scikit_learn": "1.7.2",
+    "platform": "Windows-11-10.0.26200-SP0"
+  }
+}

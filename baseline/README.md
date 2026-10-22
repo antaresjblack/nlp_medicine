@@ -14,6 +14,11 @@
 
 > ⚠️ 0.4301 是真实成绩。嵌套分析报告中的 0.4320 是"假设未恢复内层全部预测正确"的**理论上限**，不是成绩，引用时必须带假设限定语。
 
+按成员4的冻结 split 重新比较 8 个候选后，选中 `C=0.1`、
+`class_weight=none`、词典跨度特征开启的配置：`eval_tune` 实体级 F1 为
+**0.4276**，冻结后 `eval_test` 单次结果为 **0.4290**。完整 dev 的 `0.4301`
+继续保留为历史开发结果，原输出未被覆盖。详见 `eval/README.md`。
+
 ## 2. 数据文件约定
 
 | 用途 | 文件 |
@@ -93,7 +98,7 @@ python baseline/evaluate_saved.py --gold data_raw/CMeEE_dev.json --batch-dir out
 - 小模型曾虚报 3 倍实体（F1 0.1745）→ 两轮调参 + 词典跨度特征 → **0.4301**，超过词典基线；
 - 复现链路缺口（test 预测能力、一键复现、环境冻结、指标批量刷新）→ 全部补齐。
 
-**未做/遗留**：词典匹配性能优化（Aho-Corasick）；CRF 进阶实验（预估 +3~5 点，如需超 0.45 再做）；test 集最终预测（按协议等全部参数冻结后执行一次）。
+**未做/遗留**：词典匹配性能优化（Aho-Corasick）；CRF 进阶实验（预估 +3~5 点，如需超 0.45 再做）；官方无标注 `CMeEE_test.json` 的最终盲测预测（按协议等全部模型与参数冻结后执行一次）。
 
 ## 8. 报告索引
 
@@ -104,4 +109,5 @@ python baseline/evaluate_saved.py --gold data_raw/CMeEE_dev.json --batch-dir out
 | 跨度特征消融报告 | `outputs/ablation/ablation_report.md` |
 | 单层投影信息损失分析 | `outputs/nested_loss_analysis_report.md` |
 | 三个方法的错误分析 | `outputs/*_error_analysis.json` |
+| 小模型冻结 split 的 tune/test 结果 | `outputs/eval_split/small_model/` |
 | 完整过程与不足记录 | 《成员2_基线工作过程.md》（本目录） |

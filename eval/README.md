@@ -41,7 +41,7 @@ v1.1 的主要变化：
    预测文件按 `id` 对齐，或保持与金标相同的记录顺序。
 6. 本地 `data_raw/CMeEE_test.json` 没有金标，不参与 P/R/F1 计算。
 
-### 当前结果状态（2026-10-21）
+### 当前结果状态（2026-10-22）
 
 | 方法 | split | 状态 | 实体级 F1 |
 |---|---|---:|---:|
@@ -49,11 +49,19 @@ v1.1 的主要变化：
 | 最长匹配词典 + 过滤单字实体 | 完整 dev | 已完成 | 0.4044 |
 | 最长匹配词典 + 过滤单字实体 | eval_tune | 已完成 | 0.4010 |
 | 字符级 LinearSVC + 词典跨度特征 | 完整 dev | 已完成 | **0.4301** |
-| 字符级 LinearSVC + 词典跨度特征 | eval_tune / eval_test | 待补 wrapper | — |
+| 字符级 LinearSVC + 词典跨度特征（`C=0.1`, balanced） | eval_tune | 已完成 | 0.4269 |
+| 字符级 LinearSVC + 词典跨度特征（`C=0.1`, none） | eval_tune | 已完成 | **0.4276** |
+| 字符级 LinearSVC + 词典跨度特征（`C=0.1`, none） | eval_test | 已完成，仅运行一次 | **0.4290** |
 | LLM / BERT | eval_tune / eval_test | 待成员3实现 | — |
 
 `0.4301` 是完整 dev 结果，不能直接和词典的 tune `0.4010` 放在同一列；
-在成员4补好小模型的 split wrapper 后，需要重新在 tune/test 上跑。
+小模型已在 `eval_tune` 上重新比较候选，并以 `span_c0.1_none` 冻结后完成一次
+`eval_test` 评估。选中配置和 tune 排名见
+`outputs/eval_split/small_model/tune/runs/20261022T141507+0800/`。
+
+> 注意：成员2早期的完整 dev 调参已经覆盖了当前 `eval_test` 的 2,500 条样本，
+> 因此这次结果应表述为“配置冻结后的补充重新确认”，不能写成团队此前从未
+> 接触过 `eval_test` 的完全盲测成绩；报告中须保留这一限制说明。
 
 ### 变更控制
 

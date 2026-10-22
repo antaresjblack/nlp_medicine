@@ -1,0 +1,46 @@
+{
+  "status": "frozen",
+  "frozen_at": "2026-10-22T14:30:40+08:00",
+  "selection_metric": "strict_entity_micro_f1",
+  "selection_split": "eval_tune",
+  "selected_candidate": {
+    "id": "span_c0.1_none",
+    "C": 0.1,
+    "class_weight": "none",
+    "dict_span_features": true
+  },
+  "settings": {
+    "seed": 42,
+    "projection": "longest_non_overlapping_gold_entities",
+    "dict_min_count": 1,
+    "dict_min_length": 2
+  },
+  "files": {
+    "train": "data_cleaned/CMeEE_train_cleaned_final.json",
+    "tune": "data_eval/eval_tune.jsonl",
+    "test": "data_eval/eval_test.jsonl"
+  },
+  "hashes": {
+    "train": "e0e0d1bba812040e8e7f3e1096234e361db7ccc048db9575943fcfd9b3eb86dc",
+    "tune": "ff1e9fdc685a4b405a55cfece540eceb7cba7bfdb70492693c51c6e42d0f584b",
+    "candidate_config": "5b6aa11002026fee9135b99a311181f33f50f94168f4ce999b35ff9a4a9bd2cb",
+    "tune_summary": "00ee41b7183bb2a59d392d07560f57c7a0f71e941a74d678ff365b77415e8de7"
+  },
+  "tune_metrics": {
+    "precision": 0.4275841040756174,
+    "recall": 0.4275406504065041,
+    "f1": 0.4275623761369988,
+    "prediction_file": "outputs/eval_split/small_model/tune/runs/20261022T141507+0800/candidates/span_c0.1_none_predictions.jsonl",
+    "metrics_file": "outputs/eval_split/small_model/tune/runs/20261022T141507+0800/candidates/span_c0.1_none_metrics.json"
+  },
+  "source": {
+    "repository_commit": "26d1d7ad28c51c47e9eb8c6d6a7cdc159c3c3add",
+    "candidate_summary": "outputs/eval_split/small_model/tune/runs/20261022T141507+0800/candidate_summary.json"
+  },
+  "environment": {
+    "python": "3.13.9",
+    "numpy": "2.3.5",
+    "scikit_learn": "1.7.2",
+    "platform": "Windows-11-10.0.26200-SP0"
+  }
+}
