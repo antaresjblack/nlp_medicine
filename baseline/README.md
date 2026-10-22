@@ -85,6 +85,8 @@ python baseline/evaluate_saved.py --gold data_raw/CMeEE_dev.json --batch-dir out
 
 ## 6. 后续编码注意事项（给成员 3 / 4 与接手者）
 
+- 成员3开始编码前先阅读 `eval/README.md` 的“成员3接入合同”，包括 JSONL 格式、
+  唯一 `id`、few-shot 来源、test 单次运行和密钥管理要求。
 - **成员 3（BERT/LLM）接入**：输出转成第 5.4 条的 span 格式 → 用 `span_utils.validate_record` 校验文本切片 → `metrics.py` 评测。`DictSpanAnnotator` 可直接作为 BERT 的词典特征源（做法：把 6 项跨度特征拼进 BERT 表示或输入层）。
 - **已知环境坑**：本机 scikit-learn 环境下 `DictVectorizer` 输出 int64 稀疏索引，LinearSVC 会拒绝——**任何新模型脚本**对向量化结果都要过 `small_model.sparse_int32` 转换（该函数已用显式 int32 构造，可直接 import）。
 - **嵌套实体**：不要为适配单层 BIO 去改共享金标。单层结构的嵌套损失已量化：投影仅丢弃 6.0% 金标实体、其中 91.8% 已被词典跨度特征隐式恢复、理论增益上限 <0.2 个 F1 点（`nested_loss_analysis.py` 可复现）。

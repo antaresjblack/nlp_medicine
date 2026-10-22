@@ -24,7 +24,7 @@
 复现命令：
 
 ```powershell
-python src/eval/make_eval_split.py
+python eval/make_eval_split.py
 ```
 
 ## 校验值
@@ -51,8 +51,17 @@ python src/eval/make_eval_split.py
 ## 使用规则
 
 1. `eval_tune` 可以反复跑、反复改参数，不会影响最终结论。
-2. `eval_test` 只在定稿时跑一次，跑完就写进报告。
+2. 每个方法的配置冻结后，`eval_test` 只跑一次，跑完就写进报告。
 3. 预测文件命名：`outputs/predictions/{方法名}_tune_predictions.jsonl` 和
    `outputs/predictions/{方法名}_test_predictions.jsonl`。
    这里的 `test` 指本目录的 `eval_test.jsonl`，不是官方无答案的 `CMeEE_test.json`。
 4. 本目录任何文件都不允许改；确需重新切分，必须全组同意并重跑所有方法。
+
+## 与官方测试集的区别
+
+- `data_eval/eval_test.jsonl`：从官方 dev 切出的内部留出集，**有金标**，可以计算 F1；
+- `data_raw/CMeEE_test.json`：官方公开盲测文本，**没有金标**，只能生成预测。
+
+小模型已经在 `eval_test` 上完成一次冻结配置评估（F1 `0.4290`）。该结果不能再
+用于反向修改小模型参数。成员3仍需先在自己的 `eval_tune` 上选择模型和提示词，
+配置冻结后才可以生成自己的 `eval_test` 预测。

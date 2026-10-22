@@ -32,6 +32,22 @@ python baseline/run_final_baselines.py --config configs/final_baseline.json
 `requirements.txt` 记录的是 Python 3.12.7 / numpy 2.3.4 / scikit-learn 1.9.0；
 如果本机版本不同，`0.4301` 可能有小幅波动，报告中应注明实际环境。
 
+### 成员3开始前的入口
+
+成员3开始实现 LLM/BERT 前，先阅读以下文档：
+
+- [baseline/README.md](baseline/README.md)：输入输出格式、嵌套实体限制和成员2基线；
+- [eval/README.md](eval/README.md)：tune/test 使用规则、当前结果和接入合同；
+- [data_eval/README.md](data_eval/README.md)：两份冻结评估集的含义；
+- [configs/README.md](configs/README.md)：历史配置、split 候选和冻结配置的区别；
+- [docs/README.md](docs/README.md)：数据证据、过程文档和最终报告索引；
+- [outputs/README.md](outputs/README.md)：历史结果、tune 结果和 test 结果的目录边界；
+- [src/README.md](src/README.md)：模型代码应放在哪里。
+
+成员3只能使用最终训练集训练或选择 few-shot 示例，只能在 `eval_tune` 上比较
+模型、提示词和参数。配置冻结后，每个最终方法在 `eval_test` 上只运行一次。
+API 密钥只能通过环境变量提供，不能写入代码、日志或预测文件。
+
 ## 小组直接使用说明
 
 本小组仓库包含原始数据、清洗结果、基线代码及复核材料，供组员直接使用。下载或克隆整个仓库后，**训练读取 `data_cleaned/CMeEE_train_cleaned_final.json`，无需重复清洗**；完整开发集读取 `data_raw/CMeEE_dev.json`，需要留出评估时读取 `data_eval/eval_tune.jsonl` 和 `data_eval/eval_test.jsonl`。目录中的旧版数据、日志和脚本保留用于追溯，不是组员开始建模前必须执行的步骤。
@@ -74,6 +90,10 @@ MedicalNER_Project/
 ```
 
 成员 2、3 如确需生成分词、分块、BIO 或其他模型输入，应将其作为独立派生步骤放在新目录或 `outputs/` 下并说明规则；不要改写原始数据、最终跨度格式数据或成员2已提交的权威结果。重叠、嵌套实体不能被静默丢弃。
+
+新增的 LLM/BERT 代码放在 `src/llm/` 或 `src/bert/`，预测和运行证据放在新的
+`outputs/` 子目录。不要覆盖 `baseline/`、`outputs/*_predictions.json`、
+`outputs/grid/` 或已经冻结的 small-model split 结果。
 
 ## 3. 每个数据文件的用途
 

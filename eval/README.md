@@ -33,7 +33,9 @@ v1.1 的主要变化：
 
 1. 训练、建词典、训练小模型只使用训练集。
 2. `eval_tune` 可以反复调参、选提示词、选模型和比较超参数。
-3. `eval_test` 只在配置冻结后运行一次；跑完后不得再根据其结果修改提示词或参数。
+3. 每个最终方法只能在配置冻结后运行一次 `eval_test`；跑完后不得再根据其结果
+   修改提示词或参数。不同模型可以各自提交一次冻结后的 test 预测，但同一配置
+   不得反复尝试。
 4. 成员2的完整 dev 结果作为开发集历史结果单列：当前最佳是字符级
    LinearSVC + 词典跨度特征，实体级 F1 `0.4301`；词典基线最佳为 `0.4044`。
    团队最终留出结果使用 `eval_test`，两套数字不能混在同一列。
@@ -46,8 +48,10 @@ v1.1 的主要变化：
 | 方法 | split | 状态 | 实体级 F1 |
 |---|---|---:|---:|
 | 纯人工规则 | 完整 dev | 已完成 | 0.0465 |
+| 纯人工规则 | eval_tune / eval_test | 待补统一评估 | — |
 | 最长匹配词典 + 过滤单字实体 | 完整 dev | 已完成 | 0.4044 |
 | 最长匹配词典 + 过滤单字实体 | eval_tune | 已完成 | 0.4010 |
+| 最长匹配词典 + 过滤单字实体 | eval_test | 待正式运行一次 | — |
 | 字符级 LinearSVC + 词典跨度特征 | 完整 dev | 已完成 | **0.4301** |
 | 字符级 LinearSVC + 词典跨度特征（`C=0.1`, balanced） | eval_tune | 已完成 | 0.4269 |
 | 字符级 LinearSVC + 词典跨度特征（`C=0.1`, none） | eval_tune | 已完成 | **0.4276** |
@@ -148,6 +152,32 @@ python eval/run_small_model_split.py `
 候选列表在 `configs/small_model_split_candidates.json`。tune 结果保存在
 `outputs/eval_split/small_model/tune/runs/<run-id>/`；test 结果保存在
 `outputs/eval_split/small_model/test/`。每条预测都保留原始 `id`，可直接用于统一评分。
+
+### 成员3接入合同
+
+成员3开始工作前必须满足以下约定：
+
+1. 模型、提示词、few-shot 示例和超参数只能在 `eval_tune` 上选择；
+2. few-shot 示例只能从最终训练集选择，不能从 `eval_tune` 或 `eval_test` 选择；
+3. 输出必须是保留 `id` 的 JSONL，实体字段为
+   `{start_idx, end_idx, type, entity}`，索引采用包含式终点；
+4. 配置一旦用于 `eval_test`，不得根据 test 成绩修改提示词、模型或参数；
+5. 预测必须先通过原文切片校验，再交给 `baseline/metrics.py` 评分；
+6. 同时记录模型名称、调用时间、成本、重试次数、解析失败数和实际输出文件；
+7. 成员3提供预测，成员4统一评分和汇总，成员3不自行定义另一套 F1。
+
+建议成员3交付以下文件：
+
+```text
+outputs/eval_split/llm/tune_predictions.jsonl
+outputs/eval_split/llm/tune_metrics.json
+outputs/eval_split/llm/test_predictions.jsonl
+outputs/eval_split/llm/test_metrics.json
+outputs/eval_split/llm/run_config.json
+outputs/eval_split/llm/cost_latency.json
+```
+
+其中 `run_config.json` 不得包含 API 密钥。
 
 对其他模型保存的预测统一评分：
 
