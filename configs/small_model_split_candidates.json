@@ -1,0 +1,56 @@
+{
+  "seed": 42,
+  "projection": "longest_non_overlapping_gold_entities",
+  "dict_min_count": 1,
+  "dict_min_length": 2,
+  "candidates": [
+    {
+      "id": "span_c0.1_balanced",
+      "C": 0.1,
+      "class_weight": "balanced",
+      "dict_span_features": true
+    },
+    {
+      "id": "span_c0.1_none",
+      "C": 0.1,
+      "class_weight": "none",
+      "dict_span_features": true
+    },
+    {
+      "id": "span_c1.0_balanced",
+      "C": 1.0,
+      "class_weight": "balanced",
+      "dict_span_features": true
+    },
+    {
+      "id": "span_c1.0_none",
+      "C": 1.0,
+      "class_weight": "none",
+      "dict_span_features": true
+    },
+    {
+      "id": "no_span_c0.1_balanced",
+      "C": 0.1,
+      "class_weight": "balanced",
+      "dict_span_features": false
+    },
+    {
+      "id": "no_span_c0.1_none",
+      "C": 0.1,
+      "class_weight": "none",
+      "dict_span_features": false
+    },
+    {
+      "id": "no_span_c1.0_balanced",
+      "C": 1.0,
+      "class_weight": "balanced",
+      "dict_span_features": false
+    },
+    {
+      "id": "no_span_c1.0_none",
+      "C": 1.0,
+      "class_weight": "none",
+      "dict_span_features": false
+    }
+  ]
+}

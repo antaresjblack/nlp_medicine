@@ -122,6 +122,25 @@ python eval/run_dictionary_split.py --method longest --min-length 2 --split tune
 - `outputs/eval_split/predictions/tune_dictionary_..._predictions.jsonl`
 - `outputs/eval_split/errors/tune_dictionary_..._errors.json`
 
+成员2的小模型使用独立追加层，不覆盖原来的完整 dev 输出：
+
+```powershell
+# 只检查候选和输入，不训练
+python eval/run_small_model_split.py --stage tune --dry-run
+
+# 在 eval_tune 上比较全部候选，生成 candidate_summary 和 selected_config
+python eval/run_small_model_split.py --stage tune
+
+# 配置冻结后只运行一次；输出已存在时脚本会拒绝重跑
+python eval/run_small_model_split.py `
+  --stage test `
+  --selected-config outputs/eval_split/small_model/tune/runs/<run-id>/selected_config.json
+```
+
+候选列表在 `configs/small_model_split_candidates.json`。tune 结果保存在
+`outputs/eval_split/small_model/tune/runs/<run-id>/`；test 结果保存在
+`outputs/eval_split/small_model/test/`。每条预测都保留原始 `id`，可直接用于统一评分。
+
 对其他模型保存的预测统一评分：
 
 ```powershell
