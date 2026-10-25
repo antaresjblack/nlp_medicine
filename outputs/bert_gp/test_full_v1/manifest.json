@@ -1,0 +1,47 @@
+{
+  "args": {
+    "model": "google-bert/bert-base-chinese",
+    "run_name": "test_full_v1",
+    "epochs": 3,
+    "batch_size": 2,
+    "accumulation": 8,
+    "max_length": 256,
+    "overlap": 64,
+    "lr": 2e-05,
+    "encoder_lr": 2e-05,
+    "head_lr": 2e-05,
+    "schedule": "constant",
+    "warmup_ratio": 0.1,
+    "seed": 42,
+    "train_limit": 0,
+    "tune_limit": 0,
+    "threshold": 0,
+    "checkpoint": "D:\\desktop_programming\\nlp\\nlp_medicine\\outputs\\bert_gp\\full_v1\\best.pt",
+    "final": true,
+    "check_data": false,
+    "overfit_check": false
+  },
+  "device": "cuda",
+  "labels": [
+    "dis",
+    "sym",
+    "dru",
+    "equ",
+    "pro",
+    "bod",
+    "ite",
+    "mic",
+    "dep"
+  ],
+  "torch": "2.9.0+cu128",
+  "numpy": "1.26.4",
+  "tune_sha256": "ca65235e83f5ba055af7498b25ea55c376747a64ab6b1d4e5bffc0dfb8e62778",
+  "tokenizer_commit": null,
+  "tune_coverage": {
+    "records": 2500,
+    "gold": 10460,
+    "covered": 10436,
+    "unaligned": 24,
+    "windows": 2508
+  }
+}

@@ -14,3 +14,18 @@ Desktop.ini
 # Member 4's regenerable evaluation artifacts
 outputs/eval_split/predictions/
 outputs/eval_split/errors/
+
+# Model weights: regenerable via bert_gp/train.py (see bert_gp/README.md 复现流程). Do not commit.
+outputs/bert_gp/*/best.pt
+
+# Downloaded tokenizer caches and large regenerable outputs. Keep only the small
+# evidence files (metrics.json, manifest.json, test_four_models_summary.json).
+outputs/bert_gp/*/tokenizer/
+outputs/bert_gp/*/predictions.jsonl
+outputs/bert_gp/*/errors.json
+outputs/llm/*/predictions.jsonl
+outputs/llm/*/errors.json
+
+# Raw API responses and original text are data material, not code.
+outputs/llm/*/audit.jsonl
+outputs/llm/*/inputs.jsonl

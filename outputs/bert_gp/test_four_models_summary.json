@@ -1,0 +1,42 @@
+[
+  {
+    "model_run": "full_v1",
+    "threshold": 0,
+    "precision": 0.6980445657116872,
+    "recall": 0.5869980879541109,
+    "f1": 0.6377233070211882,
+    "gold_entities": 10460,
+    "predicted_entities": 8796,
+    "true_positive": 6140
+  },
+  {
+    "model_run": "macbert_base_v1",
+    "threshold": 0,
+    "precision": 0.6840852649006622,
+    "recall": 0.6320267686424474,
+    "f1": 0.6570264360962036,
+    "gold_entities": 10460,
+    "predicted_entities": 9664,
+    "true_positive": 6611
+  },
+  {
+    "model_run": "macbert_warmup_v1",
+    "threshold": 0,
+    "precision": 0.6843823319392023,
+    "recall": 0.641395793499044,
+    "f1": 0.6621921729260228,
+    "gold_entities": 10460,
+    "predicted_entities": 9803,
+    "true_positive": 6709
+  },
+  {
+    "model_run": "macbert_warmup_5ep_v1",
+    "threshold": 0,
+    "precision": 0.6773780187284376,
+    "recall": 0.6569789674952199,
+    "f1": 0.6670225673380248,
+    "gold_entities": 10460,
+    "predicted_entities": 10145,
+    "true_positive": 6872
+  }
+]

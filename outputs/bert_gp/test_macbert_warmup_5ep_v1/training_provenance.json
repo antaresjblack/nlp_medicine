@@ -1,0 +1,28 @@
+{
+  "training_manifest": "D:\\desktop_programming\\nlp\\nlp_medicine\\outputs\\bert_gp\\macbert_warmup_5ep_v1\\manifest.json",
+  "training_args": {
+    "model": "hfl/chinese-macbert-base",
+    "run_name": "macbert_warmup_5ep_v1",
+    "epochs": 5,
+    "batch_size": 2,
+    "accumulation": 8,
+    "max_length": 256,
+    "overlap": 64,
+    "lr": 2e-05,
+    "encoder_lr": 2e-05,
+    "head_lr": 2e-05,
+    "schedule": "linear",
+    "warmup_ratio": 0.1,
+    "seed": 42,
+    "train_limit": 0,
+    "tune_limit": 0,
+    "threshold": 0,
+    "checkpoint": null,
+    "final": false,
+    "check_data": false,
+    "overfit_check": false
+  },
+  "evaluation_split": "eval_test",
+  "threshold": 0,
+  "note": "test manifest args epochs/schedule reflect inference CLI defaults, not training settings; use training_args here."
+}

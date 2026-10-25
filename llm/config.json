@@ -1,0 +1,9 @@
+{
+  "base_url": "https://api.deepseek.com",
+  "model": "deepseek-v4-pro",
+  "thinking": "disabled",
+  "temperature": 0,
+  "max_tokens": 4096,
+  "timeout": 120,
+  "retries": 2
+}

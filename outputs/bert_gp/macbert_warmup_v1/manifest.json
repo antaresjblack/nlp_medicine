@@ -1,0 +1,59 @@
+{
+  "args": {
+    "model": "hfl/chinese-macbert-base",
+    "run_name": "macbert_warmup_v1",
+    "epochs": 3,
+    "batch_size": 2,
+    "accumulation": 8,
+    "max_length": 256,
+    "overlap": 64,
+    "lr": 2e-05,
+    "encoder_lr": 2e-05,
+    "head_lr": 2e-05,
+    "schedule": "linear",
+    "warmup_ratio": 0.1,
+    "seed": 42,
+    "train_limit": 0,
+    "tune_limit": 0,
+    "threshold": 0,
+    "checkpoint": null,
+    "final": false,
+    "check_data": false,
+    "overfit_check": false
+  },
+  "device": "cuda",
+  "labels": [
+    "dis",
+    "sym",
+    "dru",
+    "equ",
+    "pro",
+    "bod",
+    "ite",
+    "mic",
+    "dep"
+  ],
+  "torch": "2.9.0+cu128",
+  "numpy": "1.26.4",
+  "tune_sha256": "ff1e9fdc685a4b405a55cfece540eceb7cba7bfdb70492693c51c6e42d0f584b",
+  "tokenizer_commit": null,
+  "tune_coverage": {
+    "records": 2500,
+    "gold": 9840,
+    "covered": 9831,
+    "unaligned": 9,
+    "windows": 2514
+  },
+  "train_coverage": {
+    "records": 14984,
+    "gold": 61743,
+    "covered": 61708,
+    "unaligned": 35,
+    "windows": 15103
+  },
+  "train_sha256": "e0e0d1bba812040e8e7f3e1096234e361db7ccc048db9575943fcfd9b3eb86dc",
+  "scheduler": {
+    "total_updates": 2832,
+    "warmup_steps": 284
+  }
+}

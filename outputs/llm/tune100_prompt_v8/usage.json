@@ -1,0 +1,15 @@
+{
+  "record_count": 100,
+  "attempt_count": 100,
+  "request_seconds_total": 199.30609660002665,
+  "tokens": {
+    "prompt_tokens": 127333,
+    "completion_tokens": 17838,
+    "total_tokens": 145171,
+    "prompt_cache_hit_tokens": 114048,
+    "prompt_cache_miss_tokens": 13285
+  },
+  "cost": null,
+  "cost_note": "按实际调用日期价格、缓存命中和账单核算；未知费用不记为0。超时请求可能已计费。",
+  "scope": "subset of tune"
+}
