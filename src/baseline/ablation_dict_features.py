@@ -15,9 +15,9 @@ from scipy.sparse import coo_matrix
 from sklearn.feature_extraction import DictVectorizer
 from sklearn.svm import LinearSVC
 
-from dict_span_features import DictSpanAnnotator
-from metrics import evaluate_records
-from small_model import char_features, decode_bio, labels_from_entities, load_json, sparse_int32
+from src.baseline.dict_span_features import DictSpanAnnotator
+from src.baseline.metrics import evaluate_records
+from src.baseline.small_model import char_features, decode_bio, labels_from_entities, load_json, sparse_int32
 
 FEATURE_GROUPS: tuple[str, ...] = (
     "in_dict_span",
@@ -78,8 +78,8 @@ def main() -> None:
     output_dir = (args.output_dir or root / "outputs").resolve()
     ablation_dir = output_dir / "ablation"
     ablation_dir.mkdir(parents=True, exist_ok=True)
-    train_path = root / "data" / "data_cleaned" / "CMeEE_train_cleaned_final.json"
-    dev_path = root / "data" / "data_raw" / "CMeEE_dev.json"
+    train_path = root / "data_cleaned" / "CMeEE_train_cleaned_final.json"
+    dev_path = root / "data_raw" / "CMeEE_dev.json"
     train = load_json(train_path)
     dev = load_json(dev_path)
     class_weight = None if args.class_weight.lower() == "none" else args.class_weight

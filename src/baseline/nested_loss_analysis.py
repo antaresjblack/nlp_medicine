@@ -4,7 +4,7 @@
 1.把验证集标注实体分为投影保留、投影丢弃两组；
 2.统计单层模型能完整预测的丢弃实体；
 3.统计其中依赖词典跨度特征的实体，并估算全部丢弃实体均可预测时的实体 F1 理论上限。
-从仓库根目录执行：python src/baseline/nested_loss_analysis.py
+在代码根目录执行：python baseline/nested_loss_analysis.py
 输出：outputs/nested_loss_analysis_report.md 与配套 json 结果文件。
 """
 
@@ -16,8 +16,8 @@ from collections import Counter
 from pathlib import Path
 from typing import Any
 
-from dict_span_features import DictSpanAnnotator
-from small_model import load_json, longest_non_overlapping_entities
+from src.baseline.dict_span_features import DictSpanAnnotator
+from src.baseline.small_model import load_json, longest_non_overlapping_entities
 
 
 def entity_key(entity: dict[str, Any]) -> tuple[int, int, str]:
@@ -32,8 +32,8 @@ def main() -> None:
 
     root = args.root.resolve()
     output_dir = (args.output_dir or root / "outputs").resolve()
-    train = load_json(root / "data" / "data_cleaned" / "CMeEE_train_cleaned_final.json")
-    dev = load_json(root / "data" / "data_raw" / "CMeEE_dev.json")
+    train = load_json(root / "data_cleaned" / "CMeEE_train_cleaned_final.json")
+    dev = load_json(root / "data_raw" / "CMeEE_dev.json")
     predictions = load_json(output_dir / "small_model_predictions.json")
     metrics = json.loads((output_dir / "small_model_metrics.json").read_text(encoding="utf-8"))
 
@@ -74,7 +74,7 @@ def main() -> None:
 
     result: dict[str, Any] = {
         "method": "nested_projection_loss_analysis",
-        "eval_file": str(root / "data" / "data_raw" / "CMeEE_dev.json"),
+        "eval_file": str(root / "data_raw" / "CMeEE_dev.json"),
         "predictions_file": str(output_dir / "small_model_predictions.json"),
         "projection": "longest_non_overlapping_gold_entities (same as training)",
         "step1_projection": {
