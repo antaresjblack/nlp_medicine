@@ -48,6 +48,7 @@ class DictSpanAnnotator:
         for record in records:
             for entity in record.get("entities", []):
                 label_counts[entity["entity"]][entity["type"]] += 1
+        self.label_counts = label_counts
 
         self.entries: list[tuple[str, str, int]] = []  # (phrase, majority label, frequency)
         for phrase, counts in label_counts.items():
@@ -67,6 +68,37 @@ class DictSpanAnnotator:
         """
         matches = self._find_matches(text)
         return self._per_position_features(text, matches)
+
+    def match_all(self, text: str) -> list[dict[str, Any]]:
+        """
+        返回文本中所有词典命中（供成员3把词典特征融入 BERT 训练）。
+
+        与 annotate 的逐位置特征不同，这里不做任何取舍：重复位置、重叠、
+        嵌套命中全部保留（不取最长匹配、不去重、不过滤否定语境）。每条命中
+        包含：start_idx、end_idx（闭区间）、entity、多数标签 type、该词条在
+        训练集中各类别的出现次数 type_counts、总频次 total_count。
+        结果按 (start_idx, end_idx, type) 排序。
+        """
+        matches: list[dict[str, Any]] = []
+        for start, char in enumerate(text):
+            bucket = self.by_first_char.get(char)
+            if not bucket:
+                continue
+            remaining = text[start:]
+            for phrase, label, total in bucket:
+                if remaining.startswith(phrase):
+                    matches.append(
+                        {
+                            "start_idx": start,
+                            "end_idx": start + len(phrase) - 1,
+                            "entity": phrase,
+                            "type": label,
+                            "type_counts": dict(self.label_counts[phrase]),
+                            "total_count": total,
+                        }
+                    )
+        matches.sort(key=lambda match: (match["start_idx"], match["end_idx"], match["type"]))
+        return matches
 
     def _find_matches(self, text: str) -> list[tuple[int, int, str, int]]:
         """
@@ -164,6 +196,10 @@ def main() -> None:
     features = annotator.annotate(text)
     print(f"\nDemo record {args.demo_record}: {text}")
     print("Gold entities:", [entity["entity"] + "/" + entity["type"] for entity in record["entities"]])
+    print("\nmatch_all 原始命中（含重叠/嵌套，不取最长）：")
+    for match in annotator.match_all(text):
+        print(f"  [{match['start_idx']}, {match['end_idx']}] {match['entity']} -> {match['type']} "
+              f"type_counts={match['type_counts']} total={match['total_count']}")
     for position, char in enumerate(text):
         span = features[position]
         if span["in_dict_span"] == "1":
