@@ -1,0 +1,48 @@
+{
+  "data": {
+    "train": "data/data_cleaned/CMeEE_train_cleaned_final.json",
+    "dev": "data/data_raw/CMeEE_dev.json",
+    "test": "data/data_raw/CMeEE_test.json"
+  },
+  "methods": {
+    "pure_rules": {
+      "enabled": true,
+      "script": "baseline/pure_rule_baseline.py"
+    },
+    "dictionary_best": {
+      "enabled": true,
+      "script": "baseline/dictionary_baseline.py",
+      "method": "longest",
+      "min_count": 1,
+      "min_length": 2
+    },
+    "small_model": {
+      "enabled": true,
+      "script": "baseline/small_model.py",
+      "seed": 42,
+      "C": 0.1,
+      "class_weight": "balanced",
+      "dict_span_features": true,
+      "projection": "longest_non_overlapping_gold_entities"
+    }
+  },
+  "error_analysis": {
+    "enabled": true,
+    "script": "baseline/error_analysis.py",
+    "gold": "data/data_raw/CMeEE_dev.json",
+    "examples_per_kind": 5,
+    "targets": [
+      {"name": "dictionary_best", "output": "dictionary_best_error_analysis.json"},
+      {"name": "pure_rules", "output": "pure_rules_error_analysis.json"},
+      {"name": "small_model", "output": "small_model_error_analysis.json"}
+    ]
+  },
+  "evaluation": {
+    "main_metric": "strict_entity_micro_f1",
+    "token_projection": "longest_non_overlapping_span_per_character",
+    "offset_convention": "inclusive_end",
+    "test_has_public_gold": false,
+    "labels": ["dis", "sym", "dru", "equ", "pro", "bod", "ite", "mic", "dep"]
+  },
+  "output_dir": "outputs"
+}

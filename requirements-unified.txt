@@ -1,0 +1,10 @@
+# Verified on Python 3.10.20 with CUDA 12.8 on Windows.
+# Install with:
+#   python -m pip install -r requirements-unified.txt
+--extra-index-url https://download.pytorch.org/whl/cu128
+
+torch==2.9.0+cu128
+transformers==4.57.6
+numpy==1.26.4
+scipy==1.13.1
+scikit-learn==1.7.2

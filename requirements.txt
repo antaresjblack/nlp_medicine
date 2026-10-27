@@ -1,4 +1,4 @@
-# 成员 2 基线代码的模型环境依赖（其余脚本仅用标准库）
+# 成员 2 基线代码的最小依赖；完整基线与 BERT 统一环境见 requirements-unified.txt
 # 验证环境：Python 3.12.7、Windows 11
 numpy==2.3.4
 scikit-learn==1.9.0
