@@ -43,15 +43,16 @@ v1.1 的主要变化：
    预测文件按 `id` 对齐，或保持与金标相同的记录顺序。
 6. 本地 `src/data/data_raw/CMeEE_test.json` 没有金标，不参与 P/R/F1 计算。
 
-### 当前结果状态（2026-10-27）
+### 当前结果状态（2026-10-28）
 
 | 方法 | split | 状态 | 实体级 F1 |
 |---|---|---:|---:|
 | 纯人工规则 | 完整 dev | 已完成 | 0.0465 |
-| 纯人工规则 | eval_tune / eval_test | 待补统一评估 | — |
+| 纯人工规则 | eval_tune | 已完成 | **0.0436** |
+| 纯人工规则 | eval_test | 已完成 | **0.0492** |
 | 最长匹配词典 + 过滤单字实体 | 完整 dev | 已完成 | 0.4044 |
 | 最长匹配词典 + 过滤单字实体 | eval_tune | 已完成 | 0.4010 |
-| 最长匹配词典 + 过滤单字实体 | eval_test | 待正式运行一次 | — |
+| 最长匹配词典 + 过滤单字实体 | eval_test | 已完成 | **0.4077** |
 | 字符级 LinearSVC + 词典跨度特征 | 完整 dev | 已完成 | **0.4301** |
 | 字符级 LinearSVC + 词典跨度特征（`C=0.1`, balanced） | eval_tune | 已完成 | 0.4269 |
 | 字符级 LinearSVC + 词典跨度特征（`C=0.1`, none） | eval_tune | 已完成 | **0.4276** |
@@ -63,6 +64,8 @@ v1.1 的主要变化：
 小模型已在 `eval_tune` 上重新比较候选，并以 `span_c0.1_none` 冻结后完成一次
 `eval_test` 评估。选中配置和 tune 排名见
 `src/outputs/eval_split/small_model/tune/runs/20261022T141507+0800/`。
+词典 test 已在冻结配置 `longest/min_count=1/min_length=2` 下完成一次评估，
+结果保存在 `src/outputs/eval_split/metrics/test_dictionary_longest_min_count_1_min_length_2_metrics.json`。
 
 > 注意：成员2早期的完整 dev 调参已经覆盖了当前 `eval_test` 的 2,500 条样本，
 > 因此这次结果应表述为“配置冻结后的补充重新确认”，不能写成团队此前从未
@@ -136,6 +139,19 @@ python src/eval/run_dictionary_split.py --method longest --min-length 2 --split 
 - `src/outputs/eval_split/metrics/tune_dictionary_..._metrics.json`
 - `src/outputs/eval_split/predictions/tune_dictionary_..._predictions.jsonl`
 - `src/outputs/eval_split/errors/tune_dictionary_..._errors.json`
+
+纯规则基线通过单独的 split 包装入口运行；规则本身保持冻结：
+
+```powershell
+python src/eval/run_pure_rule_split.py --split tune
+python src/eval/run_pure_rule_split.py --split test
+```
+
+输出文件：
+
+- `src/outputs/eval_split/metrics/{tune,test}_pure_rules_metrics.json`
+- `src/outputs/eval_split/predictions/{tune,test}_pure_rules_predictions.jsonl`
+- `src/outputs/eval_split/errors/{tune,test}_pure_rules_errors.json`
 
 成员2的小模型使用独立追加层，不覆盖原来的完整 dev 输出：
 
