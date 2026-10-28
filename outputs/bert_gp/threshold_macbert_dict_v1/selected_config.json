@@ -1,0 +1,10 @@
+{
+  "precision": 0.6634820611850798,
+  "recall": 0.6634146341463415,
+  "f1": 0.6634483459525382,
+  "true_positive": 6528,
+  "predicted_entities": 9839,
+  "threshold": 0.0,
+  "checkpoint_sha256": "595eb45cbfd920f93e175668a7fe50a11f8b949222e882bb2f7fd4c91ae9b1d8",
+  "selection_split": "tune"
+}
