@@ -1,4 +1,4 @@
-# Generated caches and local editor/environment files only. Data is included intentionally.
+# Generated caches, fetched data and local editor/environment files.
 __pycache__/
 *.py[cod]
 .venv/
@@ -10,6 +10,10 @@ venv/
 !.env.example
 Thumbs.db
 Desktop.ini
+
+# The frozen data package is downloaded by src/reproduce.py on first use and is
+# intentionally excluded from the final_submit branch and course ZIP.
+/src/data/
 
 # Model checkpoints are delivered through external storage, not Git/course zip.
 /*.pt

@@ -38,7 +38,7 @@ B9E48B664AB0135892E688DB2FFB25DF6D6A1A726FABDD6B5FD0A1611A41CFEF
 
 默认复现会检查所需数据；如果源码包不含 `src/data/`，会自动下载约 4.45 MB 的
 冻结数据包到 `src/.data_packages/`，校验压缩包后解压，并再次校验每个数据文件。
-已有数据时不会重复下载或覆盖。最终所需的目录布局为：
+所需数据已齐全时不会重复下载；存在缺失文件时会解压固定数据包补齐。最终所需的目录布局为：
 
 ```text
 src/data/data_raw/CMeEE_dev.json
@@ -347,4 +347,9 @@ F1        = 0.4782
 
 - 只验证所选变体的环境、数据哈希和历史证据：
   `python src/reproduce.py --bert-variant <变体名> --check-only`。
-- 从自定义数据包准备环境：`python src/reproduce.py --data-package <本地zip或HTTPS链接>`。
+- 从指定位置准备冻结数据：
+  `python src/reproduce.py --data-package <本地zip或HTTPS链接>`。
+
+`final_submit` 分支不提交 `src/data/` 下的实际数据、模型权重、下载缓存或重复的
+历史复跑目录。默认复现会从固定 Release 获取数据和模型权重，并执行 SHA-256 校验；
+课程 ZIP 也不要重新加入这些文件。
