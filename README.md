@@ -297,6 +297,52 @@ python src/bert_gp/train_dict.py --run-name optional_macbert_dict_5ep_v1 --model
 使用新的 `optional_` 前缀。旧 checkpoint 只用于冻结推理，旧训练脚本不支持从中断处
 继续训练。
 
+### DeepSeek 100 条探索性复现
+
+该路线用于展示 LLM 提示抽取能力，不属于默认主复现，也不能与完整 2,500 条
+`eval_test` 上的 BERT 成绩直接排名。首次调用 API 前先做不产生费用的输入检查：
+
+```powershell
+python src/llm/run.py --dry-run --split tune --limit 100 --run-name optional_deepseek_dryrun
+```
+
+确认允许将文本发送到外部 API 后，配置当前终端的环境变量并执行：
+
+```powershell
+. .\src\llm\set_key.ps1
+python src/llm/run.py --split tune --limit 100 --run-name optional_deepseek_tune100
+```
+
+本次历史试跑使用 `deepseek-v4-pro`、温度 0，范围为 `eval_tune` 的
+`tune-0001` 至 `tune-0100`。统一实体级指标为：
+
+```text
+gold entities      = 383
+predicted entities = 441
+true positive      = 197
+
+Precision = 0.4467
+Recall    = 0.5144
+F1        = 0.4782
+```
+
+该分数来自“DeepSeek 原始 JSON → 合法标签过滤与位置归一化 → 统一实体级评分”的完整
+流水线，不是原始模型回答的独立分数。结果文件包括 `manifest.json`、`metrics.json`、
+`errors.json`、`predictions.jsonl` 和 `usage.json`；原始输入和 API 审计材料按项目
+规则留在本地，不进入课程代码包。
+
+复现时需要注意：
+
+- API 调用会产生费用，`usage.json` 只能自动统计 token 和耗时，实际费用必须按调用
+  当日价格和账单填写，不能把未知费用写成 0。
+- 历史记录为 100 次请求、145,171 tokens，总等待时间约 199.31 秒，平均约
+  1.99 秒/条。
+- 这只是 100 条 tune 子集，没有运行完整 2,500 条 tune，也没有运行 `eval_test`，
+  不能当作最终大模型成绩。
+- 当前 `normalize()` 对“多次出现但位置不明确”的实体采用最近位置修复，而现有测试
+  和 LLM README 更倾向于排除。报告必须如实说明这次试跑包含位置后处理；在规则统一
+  前不得把该分数与正式 BERT 主结果直接比较。
+
 ### 其他选项
 
 - 只验证所选变体的环境、数据哈希和历史证据：
