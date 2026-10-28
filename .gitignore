@@ -35,7 +35,7 @@ src/outputs/llm/*/inputs.jsonl
 
 # 成员3交付的数据包（含原文的预测材料，按组内授权共享，不入库）
 best_macbert_tune_handoff/
-macbert_5ep_low_score_tune/
+
 
 # 融合实验产物（tune 上的结果级融合实验，结论为无显著收益，不纳入仓库）
 src/outputs/fusion/
