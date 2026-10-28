@@ -10,7 +10,12 @@ from __future__ import annotations
 from collections import Counter, defaultdict
 from typing import Any
 
-from src.baseline.span_utils import entity_key
+try:
+    from .span_utils import entity_key
+except ImportError:
+    # Direct CLI execution puts src/baseline (not the repository root) on
+    # sys.path. Keep both `python src/...` and `python -m src...` working.
+    from span_utils import entity_key
 
 
 def _keys(entities: list[dict[str, Any]]) -> set[tuple[int, int, str]]:
