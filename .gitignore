@@ -42,6 +42,7 @@ src/outputs/fusion/
 
 # Local one-command reproduction artifacts
 src/reproduction_outputs/
+src/.checkpoints/
 
 # 成员四
 /ignore

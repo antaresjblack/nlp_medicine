@@ -5,6 +5,18 @@
 使用完整微调 checkpoint 做推理时，模型结构从 `AutoConfig` 创建，随后加载 checkpoint
 中的编码器参数，因此不需要重复下载基础模型权重；tokenizer/config 仍需可访问。
 
+正式 checkpoint 可从 GitHub Release 获取：
+
+```text
+https://api.github.com/repos/antaresjblack/nlp_medicine/releases/assets/683593804
+```
+
+SHA-256：
+
+```text
+868FBEB8530125552FF06EF8CA4C29F9CFAD8B25F087BE1E1D61687B41038CF7
+```
+
 ```powershell
 conda activate medical-ner-unified
 Set-Location '<仓库根目录>'

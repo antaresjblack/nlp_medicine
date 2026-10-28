@@ -98,16 +98,33 @@ Reproduction status: PASS
 
 `eval_test` 的复跑只用于核验已冻结结果，不得根据新结果修改参数或提示词。
 
-如果已经取得可信的 MacBERT 权重，可以在安装 PyTorch/Transformers 的环境中执行：
+正式 MacBERT checkpoint 已发布：
 
-```powershell
-python src/reproduce.py --bert-checkpoint <best.pt 的绝对路径>
+```text
+https://api.github.com/repos/antaresjblack/nlp_medicine/releases/assets/683593804
 ```
 
-该命令会额外运行 BERT 最终推理，并比较新的 `eval_test` F1。项目没有把约 400 MB
-的权重放进仓库，因此没有权重时只能核对历史证据，不能声称 BERT 已经在当前机器上运行。
-BERT 权重应放在外部网盘，并在 README 中提供链接和 SHA-256；完整环境与训练参数见
+SHA-256：
+
+```text
+868FBEB8530125552FF06EF8CA4C29F9CFAD8B25F087BE1E1D61687B41038CF7
+```
+
+可以在安装 PyTorch/Transformers 的统一环境中直接传入远程链接：
+
+```powershell
+python src/reproduce.py --bert-checkpoint https://api.github.com/repos/antaresjblack/nlp_medicine/releases/assets/683593804
+```
+
+脚本首次运行会把约 400 MB 的权重下载到被 Git 忽略的 `src/.checkpoints/`，校验
+SHA-256 后再运行 BERT 最终推理。也可以继续传入本地 `.pt` 路径。完整环境与训练参数见
 `src/bert_gp/README.md`。
+
+人工查看 Release 页面：
+
+```text
+https://github.com/antaresjblack/nlp_medicine/releases/tag/macbert-warmup-5ep-v1
+```
 
 只检查数据和已提交证据、不训练模型：
 

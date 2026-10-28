@@ -53,7 +53,13 @@ python src/reproduce.py
 如已下载可信的 MacBERT checkpoint，可额外复现 BERT 推理：
 
 ```powershell
-python src/reproduce.py --bert-checkpoint <macbert_warmup_5ep_v1.pt 的路径>
+python src/reproduce.py --bert-checkpoint https://api.github.com/repos/antaresjblack/nlp_medicine/releases/assets/683593804
+```
+
+权重 SHA-256：
+
+```text
+868FBEB8530125552FF06EF8CA4C29F9CFAD8B25F087BE1E1D61687B41038CF7
 ```
 
 ## 预期输出

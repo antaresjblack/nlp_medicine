@@ -17,12 +17,15 @@ import importlib
 import json
 import os
 import platform
+import shutil
 import subprocess
 import sys
 import time
 from datetime import datetime
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlparse
+from urllib.request import Request, urlopen
 
 ROOT = Path(__file__).resolve().parent
 SELECTED_CONFIG = (
@@ -49,6 +52,8 @@ EXPECTED_DATA_HASHES = {
 
 SMALL_MODEL_EXPECTED_F1 = 0.4289685582822086
 BERT_EXPECTED_F1 = 0.6670225673380248
+BERT_CHECKPOINT_SHA256 = "868fbeb8530125552ff06ef8ca4c29f9cfad8b25f087be1e1d61687b41038cf7"
+BERT_CHECKPOINT_FILENAME = "macbert_warmup_5ep_v1.pt"
 
 
 def sha256_file(path: Path) -> str:
@@ -57,6 +62,95 @@ def sha256_file(path: Path) -> str:
         for chunk in iter(lambda: file.read(1024 * 1024), b""):
             digest.update(chunk)
     return digest.hexdigest()
+
+
+def resolve_bert_checkpoint(value: str) -> Path:
+    """Resolve a local checkpoint or download the pinned checkpoint from HTTPS."""
+    parsed = urlparse(value)
+    if parsed.scheme:
+        require(parsed.scheme == "https", "BERT checkpoint URL must use HTTPS")
+        if "/releases/assets/" in parsed.path:
+            filename = BERT_CHECKPOINT_FILENAME
+        else:
+            filename = Path(parsed.path).name
+            require(
+                filename.endswith(".pt") and filename not in {"", ".pt"},
+                "Checkpoint URL must end with a .pt filename",
+            )
+        cache_dir = ROOT / ".checkpoints"
+        cache_dir.mkdir(parents=True, exist_ok=True)
+        target = cache_dir / filename
+        if target.is_file():
+            digest = sha256_file(target)
+            require(
+                digest == BERT_CHECKPOINT_SHA256,
+                f"Cached checkpoint hash mismatch: expected {BERT_CHECKPOINT_SHA256}, got {digest}",
+            )
+            print(f"[INFO] Using cached checkpoint: {display_path(target)}")
+            return target
+
+        partial = target.with_name(target.name + ".part")
+        print(f"[INFO] Downloading checkpoint: {value}", flush=True)
+        curl = shutil.which("curl")
+        if curl:
+            command = [
+                curl,
+                "-L",
+                "--http1.1",
+                "--retry",
+                "5",
+                "--retry-delay",
+                "2",
+                "--retry-all-errors",
+                "--connect-timeout",
+                "30",
+                "--max-time",
+                "1800",
+                "--silent",
+                "--show-error",
+                "--continue-at",
+                "-",
+                "--output",
+                str(partial),
+                "--header",
+                "Accept: application/octet-stream",
+                "--header",
+                "User-Agent: Codex-CMeEE-Reproduction",
+                value,
+            ]
+            completed = subprocess.run(command)
+            require(completed.returncode == 0, f"Failed to download checkpoint (curl exit {completed.returncode})")
+        else:
+            request = Request(
+                value,
+                headers={
+                    "User-Agent": "Codex-CMeEE-Reproduction",
+                    "Accept": "application/octet-stream",
+                },
+            )
+            with urlopen(request, timeout=120) as response, partial.open("wb") as output:
+                while True:
+                    chunk = response.read(1024 * 1024)
+                    if not chunk:
+                        break
+                    output.write(chunk)
+        digest = sha256_file(partial)
+        require(
+            digest == BERT_CHECKPOINT_SHA256,
+            f"Downloaded checkpoint hash mismatch: expected {BERT_CHECKPOINT_SHA256}, got {digest}",
+        )
+        os.replace(partial, target)
+        print(f"[PASS] Downloaded and verified checkpoint: {display_path(target)}")
+        return target
+
+    path = Path(value).expanduser().resolve()
+    require(path.is_file(), f"BERT checkpoint not found: {path}")
+    digest = sha256_file(path)
+    require(
+        digest == BERT_CHECKPOINT_SHA256,
+        f"BERT checkpoint hash mismatch: expected {BERT_CHECKPOINT_SHA256}, got {digest}",
+    )
+    return path
 
 
 def load_json(path: Path) -> Any:
@@ -217,9 +311,9 @@ def main() -> int:
     )
     parser.add_argument(
         "--bert-checkpoint",
-        type=Path,
+        type=str,
         default=None,
-        help="Trusted MacBERT best.pt to run final eval_test inference. Requires torch and transformers.",
+        help="Trusted MacBERT checkpoint path or HTTPS URL for final eval_test inference. Requires torch and transformers.",
     )
     parser.add_argument(
         "--tolerance",
@@ -299,8 +393,7 @@ def main() -> int:
             }
 
             if args.bert_checkpoint is not None:
-                checkpoint = args.bert_checkpoint.resolve()
-                require(checkpoint.exists(), f"BERT checkpoint not found: {checkpoint}")
+                checkpoint = resolve_bert_checkpoint(args.bert_checkpoint)
                 bert_run_name = "reproduction_" + stamp
                 run_command(
                     [
@@ -323,7 +416,9 @@ def main() -> int:
                     args.tolerance,
                 )
                 summary["bert_execution"] = {
-                    "checkpoint": str(checkpoint),
+                    "checkpoint": display_path(checkpoint),
+                    "checkpoint_source": args.bert_checkpoint,
+                    "checkpoint_sha256": BERT_CHECKPOINT_SHA256,
                     "metrics_file": display_path(bert_metrics_path),
                     "f1": float(bert_metrics["f1"]),
                     "expected_f1": BERT_EXPECTED_F1,
