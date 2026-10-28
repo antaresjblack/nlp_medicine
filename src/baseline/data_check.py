@@ -70,19 +70,22 @@ def check_file(path: Path, expect_gold: bool) -> dict[str, Any]:
             end = entity.get("end_idx")
             label = entity.get("type")
             entity_text = entity.get("entity")
-            # 检查实体起止下标是不是整数
-            if not start or not end or not label or not entity_text:
+            # 0 是合法的零基字符索引；只有 None 才表示字段缺失。
+            if start is None or end is None or label is None or entity_text is None:
                 errors.append(f"record {record_index}, entity {entity_index}: missing required fields")
                 continue
-            if not isinstance(start, int) or not isinstance(end, int):
+            if type(start) is not int or type(end) is not int:
                 errors.append(f"record {record_index}, entity {entity_index}: offsets are not integers")
+                continue
+            if not isinstance(label, str) or not label:
+                errors.append(f"record {record_index}, entity {entity_index}: invalid label")
                 continue
             if label not in ALLOWED_LABELS:
                 errors.append(f"record {record_index}, entity {entity_index}: unknown label {label!r}")
             else:
                 label_counts[label] += 1  # 统计实体标签出现次数
-            if not isinstance(entity_text, str):
-                errors.append(f"record {record_index}, entity {entity_index}: entity is not a string")
+            if not isinstance(entity_text, str) or not entity_text:
+                errors.append(f"record {record_index}, entity {entity_index}: invalid entity text")
                 continue
             if start < 0 or end < start or end >= len(text):
                 errors.append(
