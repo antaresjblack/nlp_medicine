@@ -16,8 +16,12 @@ from scipy.sparse import csr_matrix
 from sklearn.feature_extraction import DictVectorizer
 from sklearn.svm import LinearSVC
 
-from src.baseline.dict_span_features import DictSpanAnnotator
-from src.baseline.metrics import evaluate_records
+try:
+    from .dict_span_features import DictSpanAnnotator
+    from .metrics import evaluate_records
+except ImportError:
+    from dict_span_features import DictSpanAnnotator
+    from metrics import evaluate_records
 
 
 def load_json(path: Path) -> list[dict[str, Any]]:
