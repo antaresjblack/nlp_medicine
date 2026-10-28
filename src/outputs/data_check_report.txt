@@ -1,7 +1,7 @@
 CMeEE baseline data check
 ============================
 
-File: D:\学习记录\3-1\NLP\code\nlp_medicine\data_cleaned\CMeEE_train_cleaned_final.json
+File: D:\17434\LessonWork\自然语言处理\nlp_medicine\src\data\data_cleaned\CMeEE_train_cleaned_final.json
 Records: 14984
 Entities: 61743
 Empty-entity records: 0
@@ -11,7 +11,7 @@ Nested multi-label positions: 11077 / 811435 (1.37%)
 Label counts: {'bod': 17682, 'dep': 349, 'dis': 15819, 'dru': 3930, 'equ': 888, 'ite': 2581, 'mic': 1907, 'pro': 6323, 'sym': 12264}
 Errors: 0
 
-File: D:\学习记录\3-1\NLP\code\nlp_medicine\data_raw\CMeEE_dev.json
+File: D:\17434\LessonWork\自然语言处理\nlp_medicine\src\data\data_raw\CMeEE_dev.json
 Records: 5000
 Entities: 20300
 Empty-entity records: 0
@@ -21,7 +21,7 @@ Nested multi-label positions: 3982 / 270417 (1.47%)
 Label counts: {'bod': 5883, 'dep': 110, 'dis': 4935, 'dru': 1440, 'equ': 238, 'ite': 923, 'mic': 584, 'pro': 2057, 'sym': 4130}
 Errors: 0
 
-File: D:\学习记录\3-1\NLP\code\nlp_medicine\data_raw\CMeEE_test.json
+File: D:\17434\LessonWork\自然语言处理\nlp_medicine\src\data\data_raw\CMeEE_test.json
 Records: 3000
 Entities: 0
 Empty-entity records: 3000

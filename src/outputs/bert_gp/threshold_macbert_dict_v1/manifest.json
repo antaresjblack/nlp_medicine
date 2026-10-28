@@ -1,0 +1,37 @@
+{
+  "checkpoint": "D:\\desktop_programming\\nlp\\nlp_medicine\\outputs\\bert_gp\\macbert_dict_5ep_v1\\best.pt",
+  "checkpoint_sha256": "595eb45cbfd920f93e175668a7fe50a11f8b949222e882bb2f7fd4c91ae9b1d8",
+  "tune_sha256": "ff1e9fdc685a4b405a55cfece540eceb7cba7bfdb70492693c51c6e42d0f584b",
+  "thresholds": [
+    -2.0,
+    -1.5,
+    -1.0,
+    -0.5,
+    0.0,
+    0.5,
+    1.0,
+    1.5,
+    2.0
+  ],
+  "device": "cuda",
+  "torch": "2.9.0+cu128",
+  "coverage": {
+    "records": 2500,
+    "gold": 9840,
+    "covered": 9831,
+    "unaligned": 9,
+    "windows": 2514
+  },
+  "selection": "maximum strict entity micro F1; tie: closest to zero, then higher threshold",
+  "batch_size": 2,
+  "precision": "float32 eval; same as training script inference",
+  "checkpoint_epoch": 5,
+  "dictionary_features": {
+    "records": 2500,
+    "raw_matches": 35516,
+    "used_matches": 35516,
+    "tokens": 125694,
+    "matched_tokens": 44622
+  },
+  "dictionary_source": "stored training-only counts from checkpoint; no tune gold used for features"
+}

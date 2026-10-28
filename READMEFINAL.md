@@ -4,16 +4,16 @@
 
 ## 环境要求
 
-| 组件         | 版本                   |
-| ------------ | ---------------------- |
-| Python       | 3.10.20                |
-| PyTorch      | 2.9.0+cu128            |
-| Transformers | 4.57.6                 |
-| NumPy        | 1.26.4                 |
-| SciPy        | 1.13.1                 |
-| scikit-learn | 1.7.2                  |
-| GPU          | NVIDIA RTX 4060 Laptop |
-| CUDA         | 可用                   |
+| 组件         | 版本        |
+| ------------ | ----------- |
+| Python       | 3.10.20     |
+| PyTorch      | 2.9.0+cu128 |
+| Transformers | 4.57.6      |
+| NumPy        | 1.26.4      |
+| SciPy        | 1.13.1      |
+| scikit-learn | 1.7.2       |
+| CPU          | 可选        |
+| CUDA         | 可用        |
 
 ## 依赖
 
@@ -73,3 +73,5 @@ Reproduction status: PASS
 
 复现结果保存在 `src/reproduction_outputs/<时间戳>/`。未提供 BERT checkpoint 时，
 脚本会明确打印 `[SKIP]`，只核验已提交的 BERT 指标证据。
+
+## 可选复现内容
