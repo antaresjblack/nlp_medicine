@@ -110,6 +110,13 @@ def build_reproduction_report(
     lines += [
         "  评估口径         严格实体级 Micro-F1：起点、终点和标签全部匹配才算正确",
         "  未使用           官方无标签 CMeEE_test；F1 仅来自冻结 eval_test",
+    ]
+    preparation = summary.get("data_preparation", {})
+    if preparation.get("status") == "downloaded":
+        lines.append(f"  数据包 SHA        {preparation.get('sha256')}")
+    else:
+        lines.append("  数据来源          项目内已有冻结数据")
+    lines += [
         "",
         "[2] 冻结配置与模型范围",
         "  执行方式         LinearSVC 重新训练；BERT 使用固定 checkpoint 推理",

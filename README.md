@@ -26,7 +26,19 @@ python -m pip install -r requirements.txt
 ## 数据集来源
 
 数据来自 CBLUE CMeEE 医疗命名实体识别任务。课程提交包不包含数据；获取方式和
-许可边界见 `src/docs/data_source.md`。解压或下载后应保持以下布局：
+许可边界见 `src/docs/data_source.md`。冻结数据包发布在：
+
+[cmeee-frozen-data-v1](https://github.com/antaresjblack/nlp_medicine/releases/tag/cmeee-frozen-data-v1)
+
+压缩包 SHA-256：
+
+```text
+B9E48B664AB0135892E688DB2FFB25DF6D6A1A726FABDD6B5FD0A1611A41CFEF
+```
+
+默认复现会检查所需数据；如果源码包不含 `src/data/`，会自动下载约 4.45 MB 的
+冻结数据包到 `src/.data_packages/`，校验压缩包后解压，并再次校验每个数据文件。
+已有数据时不会重复下载或覆盖。最终所需的目录布局为：
 
 ```text
 src/data/data_raw/CMeEE_dev.json
@@ -62,10 +74,11 @@ python src/reproduce.py
 ```
 
 默认会优先使用本地最新 checkpoint；若不存在，则自动从 GitHub Release 下载约
-414 MB 的权重并校验 SHA-256。也可以显式指定 checkpoint：
+414 MB 的权重并校验 SHA-256。数据包和权重都可以显式指定本地路径或 HTTPS 地址：
 
 ```powershell
 python src/reproduce.py --bert-checkpoint https://api.github.com/repos/antaresjblack/nlp_medicine/releases/assets/684231335
+python src/reproduce.py --data-package <本地zip或HTTPS链接>
 ```
 
 权重 SHA-256：
@@ -200,6 +213,27 @@ BERT 命令前会额外出现：
 [INFO] Using cached checkpoint: .checkpoints/macbert_dict_5ep_v1.pt
 ```
 
+### 首次下载冻结数据
+
+源码包不含数据时，环境检查后会出现：
+
+```text
+[INFO] Missing frozen data files:
+       - data/data_cleaned/CMeEE_train_cleaned_final.json
+       - data/data_raw/CMeEE_dev.json
+       - data/data_eval/eval_tune.jsonl
+       - data/data_eval/eval_test.jsonl
+[INFO] Downloading frozen data package: https://github.com/.../cmeee_frozen_data_v1.zip
+[PASS] Downloaded and verified data package: .data_packages/cmeee_frozen_data_v1.zip
+[PASS] Extracted frozen data package to: data
+```
+
+已有完整数据时只打印：
+
+```text
+[PASS] Frozen data files are already present; download was not needed.
+```
+
 ### 只检查模式
 
 执行 `python src/reproduce.py --check-only` 时不会训练或运行模型，预期输出：
@@ -267,3 +301,4 @@ python src/bert_gp/train_dict.py --run-name optional_macbert_dict_5ep_v1 --model
 
 - 只验证所选变体的环境、数据哈希和历史证据：
   `python src/reproduce.py --bert-variant <变体名> --check-only`。
+- 从自定义数据包准备环境：`python src/reproduce.py --data-package <本地zip或HTTPS链接>`。

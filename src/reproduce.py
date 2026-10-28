@@ -22,6 +22,7 @@ import shutil
 import subprocess
 import sys
 import time
+import zipfile
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -104,6 +105,13 @@ EXPECTED_DATA_HASHES = {
     "data/data_eval/eval_tune.jsonl": "ff1e9fdc685a4b405a55cfece540eceb7cba7bfdb70492693c51c6e42d0f584b",
     "data/data_eval/eval_test.jsonl": "ca65235e83f5ba055af7498b25ea55c376747a64ab6b1d4e5bffc0dfb8e62778",
 }
+
+DEFAULT_DATA_PACKAGE = (
+    "https://github.com/antaresjblack/nlp_medicine/releases/download/"
+    "cmeee-frozen-data-v1/cmeee_frozen_data_v1.zip"
+)
+DATA_PACKAGE_FILENAME = "cmeee_frozen_data_v1.zip"
+DATA_PACKAGE_SHA256 = "b9e48b664ab0135892e688db2ffb25df6d6a1a726fabdd6b5fd0a1611a41cfef"
 
 SMALL_MODEL_EXPECTED_F1 = 0.4289685582822086
 
@@ -197,6 +205,127 @@ def resolve_bert_checkpoint(value: str, variant: dict[str, Any]) -> Path:
         f"BERT checkpoint hash mismatch: expected {expected_sha256}, got {digest}",
     )
     return path
+
+
+def resolve_data_package(value: str) -> Path:
+    """Resolve or download the pinned frozen-data archive."""
+    parsed = urlparse(value)
+    if parsed.scheme in {"http", "https"}:
+        require(parsed.scheme == "https", "Data package URL must use HTTPS")
+        cache_dir = ROOT / ".data_packages"
+        cache_dir.mkdir(parents=True, exist_ok=True)
+        target = cache_dir / DATA_PACKAGE_FILENAME
+        if target.is_file():
+            digest = sha256_file(target)
+            require(
+                digest == DATA_PACKAGE_SHA256,
+                f"Cached data package hash mismatch: expected {DATA_PACKAGE_SHA256}, got {digest}",
+            )
+            print(f"[INFO] Using cached data package: {display_path(target)}")
+            return target
+
+        partial = target.with_name(target.name + ".part")
+        print(f"[INFO] Downloading frozen data package: {value}", flush=True)
+        curl = shutil.which("curl")
+        if curl:
+            command = [
+                curl,
+                "-L",
+                "--http1.1",
+                "--retry",
+                "5",
+                "--retry-delay",
+                "2",
+                "--retry-all-errors",
+                "--connect-timeout",
+                "30",
+                "--max-time",
+                "1800",
+                "--silent",
+                "--show-error",
+                "--continue-at",
+                "-",
+                "--output",
+                str(partial),
+                "--header",
+                "Accept: application/octet-stream",
+                "--header",
+                "User-Agent: Codex-CMeEE-Reproduction",
+                value,
+            ]
+            completed = subprocess.run(command)
+            require(completed.returncode == 0, f"Failed to download data package (curl exit {completed.returncode})")
+        else:
+            request = Request(
+                value,
+                headers={
+                    "User-Agent": "Codex-CMeEE-Reproduction",
+                    "Accept": "application/octet-stream",
+                },
+            )
+            with urlopen(request, timeout=120) as response, partial.open("wb") as output:
+                while True:
+                    chunk = response.read(1024 * 1024)
+                    if not chunk:
+                        break
+                    output.write(chunk)
+        digest = sha256_file(partial)
+        require(
+            digest == DATA_PACKAGE_SHA256,
+            f"Downloaded data package hash mismatch: expected {DATA_PACKAGE_SHA256}, got {digest}",
+        )
+        os.replace(partial, target)
+        print(f"[PASS] Downloaded and verified data package: {display_path(target)}")
+        return target
+
+    path = Path(value).expanduser().resolve()
+    require(path.is_file(), f"Data package not found: {path}")
+    digest = sha256_file(path)
+    require(
+        digest == DATA_PACKAGE_SHA256,
+        f"Data package hash mismatch: expected {DATA_PACKAGE_SHA256}, got {digest}",
+    )
+    return path
+
+
+def ensure_required_data(package_source: str, root: Path = ROOT) -> dict[str, Any]:
+    """Download and extract the frozen dataset only when required files are absent."""
+    missing = [
+        relative
+        for relative in EXPECTED_DATA_HASHES
+        if not (root / relative).is_file()
+    ]
+    if not missing:
+        print("[PASS] Frozen data files are already present; download was not needed.")
+        return {"status": "present", "package": None, "sha256": None}
+
+    print("[INFO] Missing frozen data files:")
+    for relative in missing:
+        print(f"       - {relative}")
+    package = resolve_data_package(package_source)
+    with zipfile.ZipFile(package) as archive:
+        for info in archive.infolist():
+            relative = Path(info.filename)
+            require(
+                not relative.is_absolute() and ".." not in relative.parts,
+                f"Unsafe path in data package: {info.filename}",
+            )
+            require(
+                relative.parts and relative.parts[0] == "data",
+                f"Unexpected top-level path in data package: {info.filename}",
+            )
+            target = (root / relative).resolve()
+            require(
+                target == root or root in target.parents,
+                f"Unsafe extraction target: {target}",
+            )
+        archive.extractall(root)
+    print(f"[PASS] Extracted frozen data package to: {display_path(root / 'data')}")
+    return {
+        "status": "downloaded",
+        "package": str(package),
+        "sha256": DATA_PACKAGE_SHA256,
+    }
 
 
 def load_json(path: Path) -> Any:
@@ -407,6 +536,12 @@ def main() -> int:
         ),
     )
     parser.add_argument(
+        "--data-package",
+        type=str,
+        default=None,
+        help="Local path or HTTPS URL for the frozen CMeEE data package.",
+    )
+    parser.add_argument(
         "--tolerance",
         type=float,
         default=0.01,
@@ -438,6 +573,9 @@ def main() -> int:
 
     try:
         summary["environment"] = verify_environment()
+        summary["data_preparation"] = ensure_required_data(
+            args.data_package or DEFAULT_DATA_PACKAGE
+        )
         summary["data_hashes"] = verify_data_hashes()
         data_scope = collect_data_scope()
         summary["data_scope"] = data_scope
