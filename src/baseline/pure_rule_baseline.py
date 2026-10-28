@@ -3,8 +3,8 @@
 该基线模型刻意不读取训练集，也不构建词典。它仅应用人工编写的正则表达式规则，之后使用通用的严格跨度评估器。
 
 从代码库根目录运行：
-    python src/baseline/pure_rule_baseline.py
-    python src/baseline/pure_rule_baseline.py --eval-file src/data/data_raw/CMeEE_test.json
+    python baseline/pure_rule_baseline.py
+    python baseline/pure_rule_baseline.py --eval-file data_raw/CMeEE_test.json
 
 评估文件默认使用开发集。当文件中不包含标注实体（如CMeEE_test.json）时，该脚本仅输出预测结果，跳过指标计算环节。
 """
@@ -19,7 +19,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from metrics import evaluate_records
+from src.baseline.metrics import evaluate_records
 
 
 @dataclass(frozen=True)
@@ -155,14 +155,14 @@ def main() -> None:
         "--eval-file",
         type=Path,
         default=None,
-        help="file to predict/evaluate (default: src/data/data_raw/CMeEE_dev.json; use CMeEE_test.json for final predictions)",
+        help="file to predict/evaluate (default: data_raw/CMeEE_dev.json; use CMeEE_test.json for final predictions)",
     )
     args = parser.parse_args()
 
     root = args.root.resolve()
     output_dir = (args.output_dir or root / "outputs").resolve()
     output_dir.mkdir(parents=True, exist_ok=True)
-    eval_path = (args.eval_file or root / "data" / "data_raw" / "CMeEE_dev.json").resolve()
+    eval_path = (args.eval_file or root / "data_raw" / "CMeEE_dev.json").resolve()
     eval_records = load_json(eval_path)
 
     started = time.perf_counter()

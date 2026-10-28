@@ -90,13 +90,13 @@ def write_csv(path, rows, fields):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--input', type=Path, default=ROOT / 'data/data_raw/CMeEE_train.json')
+    parser.add_argument('--input', type=Path, default=ROOT / 'data_raw/CMeEE_train.json')
     parser.add_argument('--review', type=Path, default=ROOT / 'docs/duplicate_annotation_review_checked.csv.xlsx')
-    parser.add_argument('--plan', type=Path, default=ROOT / 'data/data_cleaned/cleaning_plan.json')
-    parser.add_argument('--output-dir', type=Path, default=ROOT / 'data/data_cleaned')
+    parser.add_argument('--plan', type=Path, default=ROOT / 'data_cleaned/cleaning_plan.json')
+    parser.add_argument('--output-dir', type=Path, default=ROOT / 'data_cleaned')
     args = parser.parse_args()
     output = args.output_dir.resolve()
-    raw_dir = (ROOT / 'data/data_raw').resolve()
+    raw_dir = (ROOT / 'data_raw').resolve()
     if output == raw_dir or raw_dir in output.parents:
         raise ValueError('Output must not be in data_raw')
     # Snapshot every project raw JSON, the selected input, review, and plan.
@@ -309,7 +309,7 @@ def main():
         summary += [f'- `{p}`：`{value}`' for p, value in sorted(before_hashes.items())]
         summary += ['', '原始下标均为零基。清洗版因排除记录而改变行序号，`record_index_map.csv` 保存清洗行号到原始行号的对应关系。',
                     '重叠与嵌套未因其存在而移除；原始 JSON、人工工作簿、已有报告均不修改。未转换 BIO。',
-                    '复现：在仓库根目录运行 `python -X utf8 -B src\\scripts\\clean_medical_ner_data.py`。',
+                    '复现：在项目根目录运行 `"C:\\Users\\home\\anaconda3\\python.exe" -X utf8 scripts\\clean_medical_ner_data.py`。',
                     '可用 `--input`、`--review`、`--plan`、`--output-dir` 指定路径；不同数据/新备注必须先更新并核实计划，哈希不匹配会停止。',
                     '重跑会更新输出文件；不要在自动生成日志中直接写入唯一的人工复核记录。']
         (output / 'cleaning_summary.md').write_text('\n'.join(summary) + '\n', encoding='utf-8')
@@ -325,7 +325,7 @@ def main():
 if __name__ == '__main__':
     import sys
     if '--final' in sys.argv:
-        from finalize_medical_ner_data import main as final_main
+        from src.scripts.finalize_medical_ner_data import main as final_main
         sys.argv.remove('--final')
         final_main()
     else:

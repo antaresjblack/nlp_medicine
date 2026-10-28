@@ -1,9 +1,9 @@
 """
 CMeEE 词典基线模型。
 仓库根目录运行示例：
-python src/baseline/dictionary_baseline.py --method exact
-python src/baseline/dictionary_baseline.py --method longest
-python src/baseline/dictionary_baseline.py --method longest --min-length 2 --eval-file src/data/data_raw/CMeEE_test.json
+python baseline/dictionary_baseline.py --method exact
+python baseline/dictionary_baseline.py --method longest
+python baseline/dictionary_baseline.py --method longest --min-length 2 --eval-file data_raw/CMeEE_test.json
 
 默认在验证集评估。如果评估文件没有标准标注（如 CMeEE_test.json），脚本只输出预测结果，不计算指标。
 """
@@ -17,8 +17,8 @@ from collections import Counter, defaultdict
 from pathlib import Path
 from typing import Any
 
-from metrics import evaluate_records
-from span_utils import canonical_entity, find_occurrences, resolve_label
+from src.baseline.metrics import evaluate_records
+from src.baseline.span_utils import canonical_entity, find_occurrences, resolve_label
 
 
 def load_json(path: Path) -> list[dict[str, Any]]:
@@ -78,15 +78,15 @@ def main() -> None:
         "--eval-file",
         type=Path,
         default=None,
-        help="file to predict/evaluate (default: src/data/data_raw/CMeEE_dev.json; use CMeEE_test.json for final predictions)",
+        help="file to predict/evaluate (default: data_raw/CMeEE_dev.json; use CMeEE_test.json for final predictions)",
     )
     args = parser.parse_args()
 
     root = args.root.resolve()
     output_dir = (args.output_dir or root / "outputs").resolve()
     output_dir.mkdir(parents=True, exist_ok=True)
-    train_path = root / "data" / "data_cleaned" / "CMeEE_train_cleaned_final.json"
-    eval_path = (args.eval_file or root / "data" / "data_raw" / "CMeEE_dev.json").resolve()
+    train_path = root / "data_cleaned" / "CMeEE_train_cleaned_final.json"
+    eval_path = (args.eval_file or root / "data_raw" / "CMeEE_dev.json").resolve()
     train = load_json(train_path)
     eval_records = load_json(eval_path)
     started = time.perf_counter()

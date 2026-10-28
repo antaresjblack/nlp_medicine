@@ -1,9 +1,9 @@
 """
 字符级小型模型超参数网格搜索。
 仓库根目录执行：
-`python src/baseline/small_model_grid_search.py`
+`python baseline/small_model_grid_search.py`
 
-这是基于验证集的调参实验：最优参数在 `src/data/data_raw/CMeEE_dev.json` 上选出
+这是基于验证集的调参实验：最优参数在`data_raw/CMeEE_dev.json`上选出
 """
 
 from __future__ import annotations
@@ -18,9 +18,9 @@ from typing import Any
 from sklearn.feature_extraction import DictVectorizer
 from sklearn.svm import LinearSVC
 
-from dict_span_features import DictSpanAnnotator
-from metrics import evaluate_records
-from small_model import char_features, decode_bio, labels_from_entities, load_json, sparse_int32
+from src.baseline.dict_span_features import DictSpanAnnotator
+from src.baseline.metrics import evaluate_records
+from src.baseline.small_model import char_features, decode_bio, labels_from_entities, load_json, sparse_int32
 
 
 def row_from_metrics(data: dict[str, Any]) -> dict[str, Any]:
@@ -114,8 +114,8 @@ def main() -> None:
     output_dir = (args.output_dir or root / "outputs").resolve()
     grid_dir = output_dir / "grid"
     grid_dir.mkdir(parents=True, exist_ok=True)
-    train_path = root / "data" / "data_cleaned" / "CMeEE_train_cleaned_final.json"
-    dev_path = root / "data" / "data_raw" / "CMeEE_dev.json"
+    train_path = root / "data_cleaned" / "CMeEE_train_cleaned_final.json"
+    dev_path = root / "data_raw" / "CMeEE_dev.json"
 
     c_values = [float(value) for value in args.C_values.split(",")]
     class_weights = [None if value.lower() == "none" else value for value in args.class_weights.split(",")]

@@ -1,13 +1,13 @@
 """
 复用统一指标，对已保存的预测文件重新评估。
 单文件模式，生成精简指标文件：
-python src/baseline/evaluate_saved.py \
-    --gold src/data/data_raw/CMeEE_dev.json \
-    --predictions src/outputs/dictionary_longest_min_count_1_min_length_2_predictions.json \
-    --output src/outputs/dictionary_best_metrics_recomputed.json
+python baseline/evaluate_saved.py \
+    --gold data_raw/CMeEE_dev.json \
+    --predictions outputs/dictionary_longest_min_count_1_min_length_2_predictions.json \
+    --output outputs/dictionary_best_metrics_recomputed.json
 
 批量模式，刷新目录下所有指标文件，保持每个文件的元数据：
-python src/baseline/evaluate_saved.py --gold src/data/data_raw/CMeEE_dev.json --batch-dir src/outputs
+python baseline/evaluate_saved.py --gold data_raw/CMeEE_dev.json --batch-dir outputs
 """
 
 from __future__ import annotations
@@ -16,7 +16,7 @@ import argparse
 import json
 from pathlib import Path
 
-from metrics import evaluate_records
+from src.baseline.metrics import evaluate_records
 
 
 def load_json(path: Path) -> list[dict]:

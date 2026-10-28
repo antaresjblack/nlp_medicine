@@ -8,7 +8,7 @@ import json
 from collections import Counter, defaultdict
 from pathlib import Path
 
-from clean_medical_ner_data import ROOT, LABELS, valid_entity, digest
+from src.scripts.clean_medical_ner_data import ROOT, LABELS, valid_entity, digest
 
 
 def require(condition, message):
@@ -56,7 +56,7 @@ def build(args):
     source_path = args.input.resolve()
     for p in [source_path, *required.values()]:
         require(p.is_file(), f'Missing necessary file: {p}')
-    protected = set(required.values()) | {source_path} | set((ROOT / 'data/data_raw').glob('*.json'))
+    protected = set(required.values()) | {source_path} | set((ROOT / 'data_raw').glob('*.json'))
     # Read/hash all seven specified inputs; do not trust old validation alone.
     hashes_before = {str(p): digest(p) for p in sorted(protected)}
     source = read_json(source_path)
@@ -198,7 +198,7 @@ def build(args):
                   protected_sha256=hashes_before, final_sha256=final_hash)
     summary = ['# CMeEE 最终训练集清洗总结', '',
                '## 本次决定与规则',
-               '按 `src/data/data_cleaned/remaining_review_items.csv` 中全部剩余组的原始零基记录索引排除整组记录，不再裁定实体。',
+               '按 `data_cleaned/remaining_review_items.csv` 中全部剩余组的原始零基记录索引排除整组记录，不再裁定实体。',
                f'实际组号：{sorted(groups)}。{difference_note}',
                f'涉及 {len(unresolved_ids)} 条原始记录：{len(old_excluded)} 条已排除，新增排除 {new_count} 条；最终累计排除 {len(union_excluded)} 条。',
                '从固定的上一版清洗集及原始索引映射筛选，不在删除后的行号上再次删除。保留记录的全部字段和标注与上一版完全一致。',
@@ -216,12 +216,12 @@ def build(args):
                 '本入口每次独立构建两遍并逐字节比较；写盘后再次回读验证。可连续运行下方命令两次比较输出哈希。',
                 f'最终 JSON SHA-256：`{final_hash}`', f'原始训练集 SHA-256：`{source_hash}`（运行前后不变）。', '',
                 '## 文件与复现',
-                '`src/data/data_cleaned/CMeEE_train_cleaned_final.json`：最终训练数据。',
-                '`src/docs/record_index_map_final.csv`：最终、原始和上一版行号对应，均为零基。',
-                '`src/docs/removed_unresolved_groups.csv`：完整原始实体、上一版实体、实体数、组号、排除状态及原因。',
-                '`src/docs/final_validation_report.json`：重新计算的统计、校验与输入哈希。',
-                '仓库根目录执行：', '```bat',
-                'python -X utf8 -B src\\scripts\\clean_medical_ner_data.py --final', '```',
+                '`data_cleaned/CMeEE_train_cleaned_final.json`：最终训练数据。',
+                '`docs/record_index_map_final.csv`：最终、原始和上一版行号对应，均为零基。',
+                '`docs/removed_unresolved_groups.csv`：完整原始实体、上一版实体、实体数、组号、排除状态及原因。',
+                '`docs/final_validation_report.json`：重新计算的统计、校验与输入哈希。',
+                '项目根目录执行：', '```bat',
+                '"C:\\Users\\home\\anaconda3\\python.exe" -X utf8 -B scripts\\clean_medical_ner_data.py --final', '```',
                 '可用 `--input`、`--previous-dir`、`--docs-dir` 指定路径；`--final` 不重跑或覆盖上一版清洗。',
                 '本次创建前检查过所有最终输出均不存在；后续仅允许重写内容完全相同的结果，若现有结果不同则停止。', '',
                 '## 限制',
@@ -243,8 +243,8 @@ def build(args):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--input', type=Path, default=ROOT/'data/data_raw/CMeEE_train.json')
-    parser.add_argument('--previous-dir', type=Path, default=ROOT/'data/data_cleaned')
+    parser.add_argument('--input', type=Path, default=ROOT/'data_raw/CMeEE_train.json')
+    parser.add_argument('--previous-dir', type=Path, default=ROOT/'data_cleaned')
     parser.add_argument('--docs-dir', type=Path, default=ROOT/'docs')
     args = parser.parse_args()
     payloads, report = build(args)
