@@ -1,6 +1,6 @@
 # MedicalNER_Project 文件使用与组员交接说明
 
-更新时间：2026-10-27。适用于当前项目根目录 `nlp_medicine/`。
+更新时间：2026-10-28。适用于当前项目根目录 `nlp_medicine/`。
 
 > 当前整合标准：成员2的 `src/baseline/` 代码和 `src/outputs/` 结果是基线权威版本；
 > 数据统一位于 `src/data/data_raw/`、`src/data/data_cleaned/`。成员4新增的冻结评估集在
@@ -14,15 +14,8 @@
 
 ## 复现入口（先看这里）
 
-环境要求：Python 3.12+，并先安装基线依赖。
-
-```powershell
-python -m pip install -r requirements.txt
-```
-
-### 已验证的统一环境
-
-当前机器已经创建并验证 `medical-ner-unified`，它同时可以运行传统基线和 BERT：
+环境要求：项目唯一完整环境是 `requirements-unified.txt`，它同时覆盖传统基线和 BERT。
+当前机器已验证 `medical-ner-unified`：
 
 ```text
 Python 3.10.20
@@ -33,7 +26,7 @@ scipy 1.13.1
 scikit-learn 1.7.2
 ```
 
-对应依赖文件是 `requirements-unified.txt`。在新机器上可以先创建环境：
+在新机器上创建环境：
 
 ```powershell
 conda create -n medical-ner-unified python=3.10.20 -y
@@ -51,7 +44,7 @@ python -m pip install -r requirements-unified.txt
 
 ```text
 LinearSVC eval_test F1: 0.428989
-MacBERT eval_test F1: 0.667023
+MacBERT 词典融合 eval_test F1: 0.670047
 pip check: No broken requirements found
 CUDA: RTX 4060 available
 ```
@@ -81,52 +74,54 @@ python src/reproduce.py
 2. 校验小模型冻结配置、候选配置和 tune 摘要未被修改；
 3. 按冻结配置和 seed 42 重新训练字符级 LinearSVC；
 4. 在 `eval_test` 上重新评估，预期实体级 F1 约为 **0.4290**；
-5. 核对已提交的 MacBERT `eval_test` 证据，预期 F1 约为 **0.6670**。
+5. 下载或复用最新 MacBERT 词典融合 checkpoint，在 `eval_test` 上真实推理，
+   预期 F1 约为 **0.6700**。
 
-默认只重新训练约需 1 分钟的轻量基线，BERT 部分核对提交的指标和训练来源记录。
-输出保存在 `src/reproduction_outputs/<时间戳>/`，最终状态打印为 `Reproduction status: PASS`。
+默认流程会真实执行两种模型，不存在“只验证历史指标后跳过 BERT”的路径。首次运行
+会下载约 414 MB 的 BERT 权重到被 Git 忽略的 `src/.checkpoints/`，并校验 SHA-256。
+输出保存在 `src/reproduction_outputs/<时间戳>/`，其中 `small_model/` 和 `bert_gp/`
+分别保存两种模型的新复现证据；最终状态打印为 `Reproduction status: PASS`。
 
 预期关键输出：
 
 ```text
 [PASS] Environment, required data, hashes and frozen small-model configuration.
-[PASS] Committed BERT eval_test evidence: actual=0.667023, expected=0.667023
-[PASS] Retrained LinearSVC eval_test: actual=0.428969, expected=0.428969
-[SKIP] BERT inference was not run because no checkpoint was supplied.
+[PASS] Committed BERT eval_test evidence: actual=0.670047, expected=0.670047
+[PASS] Retrained LinearSVC eval_test: actual=0.428989, expected=0.428969
+[PASS] MacBERT dictionary-fusion eval_test: actual=0.670047, expected=0.670047
 Reproduction status: PASS
 ```
 
 `eval_test` 的复跑只用于核验已冻结结果，不得根据新结果修改参数或提示词。
 
-正式 MacBERT checkpoint 已发布：
+正式主结果 MacBERT 词典融合 checkpoint 已发布：
 
 ```text
-https://api.github.com/repos/antaresjblack/nlp_medicine/releases/assets/683593804
+https://api.github.com/repos/antaresjblack/nlp_medicine/releases/assets/684231335
 ```
 
 SHA-256：
 
 ```text
-868FBEB8530125552FF06EF8CA4C29F9CFAD8B25F087BE1E1D61687B41038CF7
+595EB45CBFD920F93E175668A7FE50A11F8B949222E882BB2F7FD4C91AE9B1D8
 ```
 
-可以在安装 PyTorch/Transformers 的统一环境中直接传入远程链接：
+默认会优先使用本地 `src/outputs/bert_gp/macbert_dict_5ep_v1/best.pt`；文件不存在时
+自动下载上面的 Release 资产。也可以显式传入远程链接或本地 `.pt`：
 
 ```powershell
-python src/reproduce.py --bert-checkpoint https://api.github.com/repos/antaresjblack/nlp_medicine/releases/assets/683593804
+python src/reproduce.py --bert-checkpoint https://api.github.com/repos/antaresjblack/nlp_medicine/releases/assets/684231335
 ```
 
-脚本首次运行会把约 400 MB 的权重下载到被 Git 忽略的 `src/.checkpoints/`，校验
-SHA-256 后再运行 BERT 最终推理。也可以继续传入本地 `.pt` 路径。完整环境与训练参数见
-`src/bert_gp/README.md`。
+完整环境和训练参数见 `src/bert_gp/README.md`。
 
 人工查看 Release 页面：
 
 ```text
-https://github.com/antaresjblack/nlp_medicine/releases/tag/macbert-warmup-5ep-v1
+https://github.com/antaresjblack/nlp_medicine/releases/tag/macbert-dict-5ep-v1
 ```
 
-只检查数据和已提交证据、不训练模型：
+只检查环境、数据和已提交证据，不训练或推理：
 
 ```powershell
 python src/reproduce.py --check-only
@@ -141,25 +136,26 @@ python src/reproduce.py --check-only
 |---|---|---|
 | 数据与清洗（成员1） | 已完成 | 最终训练集 14,984 条 / 61,743 实体；dev 5,000 条 / 20,300 实体 |
 | 非大模型基线（成员2） | 已完成 | 纯规则、词典、字符级小模型；最佳完整 dev 实体级 F1 **0.4301** |
-| 评估整合（成员4） | 基础层与成员2小模型接入已完成 | 纯规则 tune F1 **0.0436**、test F1 **0.0492**；词典 tune F1 **0.4010**、test F1 **0.4077**；小模型 tune F1 **0.4276**、test F1 **0.4290** |
-| LLM / BERT（成员3） | BERT 主实验完成；LLM 部分完成 | MacBERT `eval_test` F1 **0.6670**；DeepSeek 仅完成 100 条 tune 子集，F1 **0.4782** |
+| 评估整合（成员4） | 统一评估与双模型复现已完成 | 纯规则 tune F1 **0.0436**、test F1 **0.0492**；词典 tune F1 **0.4010**、test F1 **0.4077**；小模型 tune F1 **0.4276**、test F1 **0.4290**；默认复现真实执行 LinearSVC 和 BERT |
+| LLM / BERT（成员3） | BERT 主实验完成；LLM 部分完成 | MacBERT 词典融合 `eval_test` F1 **0.6700**；DeepSeek 仅完成 100 条 tune 子集，F1 **0.4782** |
 | 报告 / 录屏 / 提交包 | 未完成 | 八节报告、摘要、贡献声明、AI 声明、zip 待补 |
 
 当前最佳基线是“字符级 LinearSVC + 词典跨度特征”，完整 dev 实体级 F1 为
 **0.4301**，冻结 `eval_test` F1 为 **0.4290**；在相同 `eval_test` 上，
-MacBERT + GlobalPointer 的 F1 为 **0.6670**。完整 dev、冻结 test 和 DeepSeek
+MacBERT + GlobalPointer + 词典特征的 F1 为 **0.6700**。完整 dev、冻结 test 和 DeepSeek
 100 条子集必须分表报告，不能混排。
 
 ### 基线快速复现
 
 ```powershell
-pip install -r requirements.txt
+python -m pip install -r requirements-unified.txt
 python src/baseline/run_final_baselines.py --config src/configs/final_baseline.json
 ```
 
 详细结果见 `src/baseline/README.md`，留出评估规则见 `src/eval/README.md`。
-`requirements.txt` 记录的是 Python 3.12.7 / numpy 2.3.4 / scikit-learn 1.9.0；
-如果本机版本不同，`0.4301` 可能有小幅波动，报告中应注明实际环境。
+`requirements.txt` 只保留传统基线的最小依赖，不能运行默认 BERT 复现；
+统一使用 `requirements-unified.txt`。如果本机版本不同，`0.4301` 可能有小幅波动，
+报告中应注明实际环境。
 
 ### 成员3开始前的入口
 
@@ -185,7 +181,7 @@ API 密钥只能通过环境变量提供，不能写入代码、日志或预测�
 
 ## 1. 新组员先看这里
 
-本项目是自然语言处理课程 B 方向的医疗命名实体识别（NER）项目。当前已完成成员 1 的数据检查、人工复核记录整理及保守清洗，成员 2 的纯规则、词典、字符级小模型基线和统一评测，以及成员 3 的 MacBERT + GlobalPointer 主实验。冻结 `eval_test` 上，小模型 F1 为 **0.4290**，MacBERT F1 为 **0.6670**。DeepSeek 提示抽取只完成 100 条 tune 子集，不能当作最终全量成绩。基线代码、输出格式和评测协议以 `src/baseline/README.md` 为准，成员 4 的评估整合说明见 `src/eval/README.md`。
+本项目是自然语言处理课程 B 方向的医疗命名实体识别（NER）项目。当前已完成成员 1 的数据检查、人工复核记录整理及保守清洗，成员 2 的纯规则、词典、字符级小模型基线和统一评测，以及成员 3 的 MacBERT + GlobalPointer + 词典特征主实验。冻结 `eval_test` 上，小模型 F1 为 **0.4290**，最新 MacBERT 主结果为 **0.6700**。DeepSeek 提示抽取只完成 100 条 tune 子集，不能当作最终全量成绩。基线代码、输出格式和评测协议以 `src/baseline/README.md` 为准，成员 4 的评估整合说明见 `src/eval/README.md`。
 
 **后续训练使用 `src/data/data_cleaned/CMeEE_train_cleaned_final.json`。不要误用文件名相似的上一版 `CMeEE_train_cleaned.json`。**
 
@@ -206,7 +202,8 @@ API 密钥只能通过环境变量提供，不能写入代码、日志或预测�
 ```text
 MedicalNER_Project/
 ├── README.md                        本说明
-├── requirements.txt                 基线依赖
+├── requirements.txt                 仅传统基线的最小依赖
+├── requirements-unified.txt         完整基线 + BERT 总环境
 ├── src/
 │   ├── reproduce.py                 一条命令复现入口
 │   ├── baseline/                    成员2：基线代码与权威结果
@@ -365,7 +362,8 @@ Get-FileHash -Algorithm SHA256 -LiteralPath 'src\data\data_cleaned\CMeEE_train_c
 
 ### 成员 3：LLM 与特色模块负责人
 
-BERT + GlobalPointer 主实验已经完成，四组配置均有 tune/test 指标和训练记录；
+MacBERT + GlobalPointer 主实验已经完成，四组基础配置均有 tune/test 指标和训练记录；
+最新词典特征融合配置的 `eval_test` F1 为 **0.6700**，并已发布可复现 checkpoint；
 代码与说明见 `src/bert_gp/README.md`。DeepSeek 提示抽取代码已经实现，但当前只有
 `eval_tune` 前 100 条结果，API 成本仍待按账单填写，不能当作全量最终成绩。
 
@@ -377,7 +375,9 @@ BERT + GlobalPointer 主实验已经完成，四组配置均有 tune/test 指标
 
 已完成 `src/data/data_eval/` 的 seed 42 切分和 `src/eval/` 的评估封装：`eval_tune` 用于调参，`eval_test` 用于最终留出评估，完整 dev 结果继续作为成员2的历史基线。纯规则在 tune/test 上分别为 `0.0436` / `0.0492`；词典基线分别为 `0.4010` / `0.4077`；小模型已在 tune 上重新比较 8 个候选，选中 `C=0.1`、`class_weight=none`、词典跨度特征开启，tune F1 为 `0.4276`，冻结配置后 `eval_test` 单次 F1 为 `0.4290`。运行命令和口径说明见 `src/eval/README.md`；不能用空标注 test 替代金标。错误分析通过最终索引映射定位原始文本。报告中的指标、成本和曲线须来自真实运行。
 
-后续重点是接入成员 3 的 LLM 预测、统一预测文件格式、补齐最终对比表和复现命令；模型专用配置、日志和权重另建目录保存。
+统一评估、最新字符级 LinearSVC 和 MacBERT 词典融合 BERT 复现已接入 `src/reproduce.py`：
+默认命令必须真实运行两种模型。后续重点是完成最终对比表、报告、录屏、贡献声明和提交包；
+DeepSeek 仍按 100 条探索性试跑单列，不能与完整 `eval_test` 结果混排。
 
 ## 8. 文件保留、修改和提交约定
 
@@ -387,6 +387,8 @@ BERT + GlobalPointer 主实验已经完成，四组配置均有 tune/test 指标
 - 后续预测、模型权重和日志另存，避免与共享金标和人工复核文件同名覆盖。
 - 同一组模型比较应使用同一版本训练集与同一评估协议，不能把上一版或原始 train 与最终 train 混用却不作说明。
 - 按课程任务书，提交压缩包不打入数据集、模型权重或虚拟环境；提供数据来源及复现方式，并核实授权。可执行源码、文档和允许提交的证据按要求组织。
-- 当前已有成员2的完整非大模型基线及其 tune/test 接入、成员4的评估封装和 `src/reproduce.py` 入口、成员3的 BERT 主实验；仍待补齐 BERT 权重/精确环境、DeepSeek 费用与全量边界说明、最终报告、录屏、贡献声明和提交包。
+- 当前已有成员2的完整非大模型基线及其 tune/test 接入、成员4的评估封装和
+  `src/reproduce.py` 默认双模型复现入口、成员3的 BERT 主实验及公开权重；仍待补齐
+  DeepSeek 费用与全量边界说明、最终报告、录屏、贡献声明和提交包。
 
 本文只新增使用说明，不修改数据、人工记录、清洗代码或既有报告。

@@ -18,7 +18,7 @@ v1.1 的主要变化：
 - 成员2新增了纯规则基线、词典跨度特征小模型、网格搜索、特征消融和嵌套损失分析；
 - 完整 dev 上的最佳基线更新为“字符级 LinearSVC + 词典跨度特征”，实体级 F1 **0.4301**；
 - `metrics.py` 新增 `char_multi_label_*` 多标签字符指标，保留全部嵌套实体；
-- 复现环境固定到 `requirements.txt`。
+- 项目完整复现环境固定到 `requirements-unified.txt`；`requirements.txt` 仅保留传统基线最小依赖。
 
 ### 数据版本（SHA-256）
 
@@ -57,7 +57,8 @@ v1.1 的主要变化：
 | 字符级 LinearSVC + 词典跨度特征（`C=0.1`, balanced） | eval_tune | 已完成 | 0.4269 |
 | 字符级 LinearSVC + 词典跨度特征（`C=0.1`, none） | eval_tune | 已完成 | **0.4276** |
 | 字符级 LinearSVC + 词典跨度特征（`C=0.1`, none） | eval_test | 已完成，仅运行一次 | **0.4290** |
-| BERT + GlobalPointer | eval_tune / eval_test | 已完成四组配置 | test 最佳 **0.6670** |
+| BERT + GlobalPointer | eval_tune / eval_test | 已完成四组基础配置 | test 最佳 **0.6670** |
+| MacBERT + GlobalPointer + 词典特征 | eval_tune / eval_test | 最新主方法，完整评估 | tune **0.6634**；test **0.6700** |
 | DeepSeek 提示抽取 | eval_tune 前 100 条 | 探索性试跑 | 子集 0.4782，不与完整 test 混排 |
 
 `0.4301` 是完整 dev 结果，不能直接和词典的 tune `0.4010` 放在同一列；
@@ -100,16 +101,21 @@ v1.1 的主要变化：
 
 ### 环境与复现
 
-成员2的模型环境记录在仓库根目录 `requirements.txt`：
+完整复现环境记录在仓库根目录 `requirements-unified.txt`：
 
 ```text
-Python 3.12.7
-numpy 2.3.4
-scikit-learn 1.9.0
+Python 3.10.20
+torch 2.9.0+cu128
+transformers 4.57.6
+numpy 1.26.4
+scipy 1.13.1
+scikit-learn 1.7.2
 ```
 
-其他评估脚本只依赖 Python 标准库。若开发机版本不同，必须在报告中记录实际
-Python、numpy、scikit-learn 版本；`0.4301` 可能因此出现小幅波动。
+传统基线也可以使用仅含 NumPy/scikit-learn 的 `requirements.txt`，但默认
+`src/reproduce.py` 会真实运行 BERT，因此必须使用统一环境。若开发机版本不同，
+必须在报告中记录实际 Python、PyTorch、Transformers、numpy、scipy 和
+scikit-learn 版本；`0.4301` 可能因此出现小幅波动。
 
 ## 命令
 
@@ -118,7 +124,7 @@ Python、numpy、scikit-learn 版本；`0.4301` 可能因此出现小幅波动�
 先安装基线依赖并复现成员2的最终基线：
 
 ```powershell
-pip install -r requirements.txt
+python -m pip install -r requirements-unified.txt
 python src/baseline/run_final_baselines.py --config src/configs/final_baseline.json
 ```
 

@@ -3,10 +3,11 @@
 By default this script:
 1. verifies the frozen data and selected small-model configuration;
 2. retrains the frozen character LinearSVC and evaluates it on eval_test;
-3. verifies the committed BERT result evidence.
+3. downloads or reuses the pinned MacBERT dictionary-fusion checkpoint;
+4. runs final BERT inference on eval_test and compares both main results.
 
-If a trusted BERT checkpoint is supplied, it also runs final BERT inference on
-eval_test and compares the resulting F1 with the recorded main result.
+Use ``--check-only`` to verify the environment, data, frozen configuration and
+committed evidence without training or running either model.
 """
 
 from __future__ import annotations
@@ -38,10 +39,12 @@ SELECTED_CONFIG = (
     / "20261022T141507+0800"
     / "selected_config.json"
 )
-BERT_EVIDENCE = ROOT / "outputs" / "bert_gp" / "test_macbert_warmup_5ep_v1" / "metrics.json"
-BERT_TRAINING_PROVENANCE = (
-    ROOT / "outputs" / "bert_gp" / "test_macbert_warmup_5ep_v1" / "training_provenance.json"
+DEFAULT_BERT_CHECKPOINT = (
+    "https://api.github.com/repos/antaresjblack/nlp_medicine/releases/assets/684231335"
 )
+LOCAL_BERT_CHECKPOINT = ROOT / "outputs" / "bert_gp" / "macbert_dict_5ep_v1" / "best.pt"
+BERT_EVIDENCE = ROOT / "outputs" / "bert_gp" / "test_macbert_dict_5ep_v1" / "metrics.json"
+BERT_MANIFEST = ROOT / "outputs" / "bert_gp" / "test_macbert_dict_5ep_v1" / "manifest.json"
 
 EXPECTED_DATA_HASHES = {
     "data/data_cleaned/CMeEE_train_cleaned_final.json": "e0e0d1bba812040e8e7f3e1096234e361db7ccc048db9575943fcfd9b3eb86dc",
@@ -51,9 +54,9 @@ EXPECTED_DATA_HASHES = {
 }
 
 SMALL_MODEL_EXPECTED_F1 = 0.4289685582822086
-BERT_EXPECTED_F1 = 0.6670225673380248
-BERT_CHECKPOINT_SHA256 = "868fbeb8530125552ff06ef8ca4c29f9cfad8b25f087be1e1d61687b41038cf7"
-BERT_CHECKPOINT_FILENAME = "macbert_warmup_5ep_v1.pt"
+BERT_EXPECTED_F1 = 0.6700473292765381
+BERT_CHECKPOINT_SHA256 = "595eb45cbfd920f93e175668a7fe50a11f8b949222e882bb2f7fd4c91ae9b1d8"
+BERT_CHECKPOINT_FILENAME = "macbert_dict_5ep_v1.pt"
 
 
 def sha256_file(path: Path) -> str:
@@ -67,7 +70,7 @@ def sha256_file(path: Path) -> str:
 def resolve_bert_checkpoint(value: str) -> Path:
     """Resolve a local checkpoint or download the pinned checkpoint from HTTPS."""
     parsed = urlparse(value)
-    if parsed.scheme:
+    if parsed.scheme in {"http", "https"}:
         require(parsed.scheme == "https", "BERT checkpoint URL must use HTTPS")
         if "/releases/assets/" in parsed.path:
             filename = BERT_CHECKPOINT_FILENAME
@@ -188,19 +191,31 @@ def git_commit() -> str | None:
         return None
 
 
-def verify_environment() -> dict[str, str]:
+def verify_environment() -> dict[str, Any]:
     versions = {
         "python": sys.version.split()[0],
         "platform": platform.platform(),
     }
-    for module_name, key in (("numpy", "numpy"), ("scipy", "scipy"), ("sklearn", "scikit_learn")):
+    modules = (
+        ("numpy", "numpy"),
+        ("scipy", "scipy"),
+        ("sklearn", "scikit_learn"),
+        ("torch", "torch"),
+        ("transformers", "transformers"),
+    )
+    for module_name, key in modules:
         try:
             module = importlib.import_module(module_name)
         except ImportError as error:
             raise RuntimeError(
-                f"Missing dependency {module_name}. Run: python -m pip install -r requirements.txt"
+                f"Missing dependency {module_name}. Run: "
+                "python -m pip install -r requirements-unified.txt"
             ) from error
         versions[key] = module.__version__
+    torch = importlib.import_module("torch")
+    versions["cuda_available"] = torch.cuda.is_available()
+    if versions["cuda_available"]:
+        versions["cuda_device"] = torch.cuda.get_device_name(0)
     return versions
 
 
@@ -278,22 +293,24 @@ def compare_f1(name: str, actual: float, expected: float, tolerance: float) -> b
 
 def verify_bert_evidence() -> dict[str, Any]:
     require(BERT_EVIDENCE.exists(), f"Recorded BERT metrics are missing: {BERT_EVIDENCE}")
-    require(
-        BERT_TRAINING_PROVENANCE.exists(),
-        f"BERT training provenance is missing: {BERT_TRAINING_PROVENANCE}",
-    )
+    require(BERT_MANIFEST.exists(), f"Recorded BERT manifest is missing: {BERT_MANIFEST}")
     metrics = load_json(BERT_EVIDENCE)
-    provenance = load_json(BERT_TRAINING_PROVENANCE)
+    manifest = load_json(BERT_MANIFEST)
     require(metrics.get("metric") == "strict_entity_micro", "BERT evidence uses an unexpected metric")
     require(
-        provenance.get("evaluation_split") == "eval_test",
+        manifest.get("evaluation_split") == "eval_test",
         "BERT evidence was not evaluated on eval_test",
     )
     require(
-        provenance.get("training_args", {}).get("seed") == 42,
+        manifest.get("checkpoint_training_args", {}).get("seed") == 42,
         "BERT training seed is not 42",
     )
-    return {"metrics": metrics, "provenance": provenance}
+    require(
+        manifest.get("tune_sha256")
+        == EXPECTED_DATA_HASHES["data/data_eval/eval_test.jsonl"],
+        "BERT evidence does not reference the frozen eval_test hash",
+    )
+    return {"metrics": metrics, "manifest": manifest}
 
 
 def main() -> int:
@@ -313,13 +330,16 @@ def main() -> int:
         "--bert-checkpoint",
         type=str,
         default=None,
-        help="Trusted MacBERT checkpoint path or HTTPS URL for final eval_test inference. Requires torch and transformers.",
+        help=(
+            "Trusted MacBERT dictionary-fusion checkpoint path or HTTPS URL. "
+            "Defaults to the local pinned checkpoint, then its GitHub Release asset."
+        ),
     )
     parser.add_argument(
         "--tolerance",
         type=float,
         default=0.01,
-        help="Allowed absolute F1 difference for retrained baselines; default 0.01.",
+        help="Allowed absolute F1 difference for reproduced main results; default 0.01.",
     )
     args = parser.parse_args()
 
@@ -352,7 +372,7 @@ def main() -> int:
         )
         summary["bert_evidence"] = {
             "metrics_file": display_path(BERT_EVIDENCE),
-            "training_provenance": display_path(BERT_TRAINING_PROVENANCE),
+            "manifest": display_path(BERT_MANIFEST),
             "f1": float(bert_evidence["metrics"]["f1"]),
             "verified": bert_f1_pass,
             "executed_here": False,
@@ -392,50 +412,56 @@ def main() -> int:
                 "executed_here": True,
             }
 
-            if args.bert_checkpoint is not None:
-                checkpoint = resolve_bert_checkpoint(args.bert_checkpoint)
-                bert_run_name = "reproduction_" + stamp
-                run_command(
-                    [
-                        sys.executable,
-                        "bert_gp/train.py",
-                        "--run-name",
-                        bert_run_name,
-                        "--checkpoint",
-                        str(checkpoint),
-                        "--final",
-                    ]
+            checkpoint_source = args.bert_checkpoint
+            if checkpoint_source is None:
+                checkpoint_source = (
+                    str(LOCAL_BERT_CHECKPOINT)
+                    if LOCAL_BERT_CHECKPOINT.is_file()
+                    else DEFAULT_BERT_CHECKPOINT
                 )
-                bert_metrics_path = ROOT / "outputs" / "bert_gp" / bert_run_name / "metrics.json"
-                require(bert_metrics_path.exists(), f"BERT run did not create {bert_metrics_path}")
-                bert_metrics = load_json(bert_metrics_path)
-                bert_run_pass = compare_f1(
-                    "Checkpoint MacBERT eval_test",
-                    float(bert_metrics["f1"]),
-                    BERT_EXPECTED_F1,
-                    args.tolerance,
-                )
-                summary["bert_execution"] = {
-                    "checkpoint": display_path(checkpoint),
-                    "checkpoint_source": args.bert_checkpoint,
-                    "checkpoint_sha256": BERT_CHECKPOINT_SHA256,
-                    "metrics_file": display_path(bert_metrics_path),
-                    "f1": float(bert_metrics["f1"]),
-                    "expected_f1": BERT_EXPECTED_F1,
-                    "verified": bert_run_pass,
-                    "executed_here": True,
-                }
-            else:
-                bert_run_pass = True
-                summary["bert_execution"] = {
-                    "status": "skipped",
-                    "reason": "No --bert-checkpoint supplied; only committed evidence was checked.",
-                }
-                print(
-                    "[SKIP] BERT inference was not run because no checkpoint was supplied.\n"
-                    "       Use --bert-checkpoint <best.pt> in an environment with torch/transformers "
-                    "to reproduce the 0.6670 test result."
-                )
+            checkpoint = resolve_bert_checkpoint(checkpoint_source)
+            bert_output = output_dir / "bert_gp"
+            bert_run_name = "reproduction_" + stamp
+            run_command(
+                [
+                    sys.executable,
+                    "bert_gp/train_dict.py",
+                    "--run-name",
+                    bert_run_name,
+                    "--checkpoint",
+                    str(checkpoint),
+                    "--final",
+                    "--output-dir",
+                    str(bert_output),
+                ]
+            )
+            bert_metrics_path = bert_output / "metrics.json"
+            bert_manifest_path = bert_output / "manifest.json"
+            require(bert_metrics_path.exists(), f"BERT run did not create {bert_metrics_path}")
+            require(bert_manifest_path.exists(), f"BERT run did not create {bert_manifest_path}")
+            bert_metrics = load_json(bert_metrics_path)
+            bert_run_manifest = load_json(bert_manifest_path)
+            require(
+                bert_run_manifest.get("evaluation_split") == "eval_test",
+                "Reproduced BERT run did not use eval_test",
+            )
+            bert_run_pass = compare_f1(
+                "MacBERT dictionary-fusion eval_test",
+                float(bert_metrics["f1"]),
+                BERT_EXPECTED_F1,
+                args.tolerance,
+            )
+            summary["bert_execution"] = {
+                "checkpoint": display_path(checkpoint),
+                "checkpoint_source": checkpoint_source,
+                "checkpoint_sha256": BERT_CHECKPOINT_SHA256,
+                "metrics_file": display_path(bert_metrics_path),
+                "manifest": display_path(bert_manifest_path),
+                "f1": float(bert_metrics["f1"]),
+                "expected_f1": BERT_EXPECTED_F1,
+                "verified": bert_run_pass,
+                "executed_here": True,
+            }
 
             passed = small_f1_pass and bert_f1_pass and bert_run_pass
             summary["status"] = "pass" if passed else "failed"

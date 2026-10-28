@@ -150,6 +150,7 @@ def main():
     p.add_argument('--checkpoint',type=Path)
     p.add_argument('--final',action='store_true',help='Frozen checkpoint inference on complete eval_test')
     p.add_argument('--threshold',type=float,default=0)
+    p.add_argument('--output-dir',type=Path,default=None,help='Explicit output directory; defaults to outputs/bert_gp/<run-name>')
     a=p.parse_args()
     if a.final and (not a.checkpoint or a.tune_limit or a.train_limit or a.check_data):
         p.error('--final requires a checkpoint and the complete test split, no limits/check-data')
@@ -160,7 +161,7 @@ def main():
     random.seed(a.seed);np.random.seed(a.seed);torch.manual_seed(a.seed)
     if torch.cuda.is_available():torch.cuda.manual_seed_all(a.seed)
     device=torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    out=gp.ROOT/'outputs/bert_gp'/a.run_name
+    out=(a.output_dir.resolve() if a.output_dir else gp.ROOT/'outputs/bert_gp'/a.run_name)
     if out.exists():p.error('Run exists; use a new name')
     out.mkdir(parents=True)
     checkpoint=torch.load(a.checkpoint,map_location='cpu',weights_only=False) if a.checkpoint else None

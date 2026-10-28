@@ -20,8 +20,10 @@
 在项目根目录执行：
 
 ```powershell
-python -m pip install -r requirements.txt
+python -m pip install -r requirements-unified.txt
 ```
+
+`requirements-unified.txt` 是项目唯一完整环境，同时安装传统基线和 BERT 所需依赖。
 
 ## 数据集来源
 
@@ -44,34 +46,40 @@ src/data/data_eval/eval_test.jsonl
 python src/reproduce.py --check-only
 ```
 
-重新训练冻结的字符级 LinearSVC，并在 `eval_test` 上复核主结果：
+默认完整复现：重新训练冻结的字符级 LinearSVC，并加载最新 MacBERT 词典融合
+checkpoint，在 `eval_test` 上分别计算主结果：
 
 ```powershell
 python src/reproduce.py
 ```
 
-如已下载可信的 MacBERT checkpoint，可额外复现 BERT 推理：
+默认会优先使用本地最新 checkpoint；若不存在，则自动从 GitHub Release 下载约
+414 MB 的权重并校验 SHA-256。也可以显式指定 checkpoint：
 
 ```powershell
-python src/reproduce.py --bert-checkpoint https://api.github.com/repos/antaresjblack/nlp_medicine/releases/assets/683593804
+python src/reproduce.py --bert-checkpoint https://api.github.com/repos/antaresjblack/nlp_medicine/releases/assets/684231335
 ```
 
 权重 SHA-256：
 
 ```text
-868FBEB8530125552FF06EF8CA4C29F9CFAD8B25F087BE1E1D61687B41038CF7
+595EB45CBFD920F93E175668A7FE50A11F8B949222E882BB2F7FD4C91AE9B1D8
 ```
 
 ## 预期输出
 
 ```text
 [PASS] Environment, required data, hashes and frozen small-model configuration.
-[PASS] Committed BERT eval_test evidence: actual=0.667023, expected=0.667023
-[PASS] Retrained LinearSVC eval_test: actual≈0.428969
+[PASS] Committed BERT eval_test evidence: actual=0.670047, expected=0.670047
+[PASS] Retrained LinearSVC eval_test: actual=0.428989, expected=0.428969
+[PASS] MacBERT dictionary-fusion eval_test: actual=0.670047, expected=0.670047
 Reproduction status: PASS
 ```
 
-复现结果保存在 `src/reproduction_outputs/<时间戳>/`。未提供 BERT checkpoint 时，
-脚本会明确打印 `[SKIP]`，只核验已提交的 BERT 指标证据。
+复现结果保存在 `src/reproduction_outputs/<时间戳>/`。默认命令要求 BERT 推理真实执行；
+只有 `--check-only` 会跳过训练和推理，仅校验环境、数据哈希和冻结证据。
 
 ## 可选复现内容
+
+- 使用自定义 checkpoint：`python src/reproduce.py --bert-checkpoint <本地路径或HTTPS链接>`。
+- 降低对权重数值波动的容差：`python src/reproduce.py --tolerance 0.001`。
