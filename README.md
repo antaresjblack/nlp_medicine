@@ -232,13 +232,13 @@ python src/reproduce.py --bert-variant macbert_warmup_v1
 python src/reproduce.py --bert-variant macbert_warmup_5ep_v1
 ```
 
-| 变体 | 模型与训练配置 | 冻结 eval_test F1 |
-|---|---|---:|
-| `dict_5ep` | MacBERT + GlobalPointer + 词典特征，5 轮 | **0.670047** |
-| `full_v1` | BERT-base-chinese，3 轮 | 0.637723 |
-| `macbert_base_v1` | MacBERT，3 轮 | 0.657026 |
-| `macbert_warmup_v1` | MacBERT，3 轮 + warmup | 0.662192 |
-| `macbert_warmup_5ep_v1` | MacBERT，5 轮 + warmup | 0.667023 |
+| 变体                    | 模型与训练配置                           | 冻结 eval_test F1 |
+| ----------------------- | ---------------------------------------- | ----------------: |
+| `dict_5ep`              | MacBERT + GlobalPointer + 词典特征，5 轮 |      **0.670047** |
+| `full_v1`               | BERT-base-chinese，3 轮                  |          0.637723 |
+| `macbert_base_v1`       | MacBERT，3 轮                            |          0.657026 |
+| `macbert_warmup_v1`     | MacBERT，3 轮 + warmup                   |          0.662192 |
+| `macbert_warmup_5ep_v1` | MacBERT，5 轮 + warmup                   |          0.667023 |
 
 四份历史 BERT 权重已发布在
 [bert-legacy-checkpoints-v1](https://github.com/antaresjblack/nlp_medicine/releases/tag/bert-legacy-checkpoints-v1)；
@@ -265,6 +265,5 @@ python src/bert_gp/train_dict.py --run-name optional_macbert_dict_5ep_v1 --model
 
 ### 其他选项
 
-- 降低对权重数值波动的容差：`python src/reproduce.py --tolerance 0.001`。
 - 只验证所选变体的环境、数据哈希和历史证据：
   `python src/reproduce.py --bert-variant <变体名> --check-only`。
