@@ -92,6 +92,11 @@ python src/reproduce.py
 Reproduction status: PASS
 ```
 
+完整运行结束后还会打印一份格式化实验报告，包含数据规模与 SHA-256、冻结配置、
+两种模型的 P/R/F1、字符级补充指标、相对提升和九类实体 F1。同一内容同时保存为
+`src/reproduction_outputs/<时间戳>/reproduction_report.txt`，审查者无需再打开
+指标文件即可了解本次实验。
+
 `eval_test` 的复跑只用于核验已冻结结果，不得根据新结果修改参数或提示词。
 
 正式主结果 MacBERT 词典融合 checkpoint 已发布：

@@ -76,7 +76,11 @@ python src/reproduce.py --bert-checkpoint https://api.github.com/repos/antaresjb
 Reproduction status: PASS
 ```
 
-复现结果保存在 `src/reproduction_outputs/<时间戳>/`。默认命令要求 BERT 推理真实执行；
+控制台随后会打印数据范围、冻结参数、两种模型的完整指标和九类实体结果。
+提交时可以直接截取这段输出作为实验运行证据。
+
+复现结果保存在 `src/reproduction_outputs/<时间戳>/`，其中
+`reproduction_report.txt` 与控制台实验报告内容一致。默认命令要求 BERT 推理真实执行；
 只有 `--check-only` 会跳过训练和推理，仅校验环境、数据哈希和冻结证据。
 
 ## 可选复现内容

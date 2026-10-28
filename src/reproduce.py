@@ -28,6 +28,11 @@ from typing import Any
 from urllib.parse import urlparse
 from urllib.request import Request, urlopen
 
+from reproduction_report import build_reproduction_report, collect_data_scope
+
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")
+
 ROOT = Path(__file__).resolve().parent
 SELECTED_CONFIG = (
     ROOT
@@ -187,6 +192,19 @@ def git_commit() -> str | None:
             text=True,
             stderr=subprocess.DEVNULL,
         ).strip()
+    except (OSError, subprocess.CalledProcessError):
+        return None
+
+
+def git_working_tree_dirty() -> bool | None:
+    try:
+        status = subprocess.check_output(
+            ["git", "status", "--porcelain"],
+            cwd=ROOT,
+            text=True,
+            stderr=subprocess.DEVNULL,
+        )
+        return bool(status.strip())
     except (OSError, subprocess.CalledProcessError):
         return None
 
@@ -353,6 +371,7 @@ def main() -> int:
         "status": "running",
         "started_at": datetime.now().astimezone().isoformat(timespec="seconds"),
         "repository_commit": git_commit(),
+        "working_tree_dirty": git_working_tree_dirty(),
         "output_dir": str(output_dir),
         "check_only": args.check_only,
     }
@@ -360,6 +379,8 @@ def main() -> int:
     try:
         summary["environment"] = verify_environment()
         summary["data_hashes"] = verify_data_hashes()
+        data_scope = collect_data_scope()
+        summary["data_scope"] = data_scope
         summary["frozen_small_model_config"] = verify_frozen_config()
         print("[PASS] Environment, required data, hashes and frozen small-model configuration.")
 
@@ -406,6 +427,9 @@ def main() -> int:
             )
             summary["small_model"] = {
                 "metrics_file": display_path(small_metrics_path),
+                "predictions_file": display_path(small_output / "test" / "test_predictions.jsonl"),
+                "errors_file": display_path(small_output / "test" / "test_errors.json"),
+                "manifest": display_path(small_output / "test" / "test_manifest.json"),
                 "f1": float(small_metrics["f1"]),
                 "expected_f1": SMALL_MODEL_EXPECTED_F1,
                 "verified": small_f1_pass,
@@ -420,6 +444,10 @@ def main() -> int:
                     else DEFAULT_BERT_CHECKPOINT
                 )
             checkpoint = resolve_bert_checkpoint(checkpoint_source)
+            print(
+                f"[PASS] BERT checkpoint SHA-256 verified: {BERT_CHECKPOINT_SHA256}",
+                flush=True,
+            )
             bert_output = output_dir / "bert_gp"
             bert_run_name = "reproduction_" + stamp
             run_command(
@@ -433,6 +461,7 @@ def main() -> int:
                     "--final",
                     "--output-dir",
                     str(bert_output),
+                    "--quiet",
                 ]
             )
             bert_metrics_path = bert_output / "metrics.json"
@@ -456,6 +485,8 @@ def main() -> int:
                 "checkpoint_source": checkpoint_source,
                 "checkpoint_sha256": BERT_CHECKPOINT_SHA256,
                 "metrics_file": display_path(bert_metrics_path),
+                "predictions_file": display_path(bert_output / "predictions.jsonl"),
+                "errors_file": display_path(bert_output / "errors.json"),
                 "manifest": display_path(bert_manifest_path),
                 "f1": float(bert_metrics["f1"]),
                 "expected_f1": BERT_EXPECTED_F1,
@@ -468,8 +499,16 @@ def main() -> int:
 
         summary["finished_at"] = datetime.now().astimezone().isoformat(timespec="seconds")
         summary["elapsed_seconds"] = time.perf_counter() - started
+        report_text = None
+        if not args.check_only:
+            report_path = output_dir / "reproduction_report.txt"
+            summary["report_file"] = display_path(report_path)
+            report_text = build_reproduction_report(summary, data_scope)
+            report_path.write_text(report_text + "\n", encoding="utf-8")
         summary_path = output_dir / "reproduction_summary.json"
         write_json(summary_path, summary)
+        if report_text is not None:
+            print("\n" + report_text)
         print(f"\nReproduction status: {summary['status'].upper()}")
         print(f"Summary: {summary_path}")
         return 0 if summary["status"] in {"pass", "check-only-pass"} else 1

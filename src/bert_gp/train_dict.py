@@ -151,6 +151,7 @@ def main():
     p.add_argument('--final',action='store_true',help='Frozen checkpoint inference on complete eval_test')
     p.add_argument('--threshold',type=float,default=0)
     p.add_argument('--output-dir',type=Path,default=None,help='Explicit output directory; defaults to outputs/bert_gp/<run-name>')
+    p.add_argument('--quiet',action='store_true',help='Suppress the full manifest JSON on stdout')
     a=p.parse_args()
     if a.final and (not a.checkpoint or a.tune_limit or a.train_limit or a.check_data):
         p.error('--final requires a checkpoint and the complete test split, no limits/check-data')
@@ -191,7 +192,8 @@ def main():
         windows,coverage=gp.prepare(train,tokenizer,a.max_length,a.overlap)
         metadata.update(train_coverage=coverage,train_features=add_features(train,windows,matcher,text_group_counts(train)),
             train_sha256=hashlib.sha256((gp.ROOT/'data'/'data_cleaned'/'CMeEE_train_cleaned_final.json').read_bytes()).hexdigest())
-    gp.save(out/'manifest.json',metadata);print(json.dumps(metadata,ensure_ascii=False),flush=True)
+    gp.save(out/'manifest.json',metadata)
+    if not a.quiet:print(json.dumps(metadata,ensure_ascii=False),flush=True)
     if a.check_data:return
     model=DictionaryGlobalPointer(a.model,a.feature_dropout).to(device)
     if checkpoint:model.load_state_dict(checkpoint['model'])
