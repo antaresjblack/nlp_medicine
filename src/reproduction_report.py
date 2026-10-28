@@ -71,6 +71,7 @@ def build_reproduction_report(
     environment = summary["environment"]
     frozen = summary["frozen_small_model_config"]
     selected = frozen["selected_candidate"]
+    bert_display = summary.get("bert_variant", {}).get("label", "BERT")
     small_f1 = _metric(small, "f1")
     bert_f1 = _metric(bert, "f1")
     delta_f1 = bert_f1 - small_f1
@@ -79,7 +80,7 @@ def build_reproduction_report(
 
     lines = [
         separator,
-        "CMeEE 医疗命名实体识别：默认复现实验报告",
+        "CMeEE 医疗命名实体识别：实验复现报告",
         separator,
         f"状态             : {str(summary['status']).upper()}",
         f"代码提交         : {summary.get('repository_commit') or 'unknown'}",
@@ -114,7 +115,7 @@ def build_reproduction_report(
         "  执行方式         LinearSVC 重新训练；BERT 使用固定 checkpoint 推理",
         f"  LinearSVC       C={selected['C']}, class_weight={selected['class_weight']}, "
         f"dict_span_features={selected['dict_span_features']}, seed={frozen['settings']['seed']}",
-        f"  BERT             {bert_manifest['args']['model']} + GlobalPointer + 词典特征",
+        f"  BERT             {bert_display}",
         f"  BERT checkpoint  {summary['bert_execution']['checkpoint']}",
         "  checkpoint SHA",
         f"    {summary['bert_execution']['checkpoint_sha256']}",
@@ -125,7 +126,7 @@ def build_reproduction_report(
     ]
     rows = (
         ("char LinearSVC + dict features", small),
-        ("MacBERT + GP + dict features", bert),
+        (bert_display, bert),
     )
     for name, metrics in rows:
         lines.append(f"  {name}")

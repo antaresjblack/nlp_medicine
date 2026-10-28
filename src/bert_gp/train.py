@@ -158,6 +158,8 @@ def main():
     p.add_argument('--final',action='store_true')
     p.add_argument('--check-data',action='store_true')
     p.add_argument('--overfit-check',action='store_true',help='Evaluate training records each epoch; select checkpoint by train F1')
+    p.add_argument('--output-dir',type=Path,default=None,help='Explicit output directory; defaults to outputs/bert_gp/<run-name>')
+    p.add_argument('--quiet',action='store_true',help='Suppress the full manifest JSON on stdout')
     a=p.parse_args()
     if not math.isfinite(a.warmup_ratio) or not 0<=a.warmup_ratio<1:
         p.error('warmup-ratio must be in [0, 1)')
@@ -174,7 +176,7 @@ def main():
     random.seed(a.seed);np.random.seed(a.seed);torch.manual_seed(a.seed)
     if torch.cuda.is_available():torch.cuda.manual_seed_all(a.seed)
     device=torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    folder=ROOT/'outputs/bert_gp'/a.run_name
+    folder=(a.output_dir.resolve() if a.output_dir else ROOT/'outputs/bert_gp'/a.run_name)
     if folder.exists():p.error('Run exists; use a new name. Never overwrite results.')
     folder.mkdir(parents=True)
     checkpoint=torch.load(a.checkpoint,map_location='cpu',weights_only=False) if a.checkpoint else None
@@ -188,6 +190,7 @@ def main():
     tw,ts=prepare(tune,tokenizer,a.max_length,a.overlap)
     metadata=dict(args={k:str(v) if isinstance(v,Path) else v for k,v in vars(a).items()},device=str(device),labels=LABELS,
         torch=torch.__version__,numpy=np.__version__,tune_sha256=hashlib.sha256(source.read_bytes()).hexdigest(),tokenizer_commit=tokenizer.init_kwargs.get('_commit_hash'),tune_coverage=ts)
+    metadata['evaluation_split']='eval_test' if a.final else 'eval_tune'
     if checkpoint:
         train=[];windows=[]
     else:
@@ -195,7 +198,8 @@ def main():
         if a.train_limit:train=train[:a.train_limit]
         windows,stats=prepare(train,tokenizer,a.max_length,a.overlap)
         metadata.update(train_coverage=stats,train_sha256=hashlib.sha256(path.read_bytes()).hexdigest())
-    save(folder/'manifest.json',metadata);print(json.dumps(metadata,ensure_ascii=False),flush=True)
+    save(folder/'manifest.json',metadata)
+    if not a.quiet:print(json.dumps(metadata,ensure_ascii=False),flush=True)
     if a.check_data:return
     model=GlobalPointer(a.model, load_pretrained=checkpoint is None).to(device)
     if checkpoint:
