@@ -19,6 +19,9 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 BASELINE_DIR = ROOT / "baseline"
+PROJECT_ROOT = ROOT.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 if str(BASELINE_DIR) not in sys.path:
     sys.path.insert(0, str(BASELINE_DIR))
 

@@ -10,8 +10,9 @@
 | NumPy        | 1.26.4      |
 | SciPy        | 1.13.1      |
 | scikit-learn | 1.7.2       |
-| CPU          | 可选        |
-| CUDA         | 可用        |
+| CPU          | 必需；支持纯 CPU 运行 |
+| NVIDIA GPU   | 可选        |
+| CUDA         | 可选；GPU 加速时使用，验证版本为 12.8 |
 
 ## 依赖
 
@@ -22,6 +23,8 @@ python -m pip install -r requirements.txt
 ```
 
 `requirements.txt` 是项目唯一完整环境，同时安装传统基线和 BERT 所需依赖。
+CPU 是运行程序的必需硬件；NVIDIA GPU 和 CUDA 不是硬性要求。程序检测不到可用
+CUDA 时会自动回退到 CPU，但 BERT 推理和训练会明显变慢。
 
 ## 数据集来源
 

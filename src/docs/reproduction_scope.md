@@ -127,6 +127,7 @@ LinearSVC 的错误计数是参考机器结果；BLAS、sklearn 或浮点实现�
 - eval_test 有 `8 / 10,460` 个金标实体无法精确映射到 tokenizer token，占 0.076%；
 - 本次四方法流程在本机离线缓存环境实测约 98 秒；
 - 评审 CPU 环境的总耗时会更长，具体以本次 `reproduction_report.txt` 为准；
+- CPU 是必需硬件；GPU/CUDA 是可选的加速条件，代码检测不到 CUDA 时会回退到 CPU；
 - BERT 在 CPU 上较慢，但固定 checkpoint 推理结果可逐位一致。
 
 ## 离线执行
