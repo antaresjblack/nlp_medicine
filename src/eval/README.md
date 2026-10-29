@@ -244,6 +244,19 @@ python src/eval/analyze_errors.py `
   --method "模型名称"
 ```
 
+## 词典融合增益显著性
+
+`bootstrap_dict_gain.py` 对 dict 与无词典 5 轮模型的逐记录严格实体计数做 paired
+bootstrap，结果保存在 `src/outputs/bert_gp/dict_gain_bootstrap.json`。当前结果为：
+
+```text
+F1 difference = +0.0030247619
+95% CI        = [-0.0006491813, +0.0066428184]
+p             = 0.1122
+```
+
+区间包含 0，因此不宣称显著提升。
+
 ## 口径说明
 
 - 成员2的完整 dev 表继续作为基线主表。

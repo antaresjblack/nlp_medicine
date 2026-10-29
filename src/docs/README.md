@@ -22,7 +22,8 @@
 
 | 文件 | 用途 |
 |---|---|
-| `reproduction_scope.md` | 复现范围、非盲留出集、主结果、错误分类和报告建议措辞 |
+| `reproduction_scope.md` | 复现范围、非盲留出集、主结果和错误分类 |
+| `../outputs/bert_gp/dict_gain_bootstrap.json` | 词典融合增益的 paired bootstrap 置信区间与 p 值 |
 
 ## 最终文档待补
 

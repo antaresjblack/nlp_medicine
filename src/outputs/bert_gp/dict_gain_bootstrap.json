@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "split": "eval_test",
+  "records": 2500,
+  "bootstrap_samples": 10000,
+  "seed": 42,
+  "dict": {
+    "precision": 0.6770447003708764,
+    "recall": 0.6631931166347992,
+    "f1": 0.6700473292765381,
+    "true_positive": 6937,
+    "false_positive": 3309,
+    "false_negative": 3523
+  },
+  "warmup_no_dictionary": {
+    "precision": 0.6773780187284376,
+    "recall": 0.6569789674952199,
+    "f1": 0.6670225673380248,
+    "true_positive": 6872,
+    "false_positive": 3273,
+    "false_negative": 3588
+  },
+  "observed_f1_difference": 0.0030247619385133095,
+  "ci95": [
+    -0.0006491813095122671,
+    0.006642818417989081
+  ],
+  "p_value_two_sided": 0.1122,
+  "significant_at_0_05": false
+}

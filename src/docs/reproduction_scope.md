@@ -48,8 +48,26 @@ BERT 相对 LinearSVC 的绝对 F1 差约为 `+0.2411`，相对提升约 `+56.2%
 相对提升约 +0.45%
 ```
 
-该比较只有一个 seed，未做 paired bootstrap 或置信区间，不能表述为“显著提升”。
-更稳妥的写法是“方向一致的小幅增益，显著性未检验”。
+该比较只有一个 seed。按 eval_test 的记录做 10,000 次 paired bootstrap：
+
+```text
+95% CI = [-0.0006491813, +0.0066428184]
+p      = 0.1122
+```
+
+区间包含 0，未达到 0.05 水平的统计显著。因此应表述为“点估计为正但未达显著”，
+不能写成“显著提升”。证据文件为 `src/outputs/bert_gp/dict_gain_bootstrap.json`。
+
+复现命令：
+
+```powershell
+python src/eval/bootstrap_dict_gain.py `
+  --gold src/data/data_eval/eval_test.jsonl `
+  --dict-predictions <dict_predictions.jsonl> `
+  --warmup-predictions <warmup_predictions.jsonl> `
+  --output src/outputs/bert_gp/dict_gain_bootstrap.json `
+  --bootstrap-samples 10000 --seed 42
+```
 
 ## 错误分析
 
