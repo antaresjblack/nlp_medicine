@@ -57,15 +57,19 @@ class DataPackageFallbackTests(unittest.TestCase):
         expected_sha256 = hashlib.sha256(valid_bytes).hexdigest()
 
         with tempfile.TemporaryDirectory() as directory:
-            root = Path(directory).resolve()
+            root = (Path(directory) / "源码").resolve()
             cache_dir = root / ".data_packages"
-            cache_dir.mkdir()
+            cache_dir.mkdir(parents=True)
             target = cache_dir / reproduce.DATA_PACKAGE_FILENAME
             target.write_bytes(b"damaged cache")
+            download_paths = []
 
-            def fake_run(command):
-                partial = Path(command[command.index("--output") + 1])
-                partial.write_bytes(valid_bytes)
+            def fake_run(command, stdout):
+                self.assertEqual(command[command.index("--output") + 1], "-")
+                self.assertEqual(command[command.index("--max-time") + 1], "300")
+                self.assertNotIn(str(target), command)
+                download_paths.append(Path(stdout.name))
+                stdout.write(valid_bytes)
                 return SimpleNamespace(returncode=0)
 
             with (
@@ -81,6 +85,9 @@ class DataPackageFallbackTests(unittest.TestCase):
             self.assertEqual(result, target)
             self.assertEqual(target.read_bytes(), valid_bytes)
             self.assertEqual(list(cache_dir.glob("*.part")), [])
+            self.assertEqual(list(cache_dir.glob("*.incoming")), [])
+            self.assertFalse(download_paths[0].exists())
+            self.assertNotIn(root, download_paths[0].parents)
 
     def test_download_partial_names_are_unique_and_cleaned_after_failure(self):
         buffer = io.BytesIO()
@@ -91,15 +98,15 @@ class DataPackageFallbackTests(unittest.TestCase):
         partial_paths = []
 
         with tempfile.TemporaryDirectory() as directory:
-            root = Path(directory).resolve()
+            root = (Path(directory) / "源码").resolve()
 
-            def fake_run(command):
-                partial = Path(command[command.index("--output") + 1])
-                partial_paths.append(partial)
+            def fake_run(command, stdout):
+                self.assertEqual(command[command.index("--output") + 1], "-")
+                partial_paths.append(Path(stdout.name))
                 if len(partial_paths) == 1:
-                    partial.write_bytes(b"interrupted download")
+                    stdout.write(b"interrupted download")
                     return SimpleNamespace(returncode=1)
-                partial.write_bytes(valid_bytes)
+                stdout.write(valid_bytes)
                 return SimpleNamespace(returncode=0)
 
             with (
@@ -114,6 +121,7 @@ class DataPackageFallbackTests(unittest.TestCase):
                     )
                 cache_dir = root / ".data_packages"
                 self.assertEqual(list(cache_dir.glob("*.part")), [])
+                self.assertFalse(partial_paths[0].exists())
 
                 target = reproduce.resolve_data_package(
                     "https://example.com/cmeee_frozen_data_v1.zip"
@@ -123,6 +131,8 @@ class DataPackageFallbackTests(unittest.TestCase):
             self.assertEqual(len(partial_paths), 2)
             self.assertNotEqual(partial_paths[0], partial_paths[1])
             self.assertEqual(list(cache_dir.glob("*.part")), [])
+            self.assertEqual(list(cache_dir.glob("*.incoming")), [])
+            self.assertFalse(partial_paths[1].exists())
 
     def test_hash_mismatch_cleans_partial_without_publishing_target(self):
         expected_sha256 = hashlib.sha256(b"expected archive").hexdigest()
@@ -130,9 +140,9 @@ class DataPackageFallbackTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory).resolve()
 
-            def fake_run(command):
-                partial = Path(command[command.index("--output") + 1])
-                partial.write_bytes(b'{"message": "rate limit exceeded"}')
+            def fake_run(command, stdout):
+                self.assertEqual(command[command.index("--output") + 1], "-")
+                stdout.write(b'{"message": "rate limit exceeded"}')
                 return SimpleNamespace(returncode=0)
 
             with (
@@ -149,6 +159,41 @@ class DataPackageFallbackTests(unittest.TestCase):
             cache_dir = root / ".data_packages"
             self.assertFalse((cache_dir / reproduce.DATA_PACKAGE_FILENAME).exists())
             self.assertEqual(list(cache_dir.glob("*.part")), [])
+            self.assertEqual(list(cache_dir.glob("*.incoming")), [])
+
+    def test_checkpoint_download_uses_safe_transfer_under_non_ascii_root(self):
+        valid_bytes = b"checkpoint payload"
+        expected_sha256 = hashlib.sha256(valid_bytes).hexdigest()
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = (Path(directory) / "源码").resolve()
+            target = root / ".checkpoints" / "checkpoint.pt"
+            download_paths = []
+
+            def fake_run(command, stdout):
+                self.assertEqual(command[command.index("--output") + 1], "-")
+                self.assertEqual(command[command.index("--max-time") + 1], "1800")
+                self.assertNotIn(str(target), command)
+                download_paths.append(Path(stdout.name))
+                stdout.write(valid_bytes)
+                return SimpleNamespace(returncode=0)
+
+            with (
+                patch("reproduce.ROOT", root),
+                patch("reproduce.shutil.which", return_value="curl"),
+                patch("reproduce.subprocess.run", side_effect=fake_run),
+            ):
+                result = reproduce.resolve_bert_checkpoint(
+                    "https://example.com/checkpoint.pt",
+                    {"filename": "checkpoint.pt", "sha256": expected_sha256},
+                )
+
+            self.assertEqual(result, target)
+            self.assertEqual(target.read_bytes(), valid_bytes)
+            self.assertEqual(list(target.parent.glob("*.part")), [])
+            self.assertEqual(list(target.parent.glob("*.incoming")), [])
+            self.assertFalse(download_paths[0].exists())
+            self.assertNotIn(root, download_paths[0].parents)
 
 
 if __name__ == "__main__":

@@ -41,6 +41,9 @@ B9E48B664AB0135892E688DB2FFB25DF6D6A1A726FABDD6B5FD0A1611A41CFEF
 所需数据已齐全时不会重复下载；存在缺失文件时会解压固定数据包补齐。默认先尝试
 `github.com` Release，失败后自动回退到 `api.github.com` Release Asset，两者必须通过
 同一个 SHA-256。损坏缓存会被丢弃并重新下载；下载使用唯一临时文件，失败后自动清理。
+下载内容先写入系统临时文件，校验后再复制到目标盘并原子替换，因此项目路径含中文时
+也不需要由 curl 直接写项目目录。若本机仍限制 curl 或系统临时目录，可将项目放到
+纯 ASCII 路径，或通过 `--data-package`、`--bert-checkpoint` 使用本地资产。
 最终所需的目录布局为：
 
 ```text

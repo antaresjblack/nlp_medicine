@@ -21,6 +21,7 @@ import platform
 import shutil
 import subprocess
 import sys
+import tempfile
 import time
 import uuid
 import zipfile
@@ -128,6 +129,94 @@ def sha256_file(path: Path) -> str:
     return digest.hexdigest()
 
 
+def download_https_asset(
+    value: str,
+    target: Path,
+    expected_sha256: str,
+    asset_name: str,
+    max_time_seconds: int,
+) -> Path:
+    """Download to a system temp file, verify it, then publish atomically."""
+    target.parent.mkdir(parents=True, exist_ok=True)
+    file_descriptor, temporary_name = tempfile.mkstemp(
+        prefix=f"{target.stem}.",
+        suffix=".part",
+    )
+    os.close(file_descriptor)
+    temporary = Path(temporary_name)
+    incoming = target.with_name(
+        f"{target.name}.{os.getpid()}.{uuid.uuid4().hex}.incoming"
+    )
+    try:
+        print(f"[INFO] Downloading {asset_name}: {value}", flush=True)
+        curl = shutil.which("curl")
+        if curl:
+            command = [
+                curl,
+                "-L",
+                "--http1.1",
+                "--retry",
+                "5",
+                "--retry-delay",
+                "2",
+                "--retry-all-errors",
+                "--connect-timeout",
+                "30",
+                "--max-time",
+                str(max_time_seconds),
+                "--silent",
+                "--show-error",
+                "--output",
+                "-",
+                "--header",
+                "Accept: application/octet-stream",
+                "--header",
+                "User-Agent: Codex-CMeEE-Reproduction",
+                value,
+            ]
+            with temporary.open("wb") as output:
+                completed = subprocess.run(command, stdout=output)
+            require(
+                completed.returncode == 0,
+                f"Failed to download {asset_name} (curl exit {completed.returncode})",
+            )
+        else:
+            request = Request(
+                value,
+                headers={
+                    "User-Agent": "Codex-CMeEE-Reproduction",
+                    "Accept": "application/octet-stream",
+                },
+            )
+            with urlopen(request, timeout=120) as response, temporary.open("wb") as output:
+                while True:
+                    chunk = response.read(1024 * 1024)
+                    if not chunk:
+                        break
+                    output.write(chunk)
+
+        digest = sha256_file(temporary)
+        require(
+            digest == expected_sha256,
+            f"Downloaded {asset_name} hash mismatch: expected {expected_sha256}, got {digest}",
+        )
+
+        # The source may be on another drive. Copy on the destination drive first,
+        # verify the copy, then use os.replace for an atomic same-volume publish.
+        shutil.copyfile(temporary, incoming)
+        require(
+            sha256_file(incoming) == expected_sha256,
+            f"Copied {asset_name} hash mismatch after publication staging",
+        )
+        os.replace(incoming, target)
+        print(f"[PASS] Downloaded and verified {asset_name}: {display_path(target)}")
+        return target
+    finally:
+        for path in (temporary, incoming):
+            if path.exists():
+                path.unlink()
+
+
 def resolve_bert_checkpoint(value: str, variant: dict[str, Any]) -> Path:
     """Resolve a local checkpoint or download the pinned checkpoint from HTTPS."""
     parsed = urlparse(value)
@@ -147,59 +236,13 @@ def resolve_bert_checkpoint(value: str, variant: dict[str, Any]) -> Path:
             print(f"[INFO] Using cached checkpoint: {display_path(target)}")
             return target
 
-        partial = target.with_name(target.name + ".part")
-        print(f"[INFO] Downloading checkpoint: {value}", flush=True)
-        curl = shutil.which("curl")
-        if curl:
-            command = [
-                curl,
-                "-L",
-                "--http1.1",
-                "--retry",
-                "5",
-                "--retry-delay",
-                "2",
-                "--retry-all-errors",
-                "--connect-timeout",
-                "30",
-                "--max-time",
-                "1800",
-                "--silent",
-                "--show-error",
-                "--continue-at",
-                "-",
-                "--output",
-                str(partial),
-                "--header",
-                "Accept: application/octet-stream",
-                "--header",
-                "User-Agent: Codex-CMeEE-Reproduction",
-                value,
-            ]
-            completed = subprocess.run(command)
-            require(completed.returncode == 0, f"Failed to download checkpoint (curl exit {completed.returncode})")
-        else:
-            request = Request(
-                value,
-                headers={
-                    "User-Agent": "Codex-CMeEE-Reproduction",
-                    "Accept": "application/octet-stream",
-                },
-            )
-            with urlopen(request, timeout=120) as response, partial.open("wb") as output:
-                while True:
-                    chunk = response.read(1024 * 1024)
-                    if not chunk:
-                        break
-                    output.write(chunk)
-        digest = sha256_file(partial)
-        require(
-            digest == expected_sha256,
-            f"Downloaded checkpoint hash mismatch: expected {expected_sha256}, got {digest}",
+        return download_https_asset(
+            value,
+            target,
+            expected_sha256,
+            asset_name="checkpoint",
+            max_time_seconds=1800,
         )
-        os.replace(partial, target)
-        print(f"[PASS] Downloaded and verified checkpoint: {display_path(target)}")
-        return target
 
     path = Path(value).expanduser().resolve()
     require(path.is_file(), f"BERT checkpoint not found: {path}")
@@ -230,68 +273,13 @@ def resolve_data_package(value: str) -> Path:
             )
             target.unlink()
 
-        partial = target.with_name(
-            f"{target.name}.{os.getpid()}.{uuid.uuid4().hex}.part"
+        return download_https_asset(
+            value,
+            target,
+            DATA_PACKAGE_SHA256,
+            asset_name="frozen data package",
+            max_time_seconds=300,
         )
-        try:
-            print(f"[INFO] Downloading frozen data package: {value}", flush=True)
-            curl = shutil.which("curl")
-            if curl:
-                command = [
-                    curl,
-                    "-L",
-                    "--http1.1",
-                    "--retry",
-                    "5",
-                    "--retry-delay",
-                    "2",
-                    "--retry-all-errors",
-                    "--connect-timeout",
-                    "30",
-                    "--max-time",
-                    "1800",
-                    "--silent",
-                    "--show-error",
-                    "--continue-at",
-                    "-",
-                    "--output",
-                    str(partial),
-                    "--header",
-                    "Accept: application/octet-stream",
-                    "--header",
-                    "User-Agent: Codex-CMeEE-Reproduction",
-                    value,
-                ]
-                completed = subprocess.run(command)
-                require(
-                    completed.returncode == 0,
-                    f"Failed to download data package (curl exit {completed.returncode})",
-                )
-            else:
-                request = Request(
-                    value,
-                    headers={
-                        "User-Agent": "Codex-CMeEE-Reproduction",
-                        "Accept": "application/octet-stream",
-                    },
-                )
-                with urlopen(request, timeout=120) as response, partial.open("wb") as output:
-                    while True:
-                        chunk = response.read(1024 * 1024)
-                        if not chunk:
-                            break
-                        output.write(chunk)
-            digest = sha256_file(partial)
-            require(
-                digest == DATA_PACKAGE_SHA256,
-                f"Downloaded data package hash mismatch: expected {DATA_PACKAGE_SHA256}, got {digest}",
-            )
-            os.replace(partial, target)
-            print(f"[PASS] Downloaded and verified data package: {display_path(target)}")
-            return target
-        finally:
-            if partial.exists():
-                partial.unlink()
 
     path = Path(value).expanduser().resolve()
     require(path.is_file(), f"Data package not found: {path}")
