@@ -66,12 +66,13 @@ class DataPackageFallbackTests(unittest.TestCase):
             target.write_bytes(b"damaged cache")
             download_paths = []
 
-            def fake_run(command, stdout):
-                self.assertEqual(command[command.index("--output") + 1], "-")
-                self.assertEqual(command[command.index("--max-time") + 1], "300")
+            def fake_run(command):
+                output = Path(command[command.index("--output") + 1])
+                self.assertEqual(command[command.index("--max-time") + 1], "600")
+                self.assertIn("--continue-at", command)
                 self.assertNotIn(str(target), command)
-                download_paths.append(Path(stdout.name))
-                stdout.write(valid_bytes)
+                download_paths.append(output)
+                output.write_bytes(valid_bytes)
                 return SimpleNamespace(returncode=0)
 
             with (
@@ -102,13 +103,13 @@ class DataPackageFallbackTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             root = (Path(directory) / "源码").resolve()
 
-            def fake_run(command, stdout):
-                self.assertEqual(command[command.index("--output") + 1], "-")
-                partial_paths.append(Path(stdout.name))
+            def fake_run(command):
+                output = Path(command[command.index("--output") + 1])
+                partial_paths.append(output)
                 if len(partial_paths) == 1:
-                    stdout.write(b"interrupted download")
+                    output.write_bytes(b"interrupted download")
                     return SimpleNamespace(returncode=1)
-                stdout.write(valid_bytes)
+                output.write_bytes(valid_bytes)
                 return SimpleNamespace(returncode=0)
 
             with (
@@ -142,9 +143,9 @@ class DataPackageFallbackTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory).resolve()
 
-            def fake_run(command, stdout):
-                self.assertEqual(command[command.index("--output") + 1], "-")
-                stdout.write(b'{"message": "rate limit exceeded"}')
+            def fake_run(command):
+                output = Path(command[command.index("--output") + 1])
+                output.write_bytes(b'{"message": "rate limit exceeded"}')
                 return SimpleNamespace(returncode=0)
 
             with (
@@ -172,12 +173,13 @@ class DataPackageFallbackTests(unittest.TestCase):
             target = root / ".checkpoints" / "checkpoint.pt"
             download_paths = []
 
-            def fake_run(command, stdout):
-                self.assertEqual(command[command.index("--output") + 1], "-")
+            def fake_run(command):
+                output = Path(command[command.index("--output") + 1])
                 self.assertEqual(command[command.index("--max-time") + 1], "1800")
+                self.assertIn("--continue-at", command)
                 self.assertNotIn(str(target), command)
-                download_paths.append(Path(stdout.name))
-                stdout.write(valid_bytes)
+                download_paths.append(output)
+                output.write_bytes(valid_bytes)
                 return SimpleNamespace(returncode=0)
 
             with (

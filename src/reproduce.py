@@ -212,16 +212,18 @@ def download_https_asset(
                 str(max_time_seconds),
                 "--silent",
                 "--show-error",
-                "--output",
+                "--fail",
+                "--continue-at",
                 "-",
+                "--output",
+                str(temporary),
                 "--header",
                 "Accept: application/octet-stream",
                 "--header",
                 "User-Agent: Codex-CMeEE-Reproduction",
                 value,
             ]
-            with temporary.open("wb") as output:
-                completed = subprocess.run(command, stdout=output)
+            completed = subprocess.run(command)
             require(
                 completed.returncode == 0,
                 f"Failed to download {asset_name} (curl exit {completed.returncode})",
@@ -370,7 +372,7 @@ def resolve_data_package(value: str) -> Path:
             target,
             DATA_PACKAGE_SHA256,
             asset_name="frozen data package",
-            max_time_seconds=300,
+            max_time_seconds=600,
         )
 
     path = Path(value).expanduser().resolve()
