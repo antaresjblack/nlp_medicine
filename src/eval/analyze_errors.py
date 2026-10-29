@@ -6,7 +6,7 @@ import argparse
 import json
 from collections import Counter, defaultdict
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any
 
 
 CATEGORY_ORDER = ("missed", "false_positive", "boundary_error", "type_error")
@@ -177,6 +177,13 @@ def analyze(errors: list[dict[str, Any]], gold_records: list[dict[str, Any]], me
                 examples[category].append(case)
                 example_records[category].add(record_index)
 
+    total_error_events = sum(counts.values())
+    gold_error_entities = (
+        counts["missed"] + counts["boundary_error"] + counts["type_error"]
+    )
+    prediction_error_entities = (
+        counts["false_positive"] + counts["boundary_error"] + counts["type_error"]
+    )
     return {
         "schema_version": 1,
         "method": method,
@@ -190,7 +197,18 @@ def analyze(errors: list[dict[str, Any]], gold_records: list[dict[str, Any]], me
             }
             for category in CATEGORY_ORDER
         },
-        "total_classified_errors": sum(counts.values()),
+        "total_error_events": total_error_events,
+        "total_error_entities": gold_error_entities + prediction_error_entities,
+        "gold_error_entities": gold_error_entities,
+        "prediction_error_entities": prediction_error_entities,
+        "pairing_identity": {
+            "left": (
+                counts["missed"]
+                + counts["false_positive"]
+                + 2 * (counts["boundary_error"] + counts["type_error"])
+            ),
+            "right": gold_error_entities + prediction_error_entities,
+        },
         "missed_by_label": dict(sorted(missed_by_label.items())),
         "false_positive_by_label": dict(sorted(false_positive_by_label.items())),
         "boundary_by_label": dict(sorted(boundary_by_label.items())),
@@ -209,10 +227,10 @@ def render_markdown(report: dict[str, Any], errors_path: Path) -> str:
     lines = [
         f"# 错误分析：{report['method']}",
         "",
-        f"- 原始错误文件：`{errors_path.as_posix()}`",
+        f"- 原始错误文件：`{errors_path.name}`",
         f"- 含错误的记录：{report['error_records']}",
         "",
-        "| 类别 | 数量 | 涉及记录 | 定义 |",
+        "| 类别 | 错误事件 | 涉及记录 | 定义 |",
         "|---|---:|---:|---|",
     ]
     for category in CATEGORY_ORDER:
@@ -221,10 +239,43 @@ def render_markdown(report: dict[str, Any], errors_path: Path) -> str:
             f"| {item['label']} | {item['count']} | {item['affected_records']} | {item['description']} |"
         )
 
+    identity = report["pairing_identity"]
+    lines += [
+        "",
+        "## 实体口径",
+        "",
+        "| 项目 | 数量 |",
+        "|---|---:|",
+        f"| 错误事件合计（边界/类型按配对计 1 次） | {report['total_error_events']} |",
+        f"| 金标错误实体 | {report['gold_error_entities']} |",
+        f"| 预测错误实体 | {report['prediction_error_entities']} |",
+        f"| 金标 + 预测错误实体 | {report['total_error_entities']} |",
+        "",
+        "配对恒等式：",
+        "",
+        "```text",
+        "漏检 + 误报 + 2 × (边界 + 类型) = 金标错误实体 + 预测错误实体",
+        f"{identity['left']} = {identity['right']}",
+        "```",
+    ]
+
     if report["type_confusions"]:
         lines += ["", "## 类型混淆", "", "| 金标 → 预测 | 数量 |", "|---|---:|"]
         for confusion, count in report["type_confusions"].items():
             lines.append(f"| {confusion} | {count} |")
+
+    label_tables = (
+        ("漏检分类别统计", report["missed_by_label"]),
+        ("误报分类别统计", report["false_positive_by_label"]),
+        ("边界错误分类别统计", report["boundary_by_label"]),
+    )
+    for title, counts in label_tables:
+        lines += ["", f"## {title}", "", "| 标签 | 数量 |", "|---|---:|"]
+        if counts:
+            for label, count in counts.items():
+                lines.append(f"| {label} | {count} |")
+        else:
+            lines.append("| 无 | 0 |")
 
     for category in CATEGORY_ORDER:
         lines += ["", f"## {CATEGORY_LABELS[category]}样例"]
@@ -232,6 +283,7 @@ def render_markdown(report: dict[str, Any], errors_path: Path) -> str:
         if not category_examples:
             lines.append("无")
             continue
+        lines.append("")
         for number, example in enumerate(category_examples, 1):
             text = " ".join(example["text"].split())
             if len(text) > 120:

@@ -34,6 +34,23 @@ class ErrorAnalysisTests(unittest.TestCase):
         self.assertEqual(categories.count("boundary_error"), 1)
         self.assertEqual(categories.count("missed"), 1)
         self.assertEqual(categories.count("false_positive"), 1)
+        report = analyze(
+            [
+                {
+                    "record_index": 0,
+                    "predicted_entities": predicted["entities"],
+                }
+            ],
+            [gold],
+            "test",
+        )
+        self.assertEqual(report["total_error_events"], 4)
+        self.assertEqual(report["gold_error_entities"], 3)
+        self.assertEqual(report["prediction_error_entities"], 3)
+        self.assertEqual(
+            report["pairing_identity"]["left"],
+            report["pairing_identity"]["right"],
+        )
 
     def test_report_limits_examples(self):
         gold = [

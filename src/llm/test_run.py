@@ -25,6 +25,13 @@ class NormalizeTests(unittest.TestCase):
         self.assertEqual(out, [])
         self.assertEqual(len(issues), 3)
 
+    def test_ambiguous_with_valid_anchor_uses_nearest(self):
+        out, issues = self.extract('痛痛', [
+            dict(entity='痛', type='sym', start_idx=2, end_idx=2),
+        ])
+        self.assertEqual(out[0]['start_idx'], 1)
+        self.assertEqual(issues[0]['reason'], 'ambiguous_position_nearest_offset')
+
     def test_invalid_json_and_empty(self):
         with self.assertRaises(ValueError):
             normalize('文本', 'not json')

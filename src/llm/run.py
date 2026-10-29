@@ -120,8 +120,8 @@ def dump(path, value):
 
 def normalize(text, content):
     """Repair offsets. A phrase occurring once is re-placed; a phrase occurring
-    multiple times is placed at the occurrence nearest to the model's reported
-    start_idx instead of being dropped."""
+    multiple times uses a valid reported start_idx as an anchor and otherwise is
+    dropped instead of guessing a position."""
     obj = json.loads(content)
     if not isinstance(obj, dict) or not isinstance(obj.get('entities'), list):
         raise ValueError('Expected a JSON object with an entities list')
@@ -148,8 +148,10 @@ def normalize(text, content):
             else:
                 # Multiple occurrences: use the model's reported start_idx as a
                 # hint and keep the nearest occurrence instead of dropping it.
-                anchor = start if type(start) is int else 0
-                start = min(positions, key=lambda p: abs(p - anchor))
+                if type(start) is not int:
+                    issues.append({'reason': 'ambiguous_position_missing_offset', 'item': item})
+                    continue
+                start = min(positions, key=lambda p: abs(p - start))
                 end = start + len(phrase) - 1
                 issues.append({'reason': 'ambiguous_position_nearest_offset', 'item': item})
         key = start, end, label

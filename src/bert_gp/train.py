@@ -181,6 +181,7 @@ def main():
     if folder.exists():p.error('Run exists; use a new name. Never overwrite results.')
     folder.mkdir(parents=True)
     checkpoint=torch.load(a.checkpoint,map_location='cpu',weights_only=False) if a.checkpoint else None
+    model_id=checkpoint['args']['model'] if checkpoint else a.model
     if checkpoint:
         for key in ['model','max_length','overlap','threshold']:
             setattr(a,key,checkpoint['args'][key])
@@ -190,8 +191,9 @@ def main():
     tune=read(source)
     if a.tune_limit and not a.final:tune=tune[:a.tune_limit]
     tw,ts=prepare(tune,tokenizer,a.max_length,a.overlap)
-    metadata=dict(args={k:str(v) if isinstance(v,Path) else v for k,v in vars(a).items()},device=str(device),labels=LABELS,
+    metadata=dict(args={k:str(v) if isinstance(v,Path) else v for k,v in vars(a).items()},model_id=model_id,device=str(device),labels=LABELS,
         torch=torch.__version__,numpy=np.__version__,tune_sha256=hashlib.sha256(source.read_bytes()).hexdigest(),tokenizer_commit=tokenizer.init_kwargs.get('_commit_hash'),tune_coverage=ts)
+    if a.model_dir:metadata['model_dir']=str(a.model_dir.resolve())
     metadata['evaluation_split']='eval_test' if a.final else 'eval_tune'
     if checkpoint:
         train=[];windows=[]

@@ -167,6 +167,7 @@ def main():
     if out.exists():p.error('Run exists; use a new name')
     out.mkdir(parents=True)
     checkpoint=torch.load(a.checkpoint,map_location='cpu',weights_only=False) if a.checkpoint else None
+    model_id=checkpoint['args']['model'] if checkpoint else a.model
     if checkpoint:
         for k in ['model','max_length','overlap','feature_dropout']:setattr(a,k,checkpoint['args'][k])
         if a.model_dir:a.model=str(a.model_dir.resolve())
@@ -183,11 +184,12 @@ def main():
     tw,coverage=gp.prepare(tune,tokenizer,a.max_length,a.overlap)
     tune_features=add_features(tune,tw,matcher)
     args={k:str(v) if isinstance(v,Path) else v for k,v in vars(a).items()}
-    metadata=dict(args=args,labels=gp.LABELS,feature_names=FEATURE_NAMES,device=str(device),
+    metadata=dict(args=args,model_id=model_id,labels=gp.LABELS,feature_names=FEATURE_NAMES,device=str(device),
         torch=torch.__version__,numpy=np.__version__,tune_sha256=hashlib.sha256(tune_path.read_bytes()).hexdigest(),
         tune_coverage=coverage,tune_features=tune_features,dictionary_words=len(matcher.entries),
         training_dictionary_policy='subtract all annotations from current identical-text group before generating features; dropout per token during training',
         dictionary_source='selected training records only; stored with checkpoint; no tune gold used')
+    if a.model_dir:metadata['model_dir']=str(a.model_dir.resolve())
     metadata['evaluation_split']='eval_test' if a.final else 'eval_tune'
     if checkpoint:metadata['checkpoint_training_args']=checkpoint['args']
     if not checkpoint:

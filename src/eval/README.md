@@ -244,6 +244,12 @@ python src/eval/analyze_errors.py `
   --method "模型名称"
 ```
 
+Markdown 和 JSON 同时区分：
+
+- 错误事件：边界和类型错误按一条金标—预测配对计 1 次；
+- 金标错误实体、预测错误实体及其合计；
+- 配对恒等式：漏检 + 误报 + 2 × (边界 + 类型) = 金标错误 + 预测错误。
+
 ## 词典融合增益显著性
 
 `bootstrap_dict_gain.py` 对 dict 与无词典 5 轮模型的逐记录严格实体计数做 paired
