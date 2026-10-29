@@ -2,9 +2,10 @@
 
 By default this script:
 1. verifies the frozen data and selected small-model configuration;
-2. retrains the frozen character LinearSVC and evaluates it on eval_test;
-3. downloads or reuses the pinned MacBERT dictionary-fusion checkpoint;
-4. runs final BERT inference on eval_test and compares both main results.
+2. runs the frozen handwritten-rule and longest-match dictionary baselines;
+3. retrains the frozen character LinearSVC and evaluates it on eval_test;
+4. downloads or reuses the pinned MacBERT dictionary-fusion checkpoint;
+5. runs final BERT inference on eval_test and compares all four results.
 
 Use ``--check-only`` to verify the environment, data, frozen configuration and
 committed evidence without training or running either model.
@@ -119,6 +120,8 @@ DATA_PACKAGE_FILENAME = "cmeee_frozen_data_v1.zip"
 DATA_PACKAGE_SHA256 = "b9e48b664ab0135892e688db2ffb25df6d6a1a726fabdd6b5fd0a1611a41cfef"
 
 SMALL_MODEL_EXPECTED_F1 = 0.4289685582822086
+PURE_RULES_EXPECTED_F1 = 0.04915930464519806
+DICTIONARY_EXPECTED_F1 = 0.407671721677074
 
 
 def sha256_file(path: Path) -> str:
@@ -488,6 +491,13 @@ def run_command(command: list[str]) -> None:
     environment = os.environ.copy()
     environment["PYTHONUTF8"] = "1"
     environment["PYTHONIOENCODING"] = "utf-8"
+    repository_root = str(ROOT.parent)
+    existing_python_path = environment.get("PYTHONPATH")
+    environment["PYTHONPATH"] = (
+        repository_root
+        if not existing_python_path
+        else repository_root + os.pathsep + existing_python_path
+    )
     subprocess.run(command, cwd=ROOT, env=environment, check=True)
 
 
@@ -655,6 +665,101 @@ def main() -> int:
             summary["status"] = "check-only-pass" if bert_f1_pass else "failed"
             print("[INFO] Check-only mode completed; no model was trained or executed.")
         else:
+            pure_rules_output = output_dir / "pure_rules"
+            run_command(
+                [
+                    sys.executable,
+                    "eval/run_pure_rule_split.py",
+                    "--split",
+                    "test",
+                    "--output-dir",
+                    str(pure_rules_output),
+                ]
+            )
+            pure_rules_metrics_path = (
+                pure_rules_output / "metrics" / "test_pure_rules_metrics.json"
+            )
+            require(
+                pure_rules_metrics_path.exists(),
+                f"Pure-rule run did not create {pure_rules_metrics_path}",
+            )
+            pure_rules_metrics = load_json(pure_rules_metrics_path)
+            pure_rules_f1_pass = compare_f1(
+                "Frozen handwritten rules eval_test",
+                float(pure_rules_metrics["f1"]),
+                PURE_RULES_EXPECTED_F1,
+                args.tolerance,
+            )
+            summary["pure_rules"] = {
+                "metrics_file": display_path(pure_rules_metrics_path),
+                "predictions_file": display_path(
+                    pure_rules_output
+                    / "predictions"
+                    / "test_pure_rules_predictions.jsonl"
+                ),
+                "errors_file": display_path(
+                    pure_rules_output / "errors" / "test_pure_rules_errors.json"
+                ),
+                "f1": float(pure_rules_metrics["f1"]),
+                "expected_f1": PURE_RULES_EXPECTED_F1,
+                "verified": pure_rules_f1_pass,
+                "executed_here": True,
+            }
+
+            dictionary_output = output_dir / "dictionary"
+            dictionary_method = (
+                "dictionary_longest_min_count_1_min_length_2"
+            )
+            run_command(
+                [
+                    sys.executable,
+                    "eval/run_dictionary_split.py",
+                    "--method",
+                    "longest",
+                    "--min-count",
+                    "1",
+                    "--min-length",
+                    "2",
+                    "--split",
+                    "test",
+                    "--output-dir",
+                    str(dictionary_output),
+                ]
+            )
+            dictionary_metrics_path = (
+                dictionary_output
+                / "metrics"
+                / f"test_{dictionary_method}_metrics.json"
+            )
+            require(
+                dictionary_metrics_path.exists(),
+                f"Dictionary run did not create {dictionary_metrics_path}",
+            )
+            dictionary_metrics = load_json(dictionary_metrics_path)
+            dictionary_f1_pass = compare_f1(
+                "Frozen longest-match dictionary eval_test",
+                float(dictionary_metrics["f1"]),
+                DICTIONARY_EXPECTED_F1,
+                args.tolerance,
+            )
+            summary["dictionary_baseline"] = {
+                "metrics_file": display_path(dictionary_metrics_path),
+                "predictions_file": display_path(
+                    dictionary_output
+                    / "predictions"
+                    / f"test_{dictionary_method}_predictions.jsonl"
+                ),
+                "errors_file": display_path(
+                    dictionary_output
+                    / "errors"
+                    / f"test_{dictionary_method}_errors.json"
+                ),
+                "f1": float(dictionary_metrics["f1"]),
+                "expected_f1": DICTIONARY_EXPECTED_F1,
+                "verified": dictionary_f1_pass,
+                "executed_here": True,
+            }
+
             small_output = output_dir / "small_model"
             run_command(
                 [
@@ -762,7 +867,13 @@ def main() -> int:
                 "executed_here": True,
             }
 
-            passed = small_f1_pass and bert_f1_pass and bert_run_pass
+            passed = (
+                pure_rules_f1_pass
+                and dictionary_f1_pass
+                and small_f1_pass
+                and bert_f1_pass
+                and bert_run_pass
+            )
             summary["status"] = "pass" if passed else "failed"
 
         summary["finished_at"] = datetime.now().astimezone().isoformat(timespec="seconds")

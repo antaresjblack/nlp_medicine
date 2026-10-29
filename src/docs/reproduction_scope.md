@@ -12,11 +12,12 @@
 1. 检查 Python、PyTorch、Transformers 和 scikit-learn 环境；
 2. 下载或读取冻结数据包，校验压缩包和四份数据文件 SHA-256；
 3. 校验 LinearSVC 冻结配置及 BERT 已提交证据；
-4. 使用 seed 42 从训练集重新训练字符级 LinearSVC + 词典跨度特征；
-5. 在完整 2,500 条 `eval_test` 上评估 LinearSVC；
-6. 加载固定 MacBERT 词典融合 checkpoint 并执行完整 `eval_test` 推理；
-7. 分别生成两个模型的 metrics、predictions、errors 和自动错误分析；
-8. 对比实际 F1 与冻结期望值，两项均通过才返回 PASS。
+4. 在完整 2,500 条 `eval_test` 上执行 9 条纯人工规则；
+5. 从训练集构建最长匹配词典并在同一测试集上评估；
+6. 使用 seed 42 从训练集重新训练字符级 LinearSVC + 词典跨度特征；
+7. 加载固定 MacBERT 词典融合 checkpoint 并执行完整 `eval_test` 推理；
+8. 为四个方法生成 metrics、predictions 和 errors，并为 LinearSVC/BERT 生成自动错误分析；
+9. 对比四个方法的实际 F1 与冻结期望值，全部通过且 BERT 推理成功才返回 PASS。
 
 **默认不重新训练 BERT。** 五个历史 BERT 配置的分数来自已提交证据，仅用于对照。
 如果需要重新训练，使用 README 中“从零重训历史 BERT 配置”的可选命令。
@@ -35,6 +36,8 @@
 
 | 方法 | eval_test 实体级 P | R | F1 |
 |---|---:|---:|---:|
+| 纯人工规则（9 条正则） | 0.0965 | 0.0330 | 0.0492 |
+| 最长匹配词典（过滤单字） | 0.3540 | 0.4806 | **0.4077** |
 | 字符 LinearSVC + 词典特征 | 0.4301 | 0.4278 | 0.4290 |
 | MacBERT + GlobalPointer + 词典特征 | 0.6770 | 0.6632 | **0.6700** |
 
@@ -83,11 +86,16 @@ python src/eval/bootstrap_dict_gain.py `
 一键复现会自动生成：
 
 ```text
+pure_rules/errors/test_pure_rules_errors.json
+dictionary/errors/test_dictionary_longest_min_count_1_min_length_2_errors.json
 small_model/test/error_analysis.json
 small_model/test/error_analysis.md
 bert_gp/error_analysis.json
 bert_gp/error_analysis.md
 ```
+
+人工规则和词典基线生成原始 errors；LinearSVC 和 MacBERT 还会生成四类错误的
+自动分类报告。
 
 四类错误为：
 
@@ -117,8 +125,8 @@ LinearSVC 的错误计数是参考机器结果；BLAS、sklearn 或浮点实现�
 ## 覆盖与运行时间
 
 - eval_test 有 `8 / 10,460` 个金标实体无法精确映射到 tokenizer token，占 0.076%；
-- 本机 GPU 完整流程约 82—165 秒；
-- 评审 CPU 环境不同运行完整流程约 259—275 秒；
+- 本次四方法流程在本机离线缓存环境实测约 98 秒；
+- 评审 CPU 环境的总耗时会更长，具体以本次 `reproduction_report.txt` 为准；
 - BERT 在 CPU 上较慢，但固定 checkpoint 推理结果可逐位一致。
 
 ## 离线执行

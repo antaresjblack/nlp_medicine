@@ -61,9 +61,15 @@ def _metric(metrics: dict[str, Any], key: str, default: float = 0.0) -> float:
 def build_reproduction_report(
     summary: dict[str, Any], data_scope: dict[str, dict[str, int]]
 ) -> str:
+    pure_rules_path = _summary_path(summary["pure_rules"]["metrics_file"])
+    dictionary_path = _summary_path(
+        summary["dictionary_baseline"]["metrics_file"]
+    )
     small_path = _summary_path(summary["small_model"]["metrics_file"])
     bert_path = _summary_path(summary["bert_execution"]["metrics_file"])
     bert_manifest_path = _summary_path(summary["bert_execution"]["manifest"])
+    pure_rules = load_json(pure_rules_path)
+    dictionary = load_json(dictionary_path)
     small = load_json(small_path)
     bert = load_json(bert_path)
     bert_manifest = load_json(bert_manifest_path)
@@ -119,7 +125,8 @@ def build_reproduction_report(
     lines += [
         "",
         "[2] 冻结配置与模型范围",
-        "  执行方式         LinearSVC 重新训练；BERT 使用固定 checkpoint 推理",
+        "  执行方式         人工规则/词典/LinearSVC 在 eval_test 上重新执行；",
+        "                   BERT 使用固定 checkpoint 推理",
         f"  LinearSVC       C={selected['C']}, class_weight={selected['class_weight']}, "
         f"dict_span_features={selected['dict_span_features']}, seed={frozen['settings']['seed']}",
         f"  BERT             {bert_display}",
@@ -129,10 +136,12 @@ def build_reproduction_report(
         f"  BERT 参数        threshold={bert_manifest['args']['threshold']}, "
         f"max_length={bert_manifest['args']['max_length']}, overlap={bert_manifest['args']['overlap']}",
         "",
-        "[3] 冻结 eval_test 主结果",
+        "[3] 冻结 eval_test 四方法结果",
     ]
     rows = (
-        ("char LinearSVC + dict features", small),
+        ("纯人工规则（9 条正则）", pure_rules),
+        ("最长匹配词典（过滤单字）", dictionary),
+        ("字符 LinearSVC + 词典特征", small),
         (bert_display, bert),
     )
     for name, metrics in rows:
@@ -166,6 +175,8 @@ def build_reproduction_report(
         "[5] 本次输出",
         f"  输出目录         {_display_path(Path(summary['output_dir']))}",
         f"  控制台报告       {_display_path(_summary_path(summary.get('report_file', 'reproduction_report.txt')))}",
+        f"  纯人工规则       {_display_path(pure_rules_path)}",
+        f"  最长匹配词典     {_display_path(dictionary_path)}",
         f"  LinearSVC        {_display_path(small_path)}",
         f"  BERT             {_display_path(bert_path)}",
         f"  LinearSVC 错误分析 {summary.get('small_model', {}).get('error_analysis_md', '未生成')}",

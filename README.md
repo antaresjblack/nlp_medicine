@@ -64,10 +64,10 @@ src/data/data_eval/eval_test.jsonl
 python src/reproduce.py --check-only
 ```
 
-### 主结果复现
+### 四方法复现
 
-复现重新训练冻结的字符级 LinearSVC，并加载最新 MacBERT 词典融合
-checkpoint，在 `eval_test` 上分别计算主结果：
+复现会在同一份 `eval_test` 上依次运行纯人工规则、最长匹配词典和冻结的字符级
+LinearSVC，再加载最新 MacBERT 词典融合 checkpoint 执行推理：
 
 ```powershell
 python src/reproduce.py
@@ -113,7 +113,8 @@ GPU、CUDA、PyTorch 版本之间每一位数字完全相同。因此复现默�
 
 详细的可引用措辞见 `src/docs/reproduction_scope.md`。
 
-- 默认复现会重新训练 LinearSVC；BERT 只加载已发布 checkpoint 做推理，不重新训练。
+- 默认复现会运行纯人工规则、最长匹配词典、重新训练 LinearSVC，并加载已发布
+  MacBERT checkpoint 做推理；默认不重新训练 BERT。
 - `eval_test` 来自 dev 的 seed 42 切分，但早期完整 dev 调参已覆盖该子集，因此它是
   **冻结留出集（非盲）**，不是从未接触过的盲测集。
 - 五个历史 BERT 分数用于已提交证据对照；除非运行可选训练命令，不应表述为“本次重训”。
@@ -123,20 +124,40 @@ GPU、CUDA、PyTorch 版本之间每一位数字完全相同。因此复现默�
   10,000 次 paired bootstrap，95% CI 为 `[-0.000649, +0.006643]`，`p=0.1122`，
   区间包含 0，因此只能表述为“点估计为正但未达统计显著”。
 - eval_test 有 `8 / 10,460` 个实体无法精确映射到 tokenizer token，已由 manifest 记录。
-- 本机 GPU 全流程约 82—165 秒；评审 CPU 环境约 274.6 秒。硬件和依赖版本会影响耗时。
+- 本机离线缓存环境下，四方法完整流程实测约 98 秒；首次下载、网络重试和不同
+  硬件会额外增加耗时。
 - 默认复现会自动生成 LinearSVC 和 BERT 的 `error_analysis.json/.md`，其中包含四类
   错误统计和每类最多 3 个真实样例。
 
 ## 预期输出
 
 以下为本机已验证的代表性输出。时间、绝对路径和小数末位可能略有变化；通过条件
-是 LinearSVC 和 BERT 均执行成功，且实际 F1 与冻结结果的差值不超过容差。
+是四种方法的实际 F1 与冻结结果差值均不超过容差，且 MacBERT 推理成功。
 
-### 默认主结果复现
+### 默认四方法复现
 
 ```text
 [PASS] Environment, required data, hashes and frozen small-model configuration.
 [PASS] Committed macbert_dict_5ep_v1 eval_test evidence: actual=0.670047, expected=0.670047, |delta|=0.000000, tolerance=0.000000
+
+$ <当前环境的Python> eval/run_pure_rule_split.py --split test --output-dir ...\pure_rules
+
+Method: pure_handwritten_rules_split
+Split:  test (2500 records)
+Rules:  9
+Entity precision: 0.0965
+Entity recall:    0.0330
+Entity F1:        0.0492
+[PASS] Frozen handwritten rules eval_test: actual=0.049159, expected=0.049159, |delta|=0.000000, tolerance=0.010000
+
+$ <当前环境的Python> eval/run_dictionary_split.py --method longest --min-count 1 --min-length 2 --split test --output-dir ...\dictionary
+
+Method: dictionary_longest_min_count_1_min_length_2
+Split:  test (2500 records)
+Entity precision: 0.3540
+Entity recall:    0.4806
+Entity F1:        0.4077
+[PASS] Frozen longest-match dictionary eval_test: actual=0.407672, expected=0.407672, |delta|=0.000000, tolerance=0.010000
 
 $ <当前环境的Python> eval/run_small_model_split.py --stage test --selected-config ... --output-dir ...
 
@@ -182,7 +203,8 @@ NumPy/SciPy/sklearn: 1.26.4 / 1.13.1 / 1.7.2
   未使用           官方无标签 CMeEE_test；F1 仅来自冻结 eval_test
 
 [2] 冻结配置与模型范围
-  执行方式         LinearSVC 重新训练；BERT 使用固定 checkpoint 推理
+  执行方式         人工规则/词典/LinearSVC 在 eval_test 上重新执行；
+                   BERT 使用固定 checkpoint 推理
   LinearSVC       C=0.1, class_weight=none, dict_span_features=True, seed=42
   BERT             hfl/chinese-macbert-base + GlobalPointer + 词典特征
   BERT checkpoint  outputs/bert_gp/macbert_dict_5ep_v1/best.pt
@@ -190,7 +212,13 @@ NumPy/SciPy/sklearn: 1.26.4 / 1.13.1 / 1.7.2
     595eb45cbfd920f93e175668a7fe50a11f8b949222e882bb2f7fd4c91ae9b1d8
   BERT 参数        threshold=0, max_length=256, overlap=64
 
-[3] 冻结 eval_test 主结果
+[3] 冻结 eval_test 四方法结果
+  纯人工规则（9 条正则）
+    P=0.096477 R=0.032983 F1=0.049159
+    Token-F1=0.224065 CharML-F1=0.225389
+  最长匹配词典（过滤单字）
+    P=0.353964 R=0.480593 F1=0.407672
+    Token-F1=0.512485 CharML-F1=0.525059
   char LinearSVC + dict features
     P=0.430164 R=0.427820 F1=0.428989
     Token-F1=0.516310 CharML-F1=0.527337
@@ -209,6 +237,8 @@ NumPy/SciPy/sklearn: 1.26.4 / 1.13.1 / 1.7.2
 [5] 本次输出
   输出目录         src/reproduction_outputs/<时间戳>
   控制台报告       src/reproduction_outputs/<时间戳>/reproduction_report.txt
+  纯人工规则       src/reproduction_outputs/<时间戳>/pure_rules/metrics/test_pure_rules_metrics.json
+  最长匹配词典     src/reproduction_outputs/<时间戳>/dictionary/metrics/test_dictionary_longest_min_count_1_min_length_2_metrics.json
   LinearSVC        src/reproduction_outputs/<时间戳>/small_model/test/test_metrics.json
   BERT             src/reproduction_outputs/<时间戳>/bert_gp/metrics.json
   LinearSVC 错误分析 src/reproduction_outputs/<时间戳>/small_model/test/error_analysis.md

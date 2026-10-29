@@ -219,7 +219,9 @@ python src/eval/evaluate_predictions.py `
 
 ## 自动错误分析
 
-默认 `python src/reproduce.py` 会在 LinearSVC 和 BERT 的输出目录中分别生成：
+默认 `python src/reproduce.py` 会先运行纯人工规则和最长匹配词典，再运行
+LinearSVC 和 BERT。四个方法都会生成 `metrics.json`、`predictions.jsonl` 和
+`errors.json`；LinearSVC 和 BERT 还会分别生成：
 
 ```text
 error_analysis.json
