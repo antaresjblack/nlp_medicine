@@ -58,7 +58,7 @@ src/data/data_eval/eval_test.jsonl
 python src/reproduce.py --check-only
 ```
 
-### 完整复现
+### 主结果复现
 
 复现重新训练冻结的字符级 LinearSVC，并加载最新 MacBERT 词典融合
 checkpoint，在 `eval_test` 上分别计算主结果：
@@ -103,12 +103,29 @@ python src/reproduce.py --data-package <本地zip或HTTPS链接>
 GPU、CUDA、PyTorch 版本之间每一位数字完全相同。因此复现默认允许 F1 存在
 `0.01` 以内的数值差异。
 
+## 复现范围与限制
+
+详细的可引用措辞见 `src/docs/reproduction_scope.md`。
+
+- 默认复现会重新训练 LinearSVC；BERT 只加载已发布 checkpoint 做推理，不重新训练。
+- `eval_test` 来自 dev 的 seed 42 切分，但早期完整 dev 调参已覆盖该子集，因此它是
+  **冻结留出集（非盲）**，不是从未接触过的盲测集。
+- 五个历史 BERT 分数用于已提交证据对照；除非运行可选训练命令，不应表述为“本次重训”。
+- BERT 相对 LinearSVC 的 `+0.2411` 同时包含预训练、span 建模和词典特征的差异，
+  不能全部归因于单一因素。
+- 词典融合相对无词典 5 轮模型的增益约为 `+0.0030`（+0.45%），仅有一个 seed，
+  未进行显著性检验，只能表述为“方向一致的小幅增益”。
+- eval_test 有 `8 / 10,460` 个实体无法精确映射到 tokenizer token，已由 manifest 记录。
+- 本机 GPU 全流程约 82—165 秒；评审 CPU 环境约 274.6 秒。硬件和依赖版本会影响耗时。
+- 默认复现会自动生成 LinearSVC 和 BERT 的 `error_analysis.json/.md`，其中包含四类
+  错误统计和每类最多 3 个真实样例。
+
 ## 预期输出
 
 以下为本机已验证的代表性输出。时间、绝对路径和小数末位可能略有变化；通过条件
 是 LinearSVC 和 BERT 均执行成功，且实际 F1 与冻结结果的差值不超过容差。
 
-### 默认完整复现
+### 默认主结果复现
 
 ```text
 [PASS] Environment, required data, hashes and frozen small-model configuration.
@@ -187,6 +204,8 @@ NumPy/SciPy/sklearn: 1.26.4 / 1.13.1 / 1.7.2
   控制台报告       src/reproduction_outputs/<时间戳>/reproduction_report.txt
   LinearSVC        src/reproduction_outputs/<时间戳>/small_model/test/test_metrics.json
   BERT             src/reproduction_outputs/<时间戳>/bert_gp/metrics.json
+  LinearSVC 错误分析 src/reproduction_outputs/<时间戳>/small_model/test/error_analysis.md
+  BERT 错误分析    src/reproduction_outputs/<时间戳>/bert_gp/error_analysis.md
   总摘要           src/reproduction_outputs/<时间戳>/reproduction_summary.json
 ==============================================================================
 
@@ -349,6 +368,9 @@ F1        = 0.4782
   `python src/reproduce.py --bert-variant <变体名> --check-only`。
 - 从指定位置准备冻结数据：
   `python src/reproduce.py --data-package <本地zip或HTTPS链接>`。
+- 完全离线做 BERT checkpoint 推理：
+  `python src/reproduce.py --bert-checkpoint <权重> --data-package <数据包> --model-dir <config和tokenizer目录>`。
+  `--model-dir` 只用于 checkpoint 推理，不需要也不读取基座模型权重。
 
 `final_submit` 分支不提交 `src/data/` 下的实际数据、模型权重、下载缓存或重复的
 历史复跑目录。默认复现会从固定 Release 获取数据和模型权重，并执行 SHA-256 校验；

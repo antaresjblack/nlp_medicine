@@ -1,13 +1,14 @@
 # BERT + GlobalPointer
 
 独立模块，不改共享数据与LLM结果。项目完整环境由仓库根目录
-`requirements-unified.txt` 定义；已验证 `medical-ner-unified`：Python 3.10.20、
+`requirements.txt` 定义；已验证 `medical-ner-unified`：Python 3.10.20、
 torch 2.9.0+cu128、transformers 4.57.6、numpy 1.26.4、scipy 1.13.1、
 scikit-learn 1.7.2。首次运行从 Hugging Face 下载 tokenizer/config，需要网络。
 这是跨度多标签模型，保留全部可对齐的嵌套/重叠标签，非单层BIO。
 
 使用完整微调 checkpoint 做推理时，模型结构从 `AutoConfig` 创建，随后加载 checkpoint
-中的编码器参数，因此不需要重复下载基础模型权重；tokenizer/config 仍需可访问。
+中的编码器参数，因此不会下载或使用基础模型权重；tokenizer/config 仍需可访问。
+如果使用 `--model-dir <目录>`，则 `config.json` 和 tokenizer 文件也可以完全从本地读取。
 
 最新主方法是“MacBERT + GlobalPointer + 门控词典特征”，正式 checkpoint 可从
 GitHub Release 获取：
@@ -24,7 +25,7 @@ SHA-256：
 
 ```powershell
 Set-Location '<仓库根目录>'
-python -m pip install -r requirements-unified.txt
+python -m pip install -r requirements.txt
 # 默认真实复现字符级 LinearSVC 和最新 BERT
 python src/reproduce.py
 # 首先验证少量数据的分词映射，只下载tokenizer，不训练
@@ -32,6 +33,22 @@ python src/bert_gp/train.py --run-name data_check --train-limit 64 --tune-limit 
 # 小规模检查，不是正式成绩
 python src/bert_gp/train.py --run-name smoke --train-limit 128 --tune-limit 64 --epochs 1
 ```
+
+完全离线推理时，把 `config.json`、`tokenizer.json`、`tokenizer_config.json`、
+`vocab.txt` 和 `special_tokens_map.json` 放入一个普通目录，然后执行：
+
+```powershell
+$env:HF_HUB_OFFLINE="1"
+$env:TRANSFORMERS_OFFLINE="1"
+python src/bert_gp/train_dict.py `
+  --run-name offline_check `
+  --checkpoint D:\offline\macbert_dict_5ep_v1.pt `
+  --model-dir D:\offline\chinese-macbert-base `
+  --final --output-dir D:\offline\bert
+```
+
+checkpoint 模式不会再请求基座权重；离线目录只需要约 1 MB 的 config/tokenizer 文件。
+从零训练时不传 `--model-dir`，仍从预训练模型正常加载全部权重。
 
 ## 基础对比与最新主方法
 

@@ -20,6 +20,10 @@
 
 模型和评估的操作说明分别以 `src/baseline/README.md` 和 `src/eval/README.md` 为准。
 
+| 文件 | 用途 |
+|---|---|
+| `reproduction_scope.md` | 复现范围、非盲留出集、主结果、错误分类和报告建议措辞 |
+
 ## 最终文档待补
 
 成员4在成员3完成后还需要补充：

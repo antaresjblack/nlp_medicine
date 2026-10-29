@@ -18,7 +18,7 @@ v1.1 的主要变化：
 - 成员2新增了纯规则基线、词典跨度特征小模型、网格搜索、特征消融和嵌套损失分析；
 - 完整 dev 上的最佳基线更新为“字符级 LinearSVC + 词典跨度特征”，实体级 F1 **0.4301**；
 - `metrics.py` 新增 `char_multi_label_*` 多标签字符指标，保留全部嵌套实体；
-- 项目完整复现环境固定到 `requirements-unified.txt`；`requirements.txt` 仅保留传统基线最小依赖。
+- 项目完整复现环境固定到根目录 `requirements.txt`，同时覆盖传统基线和 BERT。
 
 ### 数据版本（SHA-256）
 
@@ -68,9 +68,10 @@ v1.1 的主要变化：
 词典 test 已在冻结配置 `longest/min_count=1/min_length=2` 下完成一次评估，
 结果保存在 `src/outputs/eval_split/metrics/test_dictionary_longest_min_count_1_min_length_2_metrics.json`。
 
-> 注意：成员2早期的完整 dev 调参已经覆盖了当前 `eval_test` 的 2,500 条样本，
-> 因此这次结果应表述为“配置冻结后的补充重新确认”，不能写成团队此前从未
-> 接触过 `eval_test` 的完全盲测成绩；报告中须保留这一限制说明。
+> 注意：成员2早期的完整 dev 调参已经覆盖了当前 `eval_test` 的 2,500 条样本。
+> 因此该集合只能称为“冻结留出集（非盲）”，结果只能表述为“配置冻结后的补充
+> 重新确认”，不能写成团队此前从未接触过 `eval_test` 的完全盲测成绩；报告中须
+> 保留这一限制说明。
 
 ### 变更控制
 
@@ -101,7 +102,7 @@ v1.1 的主要变化：
 
 ### 环境与复现
 
-完整复现环境记录在仓库根目录 `requirements-unified.txt`：
+完整复现环境记录在仓库根目录 `requirements.txt`：
 
 ```text
 Python 3.10.20
@@ -124,7 +125,7 @@ scikit-learn 版本；`0.4301` 可能因此出现小幅波动。
 先安装基线依赖并复现成员2的最终基线：
 
 ```powershell
-python -m pip install -r requirements-unified.txt
+python -m pip install -r requirements.txt
 python src/baseline/run_final_baselines.py --config src/configs/final_baseline.json
 ```
 
