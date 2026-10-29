@@ -82,11 +82,13 @@ python src/reproduce.py
 <仓库根目录>/src/reproduction_outputs/<时间戳>/
 ```
 
-默认会优先使用本地最新 checkpoint；若不存在，则自动从 GitHub Release 下载约
-414 MB 的权重并校验 SHA-256。数据包和权重都可以显式指定本地路径或 HTTPS 地址：
+默认会优先使用本地最新 checkpoint；若不存在，则先尝试 GitHub Release 直链，失败后
+回退到 GitHub Release Asset API，下载约 414 MB 的权重并校验 SHA-256。源码包已经
+包含约 0.4 MB 的 MacBERT `config.json` 和 tokenizer 文件，默认推理不依赖
+Hugging Face 在线缓存。数据包和权重都可以显式指定本地路径或 HTTPS 地址：
 
 ```powershell
-python src/reproduce.py --bert-checkpoint https://api.github.com/repos/antaresjblack/nlp_medicine/releases/assets/684231335
+python src/reproduce.py --bert-checkpoint https://github.com/antaresjblack/nlp_medicine/releases/download/macbert-dict-5ep-v1/macbert_dict_5ep_v1.pt
 python src/reproduce.py --data-package <本地zip或HTTPS链接>
 ```
 
@@ -213,6 +215,7 @@ NumPy/SciPy/sklearn: 1.26.4 / 1.13.1 / 1.7.2
   BERT checkpoint  outputs/bert_gp/macbert_dict_5ep_v1/best.pt
   checkpoint SHA
     595eb45cbfd920f93e175668a7fe50a11f8b949222e882bb2f7fd4c91ae9b1d8
+  BERT 本地配置    src/bert_gp/pretrained_config
   BERT 参数        threshold=0, max_length=256, overlap=64
 
 [3] 冻结 eval_test 四方法结果
@@ -261,7 +264,7 @@ Summary: <仓库根目录>\src\reproduction_outputs\<时间戳>\reproduction_sum
 BERT 命令前会额外出现：
 
 ```text
-[INFO] Downloading checkpoint: https://api.github.com/repos/antaresjblack/nlp_medicine/releases/assets/684231335
+[INFO] Downloading checkpoint: https://github.com/antaresjblack/nlp_medicine/releases/download/macbert-dict-5ep-v1/macbert_dict_5ep_v1.pt
 ...curl 下载进度...
 [PASS] Downloaded and verified checkpoint: .checkpoints/macbert_dict_5ep_v1.pt
 ```
@@ -409,8 +412,9 @@ F1        = 0.4782
 - 从指定位置准备冻结数据：
   `python src/reproduce.py --data-package <本地zip或HTTPS链接>`。
 - 完全离线做 BERT checkpoint 推理：
-  `python src/reproduce.py --bert-checkpoint <权重> --data-package <数据包> --model-dir <config和tokenizer目录>`。
-  `--model-dir` 只用于 checkpoint 推理，不需要也不读取基座模型权重。
+  `python src/reproduce.py --bert-checkpoint <权重> --data-package <数据包>`。
+  默认使用源码包内的 `src/bert_gp/pretrained_config/`，不需要也不读取基座模型权重；
+  `--model-dir` 仍可用于覆盖这个本地配置目录。
 
 `final_submit` 分支不提交 `src/data/` 下的实际数据、模型权重、下载缓存或重复的
 历史复跑目录。默认复现会从固定 Release 获取数据和模型权重，并执行 SHA-256 校验；

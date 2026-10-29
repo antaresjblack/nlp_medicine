@@ -20,6 +20,8 @@ from reproduce import (
     DEFAULT_DATA_PACKAGE_FALLBACK,
     data_package_sources,
     prepare_required_data,
+    prepare_bert_checkpoint,
+    resolve_bert_model_dir,
 )
 
 
@@ -194,6 +196,46 @@ class DataPackageFallbackTests(unittest.TestCase):
             self.assertEqual(list(target.parent.glob("*.incoming")), [])
             self.assertFalse(download_paths[0].exists())
             self.assertNotIn(root, download_paths[0].parents)
+
+    def test_checkpoint_falls_back_from_release_to_api_asset(self):
+        calls = []
+
+        def fake_resolve(source, variant):
+            calls.append(source)
+            if source == "https://github.com/release/checkpoint.pt":
+                raise RuntimeError("release unavailable")
+            return Path("checkpoint.pt")
+
+        variant = {
+            "filename": "checkpoint.pt",
+            "url": "https://github.com/release/checkpoint.pt",
+            "fallback_url": "https://api.github.com/assets/1",
+        }
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory) / "src"
+            root.mkdir()
+            with (
+                patch("reproduce.ROOT", root),
+                patch("reproduce.resolve_bert_checkpoint", side_effect=fake_resolve),
+            ):
+                checkpoint, source = prepare_bert_checkpoint(None, variant)
+
+        self.assertEqual(checkpoint, Path("checkpoint.pt"))
+        self.assertEqual(source, "https://api.github.com/assets/1")
+        self.assertEqual(calls, [variant["url"], variant["fallback_url"]])
+
+    def test_bundled_bert_config_and_tokenizer_are_complete(self):
+        model_dir = resolve_bert_model_dir(None)
+
+        self.assertIsNotNone(model_dir)
+        for name in (
+            "config.json",
+            "special_tokens_map.json",
+            "tokenizer_config.json",
+            "tokenizer.json",
+            "vocab.txt",
+        ):
+            self.assertTrue((model_dir / name).is_file(), name)
 
 
 if __name__ == "__main__":

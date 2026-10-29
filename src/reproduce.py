@@ -54,7 +54,14 @@ BERT_VARIANTS = {
         "label": "MacBERT + GlobalPointer + 词典特征",
         "filename": "macbert_dict_5ep_v1.pt",
         "sha256": "595eb45cbfd920f93e175668a7fe50a11f8b949222e882bb2f7fd4c91ae9b1d8",
-        "url": "https://api.github.com/repos/antaresjblack/nlp_medicine/releases/assets/684231335",
+        "url": (
+            "https://github.com/antaresjblack/nlp_medicine/releases/download/"
+            "macbert-dict-5ep-v1/macbert_dict_5ep_v1.pt"
+        ),
+        "fallback_url": (
+            "https://api.github.com/repos/antaresjblack/nlp_medicine/"
+            "releases/assets/684231335"
+        ),
         "expected_f1": 0.6700473292765381,
         "trainer": "bert_gp/train_dict.py",
         "evidence": "test_macbert_dict_5ep_v1",
@@ -64,7 +71,14 @@ BERT_VARIANTS = {
         "label": "BERT-base-chinese + GlobalPointer（3轮）",
         "filename": "full_v1.pt",
         "sha256": "9eec198f9f590d74da93caa8da6baae4d1cbb7bd40ba59538c654dadcbb7cd84",
-        "url": "https://api.github.com/repos/antaresjblack/nlp_medicine/releases/assets/684473140",
+        "url": (
+            "https://github.com/antaresjblack/nlp_medicine/releases/download/"
+            "bert-legacy-checkpoints-v1/full_v1.pt"
+        ),
+        "fallback_url": (
+            "https://api.github.com/repos/antaresjblack/nlp_medicine/"
+            "releases/assets/684473140"
+        ),
         "expected_f1": 0.6377233070211882,
         "trainer": "bert_gp/train.py",
         "evidence": "test_full_v1",
@@ -74,7 +88,14 @@ BERT_VARIANTS = {
         "label": "MacBERT + GlobalPointer（3轮）",
         "filename": "macbert_base_v1.pt",
         "sha256": "3c6affab84a54ada0d01b2c2fce1f0cab927319770deeb8580880d3e05857fe0",
-        "url": "https://api.github.com/repos/antaresjblack/nlp_medicine/releases/assets/684476265",
+        "url": (
+            "https://github.com/antaresjblack/nlp_medicine/releases/download/"
+            "bert-legacy-checkpoints-v1/macbert_base_v1.pt"
+        ),
+        "fallback_url": (
+            "https://api.github.com/repos/antaresjblack/nlp_medicine/"
+            "releases/assets/684476265"
+        ),
         "expected_f1": 0.6570264360962036,
         "trainer": "bert_gp/train.py",
         "evidence": "test_macbert_base_v1",
@@ -84,7 +105,14 @@ BERT_VARIANTS = {
         "label": "MacBERT + GlobalPointer（3轮 + warmup）",
         "filename": "macbert_warmup_v1.pt",
         "sha256": "f74dbfea85b8d9b88676013b144906be105b687e43e58b2143c7ec5992677047",
-        "url": "https://api.github.com/repos/antaresjblack/nlp_medicine/releases/assets/684476337",
+        "url": (
+            "https://github.com/antaresjblack/nlp_medicine/releases/download/"
+            "bert-legacy-checkpoints-v1/macbert_warmup_v1.pt"
+        ),
+        "fallback_url": (
+            "https://api.github.com/repos/antaresjblack/nlp_medicine/"
+            "releases/assets/684476337"
+        ),
         "expected_f1": 0.6621921729260228,
         "trainer": "bert_gp/train.py",
         "evidence": "test_macbert_warmup_v1",
@@ -94,13 +122,28 @@ BERT_VARIANTS = {
         "label": "MacBERT + GlobalPointer（5轮 + warmup）",
         "filename": "macbert_warmup_5ep_v1.pt",
         "sha256": "868fbeb8530125552ff06ef8ca4c29f9cfad8b25f087be1e1d61687b41038cf7",
-        "url": "https://api.github.com/repos/antaresjblack/nlp_medicine/releases/assets/683593804",
+        "url": (
+            "https://github.com/antaresjblack/nlp_medicine/releases/download/"
+            "macbert-warmup-5ep-v1/macbert_warmup_5ep_v1.pt"
+        ),
+        "fallback_url": (
+            "https://api.github.com/repos/antaresjblack/nlp_medicine/"
+            "releases/assets/683593804"
+        ),
         "expected_f1": 0.6670225673380248,
         "trainer": "bert_gp/train.py",
         "evidence": "test_macbert_warmup_5ep_v1",
     },
 }
 DEFAULT_BERT_VARIANT = "dict_5ep"
+LOCAL_BERT_MODEL_DIR = ROOT / "bert_gp" / "pretrained_config"
+LOCAL_BERT_MODEL_FILES = (
+    "config.json",
+    "special_tokens_map.json",
+    "tokenizer_config.json",
+    "tokenizer.json",
+    "vocab.txt",
+)
 
 EXPECTED_DATA_HASHES = {
     "data/data_cleaned/CMeEE_train_cleaned_final.json": "e0e0d1bba812040e8e7f3e1096234e361db7ccc048db9575943fcfd9b3eb86dc",
@@ -232,12 +275,14 @@ def resolve_bert_checkpoint(value: str, variant: dict[str, Any]) -> Path:
         target = cache_dir / filename
         if target.is_file():
             digest = sha256_file(target)
-            require(
-                digest == expected_sha256,
-                f"Cached checkpoint hash mismatch: expected {expected_sha256}, got {digest}",
+            if digest == expected_sha256:
+                print(f"[INFO] Using cached checkpoint: {display_path(target)}")
+                return target
+            print(
+                "[WARN] Cached checkpoint hash mismatch: "
+                f"expected {expected_sha256}, got {digest}; removing it."
             )
-            print(f"[INFO] Using cached checkpoint: {display_path(target)}")
-            return target
+            target.unlink()
 
         return download_https_asset(
             value,
@@ -254,6 +299,50 @@ def resolve_bert_checkpoint(value: str, variant: dict[str, Any]) -> Path:
         digest == expected_sha256,
         f"BERT checkpoint hash mismatch: expected {expected_sha256}, got {digest}",
     )
+    return path
+
+
+def prepare_bert_checkpoint(value: str | None, variant: dict[str, Any]) -> tuple[Path, str]:
+    """Resolve an explicit/local checkpoint or fall back from Release to API."""
+    if value is not None:
+        return resolve_bert_checkpoint(value, variant), value
+
+    local_checkpoint = ROOT.parent / str(variant["filename"])
+    if local_checkpoint.is_file():
+        return resolve_bert_checkpoint(str(local_checkpoint), variant), str(local_checkpoint)
+
+    sources = [str(variant["url"])]
+    fallback_url = variant.get("fallback_url")
+    if fallback_url:
+        sources.append(str(fallback_url))
+
+    last_error: Exception | None = None
+    for index, source in enumerate(sources):
+        try:
+            return resolve_bert_checkpoint(source, variant), source
+        except RuntimeError as error:
+            last_error = error
+            if index + 1 < len(sources):
+                print(f"[WARN] BERT checkpoint source failed: {error}")
+                print("[INFO] Retrying with the GitHub Release Asset API.", flush=True)
+    if last_error is not None:
+        raise last_error
+    raise RuntimeError("No BERT checkpoint source was available")
+
+
+def resolve_bert_model_dir(value: Path | None) -> Path | None:
+    """Use an explicit model directory or the bundled config/tokenizer files."""
+    path = value if value is not None else LOCAL_BERT_MODEL_DIR
+    if value is None and not path.is_dir():
+        return None
+    path = path.expanduser().resolve()
+    require(path.is_dir(), f"BERT model directory not found: {path}")
+    missing = [name for name in LOCAL_BERT_MODEL_FILES if not (path / name).is_file()]
+    require(
+        not missing,
+        f"BERT model directory is missing required files: {', '.join(missing)}",
+    )
+    print(f"[PASS] Using local BERT config/tokenizer: {display_path(path)}")
     return path
 
 
@@ -800,19 +889,15 @@ def main() -> int:
                 "executed_here": True,
             }
 
-            checkpoint_source = args.bert_checkpoint
-            local_checkpoint = ROOT.parent / str(variant["filename"])
-            if checkpoint_source is None:
-                checkpoint_source = (
-                    str(local_checkpoint)
-                    if local_checkpoint.is_file()
-                    else str(variant["url"])
-                )
-            checkpoint = resolve_bert_checkpoint(checkpoint_source, variant)
+            checkpoint, checkpoint_source = prepare_bert_checkpoint(
+                args.bert_checkpoint,
+                variant,
+            )
             print(
                 f"[PASS] BERT checkpoint SHA-256 verified: {variant['sha256']}",
                 flush=True,
             )
+            model_dir = resolve_bert_model_dir(args.model_dir)
             bert_output = output_dir / "bert_gp"
             bert_run_name = "reproduction_" + stamp
             bert_command = [
@@ -827,8 +912,8 @@ def main() -> int:
                 str(bert_output),
                 "--quiet",
             ]
-            if args.model_dir is not None:
-                bert_command.extend(["--model-dir", str(args.model_dir)])
+            if model_dir is not None:
+                bert_command.extend(["--model-dir", str(model_dir)])
             run_command(bert_command)
             bert_metrics_path = bert_output / "metrics.json"
             bert_manifest_path = bert_output / "manifest.json"
@@ -855,6 +940,7 @@ def main() -> int:
                 "checkpoint": display_path(checkpoint),
                 "checkpoint_source": checkpoint_source,
                 "checkpoint_sha256": variant["sha256"],
+                "model_dir": display_path(model_dir) if model_dir is not None else None,
                 "metrics_file": display_path(bert_metrics_path),
                 "predictions_file": display_path(bert_output / "predictions.jsonl"),
                 "errors_file": display_path(bert_output / "errors.json"),

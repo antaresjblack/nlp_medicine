@@ -134,13 +134,14 @@ LinearSVC 的错误计数是参考机器结果；BLAS、sklearn 或浮点实现�
 
 checkpoint 推理不需要预训练基座权重。若 Hugging Face 无法访问：
 
-1. 准备只含 `config.json` 和 tokenizer 文件的普通目录；
-2. 设置 `HF_HUB_OFFLINE=1`、`TRANSFORMERS_OFFLINE=1`；
-3. 将数据和 checkpoint 通过 `--data-package`、`--bert-checkpoint` 传入；
-4. 用 `--model-dir` 指向本地 config/tokenizer 目录。
+1. 设置 `HF_HUB_OFFLINE=1`、`TRANSFORMERS_OFFLINE=1`；
+2. 将冻结数据包和 checkpoint 通过 `--data-package`、`--bert-checkpoint` 传入；
+3. 默认自动使用源码包内的 `src/bert_gp/pretrained_config/`；
+4. 如需使用其他 tokenizer/config，再用 `--model-dir` 覆盖。
 
-数据包默认先尝试 GitHub Release 下载地址；若失败，脚本会自动切换到
-`api.github.com` 的 Release Asset，再执行同一个 SHA-256 校验。损坏缓存会被丢弃并
+数据包和 BERT checkpoint 默认先尝试 GitHub Release 下载地址；若失败，脚本会自动切换到
+对应 Asset API，再执行同一个 SHA-256 校验。源码包已经包含 config/tokenizer，
+因此默认 BERT checkpoint 推理不需要 Hugging Face 在线缓存。损坏缓存会被丢弃并
 重新下载；每次下载先写入唯一系统临时文件，校验后在目标盘内暂存并原子替换，失败后
 自动清理。因此项目路径含中文时，不需要由 curl 直接写项目目录。若本机仍限制 curl
 或系统临时目录，可将项目放到纯 ASCII 路径，或通过参数使用本地数据和权重。

@@ -133,6 +133,7 @@ def build_reproduction_report(
         f"  BERT checkpoint  {summary['bert_execution']['checkpoint']}",
         "  checkpoint SHA",
         f"    {summary['bert_execution']['checkpoint_sha256']}",
+        f"  BERT 本地配置    {summary['bert_execution'].get('model_dir') or '使用 Hugging Face 缓存'}",
         f"  BERT 参数        threshold={bert_manifest['args']['threshold']}, "
         f"max_length={bert_manifest['args']['max_length']}, overlap={bert_manifest['args']['overlap']}",
         "",

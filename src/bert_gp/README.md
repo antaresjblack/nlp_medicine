@@ -3,18 +3,19 @@
 独立模块，不改共享数据与LLM结果。项目完整环境由仓库根目录
 `requirements.txt` 定义；已验证 `medical-ner-unified`：Python 3.10.20、
 torch 2.9.0+cu128、transformers 4.57.6、numpy 1.26.4、scipy 1.13.1、
-scikit-learn 1.7.2。首次运行从 Hugging Face 下载 tokenizer/config，需要网络。
+scikit-learn 1.7.2。默认复现从源码内 `pretrained_config/` 读取 tokenizer/config，
+不需要连接 Hugging Face。
 这是跨度多标签模型，保留全部可对齐的嵌套/重叠标签，非单层BIO。
 
 使用完整微调 checkpoint 做推理时，模型结构从 `AutoConfig` 创建，随后加载 checkpoint
-中的编码器参数，因此不会下载或使用基础模型权重；tokenizer/config 仍需可访问。
-如果使用 `--model-dir <目录>`，则 `config.json` 和 tokenizer 文件也可以完全从本地读取。
+中的编码器参数，因此不会下载或使用基础模型权重。默认复现自动读取
+`bert_gp/pretrained_config/` 中的 config/tokenizer；也可以通过 `--model-dir <目录>` 覆盖。
 
 最新主方法是“MacBERT + GlobalPointer + 门控词典特征”，正式 checkpoint 可从
 GitHub Release 获取：
 
 ```text
-https://api.github.com/repos/antaresjblack/nlp_medicine/releases/assets/684231335
+https://github.com/antaresjblack/nlp_medicine/releases/download/macbert-dict-5ep-v1/macbert_dict_5ep_v1.pt
 ```
 
 SHA-256：
@@ -26,7 +27,7 @@ SHA-256：
 ```powershell
 Set-Location '<仓库根目录>'
 python -m pip install -r requirements.txt
-# 默认真实复现字符级 LinearSVC 和最新 BERT
+# 默认真实复现人工规则、词典、LinearSVC 和最新 BERT
 python src/reproduce.py
 # 首先验证少量数据的分词映射，只下载tokenizer，不训练
 python src/bert_gp/train.py --run-name data_check --train-limit 64 --tune-limit 32 --check-data
@@ -34,8 +35,8 @@ python src/bert_gp/train.py --run-name data_check --train-limit 64 --tune-limit 
 python src/bert_gp/train.py --run-name smoke --train-limit 128 --tune-limit 64 --epochs 1
 ```
 
-完全离线推理时，把 `config.json`、`tokenizer.json`、`tokenizer_config.json`、
-`vocab.txt` 和 `special_tokens_map.json` 放入一个普通目录，然后执行：
+完全离线推理时，默认直接使用源码内 `pretrained_config/`；把 data 和 checkpoint
+通过参数传入后执行：
 
 ```powershell
 $env:HF_HUB_OFFLINE="1"
@@ -43,11 +44,11 @@ $env:TRANSFORMERS_OFFLINE="1"
 python src/bert_gp/train_dict.py `
   --run-name offline_check `
   --checkpoint D:\offline\macbert_dict_5ep_v1.pt `
-  --model-dir D:\offline\chinese-macbert-base `
+  --model-dir src\bert_gp\pretrained_config `
   --final --output-dir D:\offline\bert
 ```
 
-checkpoint 模式不会再请求基座权重；离线目录只需要约 1 MB 的 config/tokenizer 文件。
+checkpoint 模式不会再请求基座权重；本地目录只包含约 0.4 MB 的 config/tokenizer 文件。
 从零训练时不传 `--model-dir`，仍从预训练模型正常加载全部权重。
 
 ## 基础对比与最新主方法
@@ -70,9 +71,9 @@ checkpoint 模式不会再请求基座权重；离线目录只需要约 1 MB 的
 
 课程提交包不包含权重，最新 `best.pt` 约 414 MB，通过 Release 提供。复现分两条路：
 
-**A. 默认复现成绩**：在仓库根目录运行 `python src/reproduce.py`。脚本会重新训练
-冻结的字符级 LinearSVC，并下载或复用最新 BERT checkpoint，真实执行
-`eval_test` 推理；BERT 失败时整体不会返回 PASS。
+**A. 默认复现成绩**：在仓库根目录运行 `python src/reproduce.py`。脚本会执行纯人工规则、
+最长匹配词典，重新训练字符级 LinearSVC，并下载或复用最新 BERT checkpoint，真实执行
+`eval_test` 推理；任一冻结结果检查失败时整体不会返回 PASS。
 
 **B. 复现训练**：从开源预训练编码器重新微调，不是随机初始化预训练 BERT。脚本从 Hugging Face 下载预训练编码器，在共享训练集 `src/data/data_cleaned/CMeEE_train_cleaned_final.json` 上用 seed 42 训练，重新生成 best.pt。五条命令（`full_v1`/`macbert_base_v1` 的 manifest 里 schedule 记录为 null，是当时代码尚无 `--schedule` 参数；当前默认 `--schedule constant` 即等价的无预热行为）：
 
