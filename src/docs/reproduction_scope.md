@@ -131,4 +131,5 @@ checkpoint 推理不需要预训练基座权重。若 Hugging Face 无法访问�
 4. 用 `--model-dir` 指向本地 config/tokenizer 目录。
 
 数据包默认先尝试 GitHub Release 下载地址；若失败，脚本会自动切换到
-`api.github.com` 的 Release Asset，再执行同一个 SHA-256 校验。
+`api.github.com` 的 Release Asset，再执行同一个 SHA-256 校验。损坏缓存会被丢弃并
+重新下载；每次下载使用唯一临时文件，失败后自动清理。

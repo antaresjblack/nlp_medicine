@@ -22,6 +22,7 @@ import shutil
 import subprocess
 import sys
 import time
+import uuid
 import zipfile
 from datetime import datetime
 from pathlib import Path
@@ -220,66 +221,77 @@ def resolve_data_package(value: str) -> Path:
         target = cache_dir / DATA_PACKAGE_FILENAME
         if target.is_file():
             digest = sha256_file(target)
+            if digest == DATA_PACKAGE_SHA256:
+                print(f"[INFO] Using cached data package: {display_path(target)}")
+                return target
+            print(
+                "[WARN] Cached data package hash mismatch: "
+                f"expected {DATA_PACKAGE_SHA256}, got {digest}; removing it."
+            )
+            target.unlink()
+
+        partial = target.with_name(
+            f"{target.name}.{os.getpid()}.{uuid.uuid4().hex}.part"
+        )
+        try:
+            print(f"[INFO] Downloading frozen data package: {value}", flush=True)
+            curl = shutil.which("curl")
+            if curl:
+                command = [
+                    curl,
+                    "-L",
+                    "--http1.1",
+                    "--retry",
+                    "5",
+                    "--retry-delay",
+                    "2",
+                    "--retry-all-errors",
+                    "--connect-timeout",
+                    "30",
+                    "--max-time",
+                    "1800",
+                    "--silent",
+                    "--show-error",
+                    "--continue-at",
+                    "-",
+                    "--output",
+                    str(partial),
+                    "--header",
+                    "Accept: application/octet-stream",
+                    "--header",
+                    "User-Agent: Codex-CMeEE-Reproduction",
+                    value,
+                ]
+                completed = subprocess.run(command)
+                require(
+                    completed.returncode == 0,
+                    f"Failed to download data package (curl exit {completed.returncode})",
+                )
+            else:
+                request = Request(
+                    value,
+                    headers={
+                        "User-Agent": "Codex-CMeEE-Reproduction",
+                        "Accept": "application/octet-stream",
+                    },
+                )
+                with urlopen(request, timeout=120) as response, partial.open("wb") as output:
+                    while True:
+                        chunk = response.read(1024 * 1024)
+                        if not chunk:
+                            break
+                        output.write(chunk)
+            digest = sha256_file(partial)
             require(
                 digest == DATA_PACKAGE_SHA256,
-                f"Cached data package hash mismatch: expected {DATA_PACKAGE_SHA256}, got {digest}",
+                f"Downloaded data package hash mismatch: expected {DATA_PACKAGE_SHA256}, got {digest}",
             )
-            print(f"[INFO] Using cached data package: {display_path(target)}")
+            os.replace(partial, target)
+            print(f"[PASS] Downloaded and verified data package: {display_path(target)}")
             return target
-
-        partial = target.with_name(target.name + ".part")
-        print(f"[INFO] Downloading frozen data package: {value}", flush=True)
-        curl = shutil.which("curl")
-        if curl:
-            command = [
-                curl,
-                "-L",
-                "--http1.1",
-                "--retry",
-                "5",
-                "--retry-delay",
-                "2",
-                "--retry-all-errors",
-                "--connect-timeout",
-                "30",
-                "--max-time",
-                "1800",
-                "--silent",
-                "--show-error",
-                "--continue-at",
-                "-",
-                "--output",
-                str(partial),
-                "--header",
-                "Accept: application/octet-stream",
-                "--header",
-                "User-Agent: Codex-CMeEE-Reproduction",
-                value,
-            ]
-            completed = subprocess.run(command)
-            require(completed.returncode == 0, f"Failed to download data package (curl exit {completed.returncode})")
-        else:
-            request = Request(
-                value,
-                headers={
-                    "User-Agent": "Codex-CMeEE-Reproduction",
-                    "Accept": "application/octet-stream",
-                },
-            )
-            with urlopen(request, timeout=120) as response, partial.open("wb") as output:
-                while True:
-                    chunk = response.read(1024 * 1024)
-                    if not chunk:
-                        break
-                    output.write(chunk)
-        digest = sha256_file(partial)
-        require(
-            digest == DATA_PACKAGE_SHA256,
-            f"Downloaded data package hash mismatch: expected {DATA_PACKAGE_SHA256}, got {digest}",
-        )
-        os.replace(partial, target)
-        print(f"[PASS] Downloaded and verified data package: {display_path(target)}")
-        return target
+        finally:
+            if partial.exists():
+                partial.unlink()
 
     path = Path(value).expanduser().resolve()
     require(path.is_file(), f"Data package not found: {path}")
@@ -348,9 +360,6 @@ def prepare_required_data(explicit_source: str | None) -> dict[str, Any]:
             if index + 1 < len(sources):
                 print(f"[WARN] Data package source failed: {error}")
                 print("[INFO] Retrying with the GitHub Release Asset API.", flush=True)
-                partial = ROOT / ".data_packages" / (DATA_PACKAGE_FILENAME + ".part")
-                if partial.exists():
-                    partial.unlink()
     if last_error is not None:
         raise last_error
     raise RuntimeError("No data package source was available")

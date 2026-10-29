@@ -40,7 +40,8 @@ B9E48B664AB0135892E688DB2FFB25DF6D6A1A726FABDD6B5FD0A1611A41CFEF
 冻结数据包到 `src/.data_packages/`，校验压缩包后解压，并再次校验每个数据文件。
 所需数据已齐全时不会重复下载；存在缺失文件时会解压固定数据包补齐。默认先尝试
 `github.com` Release，失败后自动回退到 `api.github.com` Release Asset，两者必须通过
-同一个 SHA-256。最终所需的目录布局为：
+同一个 SHA-256。损坏缓存会被丢弃并重新下载；下载使用唯一临时文件，失败后自动清理。
+最终所需的目录布局为：
 
 ```text
 src/data/data_raw/CMeEE_dev.json
