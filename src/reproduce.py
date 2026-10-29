@@ -110,6 +110,9 @@ DEFAULT_DATA_PACKAGE = (
     "https://github.com/antaresjblack/nlp_medicine/releases/download/"
     "cmeee-frozen-data-v1/cmeee_frozen_data_v1.zip"
 )
+DEFAULT_DATA_PACKAGE_FALLBACK = (
+    "https://api.github.com/repos/antaresjblack/nlp_medicine/releases/assets/684705120"
+)
 DATA_PACKAGE_FILENAME = "cmeee_frozen_data_v1.zip"
 DATA_PACKAGE_SHA256 = "b9e48b664ab0135892e688db2ffb25df6d6a1a726fabdd6b5fd0a1611a41cfef"
 
@@ -326,6 +329,31 @@ def ensure_required_data(package_source: str, root: Path = ROOT) -> dict[str, An
         "package": str(package),
         "sha256": DATA_PACKAGE_SHA256,
     }
+
+
+def data_package_sources(explicit_source: str | None) -> list[str]:
+    if explicit_source is not None:
+        return [explicit_source]
+    return [DEFAULT_DATA_PACKAGE, DEFAULT_DATA_PACKAGE_FALLBACK]
+
+
+def prepare_required_data(explicit_source: str | None) -> dict[str, Any]:
+    sources = data_package_sources(explicit_source)
+    last_error: Exception | None = None
+    for index, source in enumerate(sources):
+        try:
+            return ensure_required_data(source)
+        except (RuntimeError, zipfile.BadZipFile) as error:
+            last_error = error
+            if index + 1 < len(sources):
+                print(f"[WARN] Data package source failed: {error}")
+                print("[INFO] Retrying with the GitHub Release Asset API.", flush=True)
+                partial = ROOT / ".data_packages" / (DATA_PACKAGE_FILENAME + ".part")
+                if partial.exists():
+                    partial.unlink()
+    if last_error is not None:
+        raise last_error
+    raise RuntimeError("No data package source was available")
 
 
 def load_json(path: Path) -> Any:
@@ -604,9 +632,7 @@ def main() -> int:
 
     try:
         summary["environment"] = verify_environment()
-        summary["data_preparation"] = ensure_required_data(
-            args.data_package or DEFAULT_DATA_PACKAGE
-        )
+        summary["data_preparation"] = prepare_required_data(args.data_package)
         summary["data_hashes"] = verify_data_hashes()
         data_scope = collect_data_scope()
         summary["data_scope"] = data_scope

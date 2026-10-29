@@ -129,3 +129,6 @@ checkpoint 推理不需要预训练基座权重。若 Hugging Face 无法访问�
 2. 设置 `HF_HUB_OFFLINE=1`、`TRANSFORMERS_OFFLINE=1`；
 3. 将数据和 checkpoint 通过 `--data-package`、`--bert-checkpoint` 传入；
 4. 用 `--model-dir` 指向本地 config/tokenizer 目录。
+
+数据包默认先尝试 GitHub Release 下载地址；若失败，脚本会自动切换到
+`api.github.com` 的 Release Asset，再执行同一个 SHA-256 校验。

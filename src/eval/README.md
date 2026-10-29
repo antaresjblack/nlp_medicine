@@ -263,6 +263,9 @@ p             = 0.1122
 
 区间包含 0，因此不宣称显著提升。
 
+数据包获取默认支持两级来源：先尝试 `github.com` Release，失败后自动回退到
+`api.github.com` Release Asset。
+
 ## 口径说明
 
 - 成员2的完整 dev 表继续作为基线主表。
