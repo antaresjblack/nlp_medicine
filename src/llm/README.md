@@ -18,9 +18,12 @@ python src/llm/run.py --run-name smoke10 --limit 10
 不调用 API 的检查：
 
 ```powershell
-python src/llm/test_run.py
+python -m src.llm.test_run
 python src/llm/run.py --dry-run --run-name input_check --limit 3
 ```
+
+测试脚本必须使用模块方式从仓库根目录运行；直接执行 `python src/llm/test_run.py`
+会因为仓库根目录不在 Python 导入路径而报 `ModuleNotFoundError`。
 
 ## 输出与恢复
 
