@@ -68,8 +68,10 @@ class DataPackageFallbackTests(unittest.TestCase):
 
             def fake_run(command):
                 output = Path(command[command.index("--output") + 1])
-                self.assertEqual(command[command.index("--max-time") + 1], "600")
+                self.assertEqual(command[command.index("--max-time") + 1], "300")
                 self.assertIn("--continue-at", command)
+                self.assertEqual(command[command.index("--speed-limit") + 1], "1024")
+                self.assertEqual(command[command.index("--speed-time") + 1], "60")
                 self.assertNotIn(str(target), command)
                 download_paths.append(output)
                 output.write_bytes(valid_bytes)

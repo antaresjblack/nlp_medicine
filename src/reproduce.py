@@ -210,6 +210,10 @@ def download_https_asset(
                 "30",
                 "--max-time",
                 str(max_time_seconds),
+                "--speed-limit",
+                "1024",
+                "--speed-time",
+                "60",
                 "--silent",
                 "--show-error",
                 "--fail",
@@ -372,7 +376,7 @@ def resolve_data_package(value: str) -> Path:
             target,
             DATA_PACKAGE_SHA256,
             asset_name="frozen data package",
-            max_time_seconds=600,
+            max_time_seconds=300,
         )
 
     path = Path(value).expanduser().resolve()
