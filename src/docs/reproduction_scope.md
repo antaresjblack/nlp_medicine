@@ -95,14 +95,3 @@ checkpoint 推理不需要预训练基座权重。若 Hugging Face 无法访问�
 3. 将数据和 checkpoint 通过 `--data-package`、`--bert-checkpoint` 传入；
 4. 用 `--model-dir` 指向本地 config/tokenizer 目录。
 
-## 报告建议措辞
-
-> 本次复现重新训练了字符级 LinearSVC，并加载已发布的 MacBERT 词典融合 checkpoint
-> 在冻结 eval_test 上推理。BERT 的训练过程未在本次复现中重跑；五个历史变体的分数
-> 来自仓库已提交证据，仅用于对照，不作为本次运行结果。
-
-> eval_test 是由 dev 按 seed 42 切分的冻结留出集。由于早期完整 dev 调参已覆盖该子集，
-> 本文不将其称为盲测，只将其用于配置冻结后的补充确认。
-
-> 相对无词典 5 轮模型，词典融合模型 F1 提升 +0.0030。该差异在单 seed 下不足以
-> 单独证明统计显著性，因此本文将其表述为方向一致的小幅增益。
