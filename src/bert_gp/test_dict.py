@@ -39,6 +39,14 @@ class Tests(unittest.TestCase):
         second=lex.dictionary_from_counts(values)
         self.assertEqual(self.matcher.match_all('肺炎'),second.match_all('肺炎'))
 
+    def test_checkpoint_mode_skips_pretrained_weights(self):
+        config=types.SimpleNamespace(hidden_size=16)
+        with patch.object(gp.AutoConfig,'from_pretrained',return_value=config), \
+             patch.object(gp.AutoModel,'from_pretrained',side_effect=AssertionError('base weights requested')), \
+             patch.object(gp.AutoModel,'from_config',return_value=Encoder()):
+            model=lex.DictionaryGlobalPointer('offline',load_pretrained=False)
+        self.assertEqual(model.encoder.config.hidden_size,16)
+
     def test_alignment(self):
         records=[{'text':'肺炎','entities':[]}]
         windows=[dict(record=0,ids=[1,2,3,4],offsets=[(0,0),(0,1),(1,2),(0,0)],spans=[])]

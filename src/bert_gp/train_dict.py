@@ -89,8 +89,8 @@ def lexical_batch(items,device):
 
 
 class DictionaryGlobalPointer(gp.GlobalPointer):
-    def __init__(self,name,feature_dropout=.3):
-        super().__init__(name)
+    def __init__(self,name,feature_dropout=.3,load_pretrained=True):
+        super().__init__(name,load_pretrained=load_pretrained)
         size=self.encoder.config.hidden_size
         self.lex_projection=nn.Linear(DIM,size,bias=False)
         self.lex_gate=nn.Linear(size+DIM,1)
@@ -148,6 +148,7 @@ def main():
     p.add_argument('--tune-limit',type=int,default=0)
     p.add_argument('--check-data',action='store_true')
     p.add_argument('--checkpoint',type=Path)
+    p.add_argument('--model-dir',type=Path,help='Local config/tokenizer directory for checkpoint inference')
     p.add_argument('--final',action='store_true',help='Frozen checkpoint inference on complete eval_test')
     p.add_argument('--threshold',type=float,default=0)
     p.add_argument('--output-dir',type=Path,default=None,help='Explicit output directory; defaults to outputs/bert_gp/<run-name>')
@@ -168,6 +169,7 @@ def main():
     checkpoint=torch.load(a.checkpoint,map_location='cpu',weights_only=False) if a.checkpoint else None
     if checkpoint:
         for k in ['model','max_length','overlap','feature_dropout']:setattr(a,k,checkpoint['args'][k])
+        if a.model_dir:a.model=str(a.model_dir.resolve())
         if a.final:a.threshold=checkpoint['args']['threshold']
         matcher=dictionary_from_counts(checkpoint['dictionary'])
         train=[];windows=[]
@@ -195,7 +197,7 @@ def main():
     gp.save(out/'manifest.json',metadata)
     if not a.quiet:print(json.dumps(metadata,ensure_ascii=False),flush=True)
     if a.check_data:return
-    model=DictionaryGlobalPointer(a.model,a.feature_dropout).to(device)
+    model=DictionaryGlobalPointer(a.model,a.feature_dropout,load_pretrained=checkpoint is None).to(device)
     if checkpoint:model.load_state_dict(checkpoint['model'])
     else:
         model.encoder.gradient_checkpointing_enable()
