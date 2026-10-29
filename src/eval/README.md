@@ -216,6 +216,33 @@ python src/eval/evaluate_predictions.py `
 最终定稿时才运行 `--split test`，并且只跑一次。预测文件与金标记录顺序一致，
 或两侧都带唯一 `id`；评分沿用 `src/baseline/metrics.py` 的严格实体级 span 匹配。
 
+## 自动错误分析
+
+默认 `python src/reproduce.py` 会在 LinearSVC 和 BERT 的输出目录中分别生成：
+
+```text
+error_analysis.json
+error_analysis.md
+```
+
+错误按互斥类别统计：
+
+- 完全漏检：金标实体没有同标签预测跨度与之重叠；
+- 完全误报：预测实体没有对应金标；
+- 边界错误：类型正确，但起点或终点不同；
+- 类型错误：起点和终点相同，但实体类型不同。
+
+每类最多保留 3 个真实样例，并记录类型混淆、分类别漏检和误报数量。单独运行：
+
+```powershell
+python src/eval/analyze_errors.py `
+  --errors <errors.json> `
+  --gold src/data/data_eval/eval_test.jsonl `
+  --output-json error_analysis.json `
+  --output-md error_analysis.md `
+  --method "模型名称"
+```
+
 ## 口径说明
 
 - 成员2的完整 dev 表继续作为基线主表。

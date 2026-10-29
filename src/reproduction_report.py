@@ -168,6 +168,8 @@ def build_reproduction_report(
         f"  控制台报告       {_display_path(_summary_path(summary.get('report_file', 'reproduction_report.txt')))}",
         f"  LinearSVC        {_display_path(small_path)}",
         f"  BERT             {_display_path(bert_path)}",
+        f"  LinearSVC 错误分析 {summary.get('small_model', {}).get('error_analysis_md', '未生成')}",
+        f"  BERT 错误分析    {summary.get('bert_execution', {}).get('error_analysis_md', '未生成')}",
         f"  总摘要           {_display_path(Path(summary['output_dir']) / 'reproduction_summary.json')}",
         separator,
     ]

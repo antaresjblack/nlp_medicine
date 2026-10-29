@@ -476,6 +476,31 @@ def compare_f1(name: str, actual: float, expected: float, tolerance: float) -> b
     return passed
 
 
+def generate_error_analysis(
+    errors_path: Path, output_dir: Path, method: str
+) -> tuple[Path, Path]:
+    require(errors_path.exists(), f"Error records are missing: {errors_path}")
+    output_json = output_dir / "error_analysis.json"
+    output_md = output_dir / "error_analysis.md"
+    run_command(
+        [
+            sys.executable,
+            "eval/analyze_errors.py",
+            "--errors",
+            str(errors_path),
+            "--gold",
+            str(ROOT / "data" / "data_eval" / "eval_test.jsonl"),
+            "--output-json",
+            str(output_json),
+            "--output-md",
+            str(output_md),
+            "--method",
+            method,
+        ]
+    )
+    return output_json, output_md
+
+
 def verify_bert_evidence(variant: dict[str, Any]) -> dict[str, Any]:
     evidence_name = str(variant["evidence"])
     evidence_dir = ROOT / "outputs" / "bert_gp" / evidence_name
@@ -534,6 +559,12 @@ def main() -> int:
             "Checkpoint path or HTTPS URL for the selected BERT variant. "
             "Defaults to the local pinned checkpoint, then its GitHub Release asset."
         ),
+    )
+    parser.add_argument(
+        "--model-dir",
+        type=Path,
+        default=None,
+        help="Local directory containing config.json and tokenizer files for offline BERT inference.",
     )
     parser.add_argument(
         "--data-package",
@@ -623,11 +654,18 @@ def main() -> int:
                 SMALL_MODEL_EXPECTED_F1,
                 args.tolerance,
             )
+            small_analysis_json, small_analysis_md = generate_error_analysis(
+                small_output / "test" / "test_errors.json",
+                small_output / "test",
+                "Character LinearSVC + dictionary features",
+            )
             summary["small_model"] = {
                 "metrics_file": display_path(small_metrics_path),
                 "predictions_file": display_path(small_output / "test" / "test_predictions.jsonl"),
                 "errors_file": display_path(small_output / "test" / "test_errors.json"),
                 "manifest": display_path(small_output / "test" / "test_manifest.json"),
+                "error_analysis_json": display_path(small_analysis_json),
+                "error_analysis_md": display_path(small_analysis_md),
                 "f1": float(small_metrics["f1"]),
                 "expected_f1": SMALL_MODEL_EXPECTED_F1,
                 "verified": small_f1_pass,
@@ -649,20 +687,21 @@ def main() -> int:
             )
             bert_output = output_dir / "bert_gp"
             bert_run_name = "reproduction_" + stamp
-            run_command(
-                [
-                    sys.executable,
-                    str(variant["trainer"]),
-                    "--run-name",
-                    bert_run_name,
-                    "--checkpoint",
-                    str(checkpoint),
-                    "--final",
-                    "--output-dir",
-                    str(bert_output),
-                    "--quiet",
-                ]
-            )
+            bert_command = [
+                sys.executable,
+                str(variant["trainer"]),
+                "--run-name",
+                bert_run_name,
+                "--checkpoint",
+                str(checkpoint),
+                "--final",
+                "--output-dir",
+                str(bert_output),
+                "--quiet",
+            ]
+            if args.model_dir is not None:
+                bert_command.extend(["--model-dir", str(args.model_dir)])
+            run_command(bert_command)
             bert_metrics_path = bert_output / "metrics.json"
             bert_manifest_path = bert_output / "manifest.json"
             require(bert_metrics_path.exists(), f"BERT run did not create {bert_metrics_path}")
@@ -679,6 +718,11 @@ def main() -> int:
                 float(variant["expected_f1"]),
                 args.tolerance,
             )
+            bert_analysis_json, bert_analysis_md = generate_error_analysis(
+                bert_output / "errors.json",
+                bert_output,
+                str(variant["label"]),
+            )
             summary["bert_execution"] = {
                 "checkpoint": display_path(checkpoint),
                 "checkpoint_source": checkpoint_source,
@@ -687,6 +731,8 @@ def main() -> int:
                 "predictions_file": display_path(bert_output / "predictions.jsonl"),
                 "errors_file": display_path(bert_output / "errors.json"),
                 "manifest": display_path(bert_manifest_path),
+                "error_analysis_json": display_path(bert_analysis_json),
+                "error_analysis_md": display_path(bert_analysis_md),
                 "f1": float(bert_metrics["f1"]),
                 "expected_f1": float(variant["expected_f1"]),
                 "verified": bert_run_pass,

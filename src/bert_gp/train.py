@@ -158,6 +158,7 @@ def main():
     p.add_argument('--final',action='store_true')
     p.add_argument('--check-data',action='store_true')
     p.add_argument('--overfit-check',action='store_true',help='Evaluate training records each epoch; select checkpoint by train F1')
+    p.add_argument('--model-dir',type=Path,help='Local config/tokenizer directory for checkpoint inference')
     p.add_argument('--output-dir',type=Path,default=None,help='Explicit output directory; defaults to outputs/bert_gp/<run-name>')
     p.add_argument('--quiet',action='store_true',help='Suppress the full manifest JSON on stdout')
     a=p.parse_args()
@@ -183,6 +184,7 @@ def main():
     if checkpoint:
         for key in ['model','max_length','overlap','threshold']:
             setattr(a,key,checkpoint['args'][key])
+        if a.model_dir:a.model=str(a.model_dir.resolve())
     tokenizer=AutoTokenizer.from_pretrained(a.model,use_fast=True)
     source=ROOT/'data'/'data_eval'/('eval_test.jsonl' if a.final else 'eval_tune.jsonl')
     tune=read(source)
