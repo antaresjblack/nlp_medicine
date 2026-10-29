@@ -61,10 +61,19 @@ p      = 0.1122
 复现命令：
 
 ```powershell
+# 1) 先用无词典 5 轮 checkpoint 生成 warmup 预测
+python src/bert_gp/train.py `
+  --run-name warmup_for_bootstrap `
+  --checkpoint <macbert_warmup_5ep_v1.pt> `
+  --model-dir <config和tokenizer目录> `
+  --final --output-dir <warmup输出目录>
+
+# 2) <warmup输出目录>/predictions.jsonl 是 bootstrap 所需 warmup 预测。
+#    dict 预测来自默认复现输出：<复现输出目录>/bert_gp/predictions.jsonl。
 python src/eval/bootstrap_dict_gain.py `
   --gold src/data/data_eval/eval_test.jsonl `
-  --dict-predictions <dict_predictions.jsonl> `
-  --warmup-predictions <warmup_predictions.jsonl> `
+  --dict-predictions <复现输出目录>/bert_gp/predictions.jsonl `
+  --warmup-predictions <warmup输出目录>/predictions.jsonl `
   --output src/outputs/bert_gp/dict_gain_bootstrap.json `
   --bootstrap-samples 10000 --seed 42
 ```
@@ -109,7 +118,7 @@ LinearSVC 的错误计数是参考机器结果；BLAS、sklearn 或浮点实现�
 
 - eval_test 有 `8 / 10,460` 个金标实体无法精确映射到 tokenizer token，占 0.076%；
 - 本机 GPU 完整流程约 82—165 秒；
-- 评审 CPU 环境完整流程约 274.6 秒；
+- 评审 CPU 环境不同运行完整流程约 259—275 秒；
 - BERT 在 CPU 上较慢，但固定 checkpoint 推理结果可逐位一致。
 
 ## 离线执行
