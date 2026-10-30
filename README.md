@@ -2,16 +2,16 @@
 
 ## 环境要求
 
-| 组件         | 版本        |
-| ------------ | ----------- |
-| Python       | 3.10.20     |
-| PyTorch      | 2.9.0+cu128 |
-| Transformers | 4.57.6      |
-| NumPy        | 1.26.4      |
-| SciPy        | 1.13.1      |
-| scikit-learn | 1.7.2       |
-| CPU          | 必需；支持纯 CPU 运行 |
-| NVIDIA GPU   | 可选        |
+| 组件         | 版本                                  |
+| ------------ | ------------------------------------- |
+| Python       | 3.10.20                               |
+| PyTorch      | 2.9.0+cu128                           |
+| Transformers | 4.57.6                                |
+| NumPy        | 1.26.4                                |
+| SciPy        | 1.13.1                                |
+| scikit-learn | 1.7.2                                 |
+| CPU          | 必需；支持纯 CPU 运行                 |
+| NVIDIA GPU   | 可选                                  |
 | CUDA         | 可选；GPU 加速时使用，验证版本为 12.8 |
 
 ## 依赖
@@ -58,6 +58,8 @@ src/data/data_eval/eval_test.jsonl
 ```
 
 ## 复现命令
+
+### 执行复现命令前，请确保已安装所有依赖！！！
 
 ### 校验复现
 
